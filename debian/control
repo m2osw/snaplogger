@@ -1,0 +1,41 @@
+Source: snaplogger
+Priority: extra
+Maintainer: R. Douglas Barbieri <doug@dooglio.net>
+Build-Depends: cmake,
+    debhelper,
+    doxygen,
+    graphviz,
+    libadvgetopt-dev (>= 2.0.1.0~xenial),
+    libboost-dev,
+    libexcept-dev (>= 1.1.4.0~xenial),
+    libutf8-dev (>= 1.0.6.0~xenial),
+    snapcatch2 (>= 2.9.1.0~xenial),
+    snapcmakemodules (>= 1.0.49.0~xenial)
+Standards-Version: 3.9.4
+Section: libs
+Homepage: https://snapwebsites.org/
+Vcs-Git: https://github.com/m2osw/snapcpp.git
+Vcs-Browser: https://github.com/m2osw/snaplogger
+
+Package: snaplogger-dev
+Section: libdevel
+Architecture: any
+Depends: snaplogger (= ${binary:Version}), ${misc:Depends}
+Description: Development package for the C++ snaplogger library.
+ This library provides functions to log messages to file, syslog, console, etc.
+
+Package: snaplogger-doc
+Section: doc
+Architecture: all
+Depends: ${misc:Depends}
+Description: Documentation for the C++ snaplogger library.
+ This library provides functions to log messages to file, syslog, console, etc.
+
+Package: snaplogger
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: C++ library for easy logging.
+ This library provides functions to log messages to file, syslog, console, etc.
+
+# vim: ts=4 sw=4 et

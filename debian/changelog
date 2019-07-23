@@ -1,0 +1,5 @@
+snaplogger (1.0.0.0~xenial) xenial; urgency=high
+
+  * Moving the log.cpp/.h to its own project so we can use it everywhere.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Mon, 22 Jul 2019 04:37:57 -0800
