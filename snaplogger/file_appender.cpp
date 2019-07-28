@@ -195,7 +195,7 @@ void file_appender::process_message(message const & msg, std::string const & for
         f_fd.reset(open(f_filename.c_str(), flags, mode));
     }
 
-    if(f_fd.get() == -1)
+    if(!f_fd)
     {
         return;
     }
