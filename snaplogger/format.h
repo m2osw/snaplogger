@@ -1,6 +1,6 @@
 /*
  * License:
- *    Copyright (c) 2006-2019  Made to Order Software Corp.  All Rights Reserved
+ *    Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
  *
  *    https://snapwebsites.org/
  *    contact@m2osw.com
@@ -22,29 +22,44 @@
  * Authors:
  *    Alexis Wilke   alexis@m2osw.com
  */
+#pragma once
+
+/** \file
+ * \brief Format a message.
+ *
+ * This file declares the format class used to transform a message with
+ * the administrator defined format.
+ */
+
 
 // self
 //
-#include    "main.h"
-
-// snaplogger lib
-//
-#include    <snaplogger/version.h>
+#include    "snaplogger/variable.h"
 
 
 
-
-CATCH_TEST_CASE("Version", "[version]")
+namespace snaplogger
 {
-    CATCH_START_SECTION("verify runtime vs compile time version numbers")
-    {
-        CATCH_REQUIRE(snaplogger::get_major_version()   == SNAPLOGGER_VERSION_MAJOR);
-        CATCH_REQUIRE(snaplogger::get_release_version() == SNAPLOGGER_VERSION_MINOR);
-        CATCH_REQUIRE(snaplogger::get_patch_version()   == SNAPLOGGER_VERSION_PATCH);
-        CATCH_REQUIRE(strcmp(snaplogger::get_version_string(), SNAPLOGGER_VERSION_STRING) == 0);
-    }
-    CATCH_END_SECTION()
-}
 
 
+
+
+class format
+{
+public:
+    typedef std::shared_ptr<format>     pointer_t;
+
+                        format(std::string const & f);
+
+    std::string         process_message(message const & msg);
+
+private:
+    variable::vector_t  f_variables = variable::vector_t();
+};
+
+
+
+
+
+} // snaplogger namespace
 // vim: ts=4 sw=4 et

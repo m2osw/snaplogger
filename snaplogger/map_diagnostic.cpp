@@ -1,6 +1,6 @@
 /*
  * License:
- *    Copyright (c) 2006-2019  Made to Order Software Corp.  All Rights Reserved
+ *    Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
  *
  *    https://snapwebsites.org/
  *    contact@m2osw.com
@@ -23,28 +23,60 @@
  *    Alexis Wilke   alexis@m2osw.com
  */
 
+/** \file
+ * \brief Appenders are used to append data to somewhere.
+ *
+ * This file declares the base appender class.
+ */
+
+
 // self
 //
-#include    "main.h"
+#include    "map_diagnostic.h"
 
-// snaplogger lib
+
+// last include
 //
-#include    <snaplogger/version.h>
+#include    <snapdev/poison.h>
 
 
 
-
-CATCH_TEST_CASE("Version", "[version]")
+namespace snaplogger
 {
-    CATCH_START_SECTION("verify runtime vs compile time version numbers")
-    {
-        CATCH_REQUIRE(snaplogger::get_major_version()   == SNAPLOGGER_VERSION_MAJOR);
-        CATCH_REQUIRE(snaplogger::get_release_version() == SNAPLOGGER_VERSION_MINOR);
-        CATCH_REQUIRE(snaplogger::get_patch_version()   == SNAPLOGGER_VERSION_PATCH);
-        CATCH_REQUIRE(strcmp(snaplogger::get_version_string(), SNAPLOGGER_VERSION_STRING) == 0);
-    }
-    CATCH_END_SECTION()
+
+
+namespace
+{
+
+
+map_diagnostics_t   g_diagnostics;
+
+
+}
+// no name namespace
+
+
+
+void set_diagnostic(std::string const & key, std::string const & diagnostic)
+{
+    g_diagnostics[key] = diagnostic;
 }
 
 
+void unset_diagnostic(std::string const & key)
+{
+    auto it(g_diagnostics.find(key));
+    g_diagnostics.erase(it);
+}
+
+
+map_diagnostics_t get_map_diagnostics()
+{
+    return g_diagnostics;
+}
+
+
+
+
+} // snaplogger namespace
 // vim: ts=4 sw=4 et

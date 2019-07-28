@@ -1,7 +1,4 @@
 /*
- * File:
- *    snaplogger/version.cpp -- logger for Snap! and others
- *
  * License:
  *    Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
  *
@@ -41,7 +38,13 @@
 #include    "snaplogger/version.h"
 
 
-namespace snap_logger
+// last include
+//
+#include    <snapdev/poison.h>
+
+
+
+namespace snaplogger
 {
 
 
@@ -105,5 +108,5 @@ char const * get_version_string()
 }
 
 
-} // snap_logger namespace
+} // snaplogger namespace
 // vim: ts=4 sw=4 et

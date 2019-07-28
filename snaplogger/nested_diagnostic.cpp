@@ -22,29 +22,78 @@
  * Authors:
  *    Alexis Wilke   alexis@m2osw.com
  */
-#pragma once
 
 /** \file
- * \brief Definitions of the snaplogger version.
+ * \brief Appenders are used to append data to somewhere.
  *
- * This header includes the snaplogger library version and functions you
- * can use to check the current version of the library.
+ * This file declares the base appender class.
  */
 
 
-#define    SNAPLOGGER_VERSION_MAJOR   @SNAPLOGGER_VERSION_MAJOR@
-#define    SNAPLOGGER_VERSION_MINOR   @SNAPLOGGER_VERSION_MINOR@
-#define    SNAPLOGGER_VERSION_PATCH   @SNAPLOGGER_VERSION_PATCH@
-#define    SNAPLOGGER_VERSION_STRING  "@SNAPLOGGER_VERSION_MAJOR@.@SNAPLOGGER_VERSION_MINOR@.@SNAPLOGGER_VERSION_PATCH@"
+// self
+//
+#include    "snaplogger/guard.h"
+#include    "snaplogger/message.h"
+#include    "snaplogger/nested_diagnostic.h"
+
+
+// last include
+//
+#include    <snapdev/poison.h>
+
+
 
 namespace snaplogger
 {
 
 
-int             get_major_version();
-int             get_release_version();
-int             get_patch_version();
-char const *    get_version_string();
+
+namespace
+{
+
+
+string_vector_t       g_diagnostics = string_vector_t();
+
+
+
+}
+// no name namespace
+
+
+
+nested_diagnostic::nested_diagnostic(std::string const & diagnostic, bool emit_enter_exit_event)
+    : f_emit_enter_exit_event(emit_enter_exit_event)
+{
+    {
+        guard g;
+
+        g_diagnostics.push_back(diagnostic);
+    }
+
+    if(f_emit_enter_exit_event)
+    {
+        SNAP_LOG_UNIMPORTANT << "entering nested diagnostic";
+    }
+}
+
+
+nested_diagnostic::~nested_diagnostic()
+{
+    if(f_emit_enter_exit_event)
+    {
+        SNAP_LOG_UNIMPORTANT << "exiting nested diagnostic";
+    }
+
+    guard g;
+
+    g_diagnostics.pop_back();
+}
+
+
+string_vector_t get_nested_diagnostics()
+{
+    return g_diagnostics;
+}
 
 
 

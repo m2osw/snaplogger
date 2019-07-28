@@ -29,19 +29,25 @@
 
 // snaplogger lib
 //
-#include    <snaplogger/version.h>
+#include    <snaplogger/logger.h>
+#include    <snaplogger/map_diagnostic.h>
+#include    <snaplogger/message.h>
+
+#include    <unistd.h>
 
 
-
-
-CATCH_TEST_CASE("Version", "[version]")
+CATCH_TEST_CASE("example", "[example]")
 {
-    CATCH_START_SECTION("verify runtime vs compile time version numbers")
+    CATCH_START_SECTION("Simple logging")
     {
-        CATCH_REQUIRE(snaplogger::get_major_version()   == SNAPLOGGER_VERSION_MAJOR);
-        CATCH_REQUIRE(snaplogger::get_release_version() == SNAPLOGGER_VERSION_MINOR);
-        CATCH_REQUIRE(snaplogger::get_patch_version()   == SNAPLOGGER_VERSION_PATCH);
-        CATCH_REQUIRE(strcmp(snaplogger::get_version_string(), SNAPLOGGER_VERSION_STRING) == 0);
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "unittest");
+        snaplogger::logger::pointer_t ptr(snaplogger::logger::get_instance());
+        ptr->add_console_appender();
+        ptr->add_syslog_appender();
+        ptr->add_file_appender("my-file.log");
+    	SNAP_LOG_ERROR << "Logging this error\n";
+    	SNAP_LOG_WARNING << (isatty(fileno(stdout)) ? "" : "Hello world!");
+    	SNAP_LOG_FATAL << "Saw empty one? " << 123 << std::endl;
     }
     CATCH_END_SECTION()
 }

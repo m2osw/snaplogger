@@ -22,30 +22,42 @@
  * Authors:
  *    Alexis Wilke   alexis@m2osw.com
  */
-#pragma once
 
 /** \file
- * \brief Definitions of the snaplogger version.
+ * \brief Appenders are used to append data to somewhere.
  *
- * This header includes the snaplogger library version and functions you
- * can use to check the current version of the library.
+ * This file declares the base appender class.
  */
 
+// self
+//
+#include    "snaplogger/appender.h"
 
-#define    SNAPLOGGER_VERSION_MAJOR   @SNAPLOGGER_VERSION_MAJOR@
-#define    SNAPLOGGER_VERSION_MINOR   @SNAPLOGGER_VERSION_MINOR@
-#define    SNAPLOGGER_VERSION_PATCH   @SNAPLOGGER_VERSION_PATCH@
-#define    SNAPLOGGER_VERSION_STRING  "@SNAPLOGGER_VERSION_MAJOR@.@SNAPLOGGER_VERSION_MINOR@.@SNAPLOGGER_VERSION_PATCH@"
 
 namespace snaplogger
 {
 
 
-int             get_major_version();
-int             get_release_version();
-int             get_patch_version();
-char const *    get_version_string();
+class syslog_appender
+    : public appender
+{
+public:
+    typedef std::shared_ptr<syslog_appender>      pointer_t;
 
+                        syslog_appender(std::string const name);
+    virtual             ~syslog_appender() override;
+
+    virtual void        set_config(advgetopt::getopt const & params) override;
+
+protected:
+    virtual void        process_message(message const & msg, std::string const & formatted_message) override;
+
+private:
+    std::string         f_identity = std::string("snaplogger");
+    bool                f_lock = true;
+    bool                f_flush = true;
+    bool                f_secure = false;
+};
 
 
 } // snaplogger namespace

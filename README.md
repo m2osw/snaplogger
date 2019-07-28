@@ -64,32 +64,34 @@ An appender is a name and then a set of parameters:
 These are described below.
 
     # Global settings
-    format=${date}: ${level}: ${message}
+    format=${date} ${time}: ${severity}: ${message}
     asynchronous=true
+    severity=WARNING
 
-    [console]
+    [console-output]
     type=console
-    level=DEBUG
+    severity=DEBUG
 
-    [file]
+    [log-to-file]
     type=file
-    level=INFORMATION
-    file.name=firewall
-    file.lock=false
+    severity=INFORMATION
+    filename=firewall
+    lock=false
 
 **Note:** An appender defined in the main logger.conf file can be turned
-off by setting its level to OFF in your other configuration files. For
+off by setting its severity to OFF in your other configuration files. For
 example:
 
-    # In /etc/logger/logger.conf
+    # In /etc/snaplogger/logger.conf
     [console]
     type=console
-    level=TRACE
-    console.color=true
+    severity=TRACE
+    style=orange
+    force_style=true
     
-    # In /etc/logger/my-app.conf
+    # In /etc/snaplogger/my-app.conf
     [console]
-    level=OFF
+    severity=OFF
 
 **Note:** The name in the section (`[console]`) does not need to be the
 name of the appender type. This allows you to have multiple appenders
@@ -97,8 +99,8 @@ of the same type. For example, you may want to write to an `all.log` file:
 
     [all]
     type=file
-    file.name=all
-    file.lock=true
+    filename=all
+    lock=true
 
 ### Type
 
@@ -126,14 +128,14 @@ other parameters define where the files go:
 
     file.path=/var/log/snapwebsites
 
-### Level
+### Severity
 
-By default the level is set to INFORMATION.
+By default the severity is set to INFORMATION.
 
-This means anything below that level gets ignored. Anything equal or above
-that level gets included.
+This means anything below that severity gets ignored. Anything equal or above
+that severity gets included.
 
-The level can be different for each component and each appender.
+The severity can be different for each component and each appender.
 
 We support the following levels:
 
@@ -152,11 +154,11 @@ We support the following levels:
 * FATAL
 * OFF
 
-The level can also be changed dynamically (along the way, from command line
+The severity can also be changed dynamically (along the way, from command line
 arguments, etc.)
 
     [log]
-    level=DEBUG
+    severity=DEBUG
 
 ### Component
 
@@ -185,47 +187,52 @@ This syntax instead of %\<letter> was chosen because it's much more versatile.
 The following are parameters supported internally:
 
     # Functions
-    ${...:prepend='c'}          make exact_width, max_width, min_width prepend
-                                'c' as required
-    ${...:append='c'}           make exact_width, max_width, min_width append
-                                'c' as required
+    ${...:align=left|right}     truncate keeps left or right size, padding
+    ${...:padding=character}    use 'character' for padding
     ${...:exact_width=n}        set width of parameter to 'n', pad/truncate
     ${...:max_width=n}          truncate if width is more than 'n'
-    ${...:min_width=n}          pad if width is more than 'n'
+    ${...:min_width=n}          pad if width is less than 'n'
     ${...:lower}                transform to lowercase
     ${...:upper}                transform to uppercase
     ${...:caps}                 transform to capitalized words
-    ${...:escape[=format]}      escape various characters such as quotes
+    ${...:escape[=characters]}  escape various characters such as quotes
 
     # Logger
-    ${level}                    level description, in color if allowed
+    ${severity[:format=alpha|number]}
+                                severity level description, in color if allowed
     ${message}                  the log message
-    ${diagnostic}               the whole current log diagnostic data
-    ${diagnostic:nested[=level]} the current nested diagnostic data; if level
-                                is specified, show at most that many levels
-    ${diagnostic:map[=key]}     the current map diagnostic data; if key is
-                                given limit the diagnostic to that key
-
-    # System
-    ${hostname}                 name of the computer
-    ${hostbyname}               name of the computer
-    ${domainname}               name of the domain
-    ${pid}                      PID of the running program
-    ${tid}                      identifier of the running thread
-    ${thread_name}              name o the running thread
-    ${uid}                      the UID
-    ${username}                 the name of the user (getuid() to string)
-    ${gid}                      the GID
-    ${groupname}                the name of the group (getgid() to string)
-    ${env:name=n}               insert the environment variable $n
-
-    # User Data (when available)
     ${progname}                 name of the running program
+                                (equivalent to ${diagnostic:map=progname})
+    ${version}                  show version of running program
+                                (equivalent to ${diagnostic:map=version})
     ${filename}                 name of the file where the log occurred
     ${basename}                 only write the basename of the file
     ${path}                     only write the path to the file
     ${function}                 name of function where the log occurred
     ${line}                     line number where the log occurred
+    ${diagnostic}               the whole current log diagnostic data
+    ${diagnostic:nested[=depth]} the current nested diagnostic data; if depth
+                                is specified, show at most that many messages
+    ${diagnostic:map[=key]}     the current map diagnostic data; if key is
+                                given limit the diagnostic to that key
+
+    # System
+    ${hostname}                 name of the computer
+    ${hostbyname:name=hostname} name of a computer referenced by name or IP
+    ${domainname}               name of the domain
+    ${pid}                      PID of the running program
+    ${tid}                      identifier of the running thread
+    ${thread_name}              name of the running thread
+                                (equivalent to ${diagnostic:map=thread_name})
+
+    # User
+    ${uid}                      the UID
+    ${username}                 the name of the user (getuid() to string)
+    ${gid}                      the GID
+    ${groupname}                the name of the group (getgid() to string)
+
+    # Environment
+    ${env:name=n}               insert the environment variable $n
 
     # Date/Time
     ${date}                     year/month/day, year includes century
@@ -240,19 +247,36 @@ The following are parameters supported internally:
     ${time:hour=24|12}          hour number; (0 to 23 or 1 to 12)
     ${time:minute}              minute number (0 to 59)
     ${time:second}              second number (0 to 60)
-    ${time:nanosecond}          microsecond number (0 to 999999999)
+    ${time:nanosecond}          nanosecond number (0 to 999999999)
     ${time:unix}                seconds since Jan 1, 1970 (Unix timestamp)
-    ${time:meridiem}            AM or PM according to locale
+    ${time:meridiem}            AM or PM (right now according to locale...)
     ${time:offset}              amount of nanoseconds since logger started
-    ${locale:day_of_week}       name of day of week (letters), using locale
+    ${time:process}             amount of nanoseconds consumed by process
+    ${time:thread}              amount of nanoseconds consumed by thread
+    ${time:process_ms}          time consumed by process as H:M:S.999
+    ${time:thread_ms}           time consumed by thread as H:M:S.999
+    ${locale}                   date time formatted according to locale
+    ${locale:day_of_week_name}  name of day of week (letters), using locale
     ${locale:month_name}        name of month, using locale
     ${locale:date}              date formatted according to locale
     ${locale:time}              time formatted according to locale
-    ${locale:date_and_time}     date time formatted according to locale
+    ${locale:meridiem}          AM or PM according to locale
     ${locale:timezone}          timezone name
     ${locale:timezone_offset}   timezone as +hhmm or -hhmm
 
 See [log4cplus supported formats](http://log4cplus.sourceforge.net/docs/html/classlog4cplus_1_1PatternLayout.html).
+
+#### Default Format
+
+The default format:
+
+    ${date} ${time} ${hostname} ${progname}[${pid}]: ${severity}: ...
+          ... ${message:escape} (in function \"${function}()\") ...
+          ... (${basename}:${line})
+
+If no format is defined for an appender then this format is used. The "..."
+is just to show the continues on the next line.
+
 
 ## Diagnostic Features
 

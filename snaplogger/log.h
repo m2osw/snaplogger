@@ -29,7 +29,7 @@
 
 
 
-namespace snap_logger
+namespace snaplogger
 {
 
 
@@ -110,7 +110,6 @@ void                add_logger_command_line_options(advgetopt::getopt & opt);
 void                set_progname(std::string const & progname);
 std::string         get_progname();
 
-void                configure_null();
 void                configure_console();
 void                configure_logfile(std::string const & logfile);
 void                configure_syslog();
@@ -162,12 +161,12 @@ logger info   (char const * file = nullptr, char const * func = nullptr, int lin
 logger debug  (char const * file = nullptr, char const * func = nullptr, int line = -1);
 logger trace  (char const * file = nullptr, char const * func = nullptr, int line = -1);
 
-#define    SNAP_LOG_FATAL       snap_logger::fatal  (__FILE__, __func__, __LINE__)
-#define    SNAP_LOG_ERROR       snap_logger::error  (__FILE__, __func__, __LINE__)
-#define    SNAP_LOG_WARNING     snap_logger::warning(__FILE__, __func__, __LINE__)
-#define    SNAP_LOG_INFO        snap_logger::info   (__FILE__, __func__, __LINE__)
-#define    SNAP_LOG_DEBUG       snap_logger::debug  (__FILE__, __func__, __LINE__)
-#define    SNAP_LOG_TRACE       snap_logger::trace  (__FILE__, __func__, __LINE__)
+#define    SNAP_LOG_FATAL       snaplogger::fatal  (__FILE__, __func__, __LINE__)
+#define    SNAP_LOG_ERROR       snaplogger::error  (__FILE__, __func__, __LINE__)
+#define    SNAP_LOG_WARNING     snaplogger::warning(__FILE__, __func__, __LINE__)
+#define    SNAP_LOG_INFO        snaplogger::info   (__FILE__, __func__, __LINE__)
+#define    SNAP_LOG_DEBUG       snaplogger::debug  (__FILE__, __func__, __LINE__)
+#define    SNAP_LOG_TRACE       snaplogger::trace  (__FILE__, __func__, __LINE__)
 
-} // namespace snap_logger
+} // snaplogger namespace
 // vim: ts=4 sw=4 et

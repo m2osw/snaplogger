@@ -1,6 +1,6 @@
 /*
  * License:
- *    Copyright (c) 2006-2019  Made to Order Software Corp.  All Rights Reserved
+ *    Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
  *
  *    https://snapwebsites.org/
  *    contact@m2osw.com
@@ -22,29 +22,29 @@
  * Authors:
  *    Alexis Wilke   alexis@m2osw.com
  */
+#pragma once
 
-// self
-//
-#include    "main.h"
-
-// snaplogger lib
-//
-#include    <snaplogger/version.h>
-
-
+/** \file
+ * \brief Multi-thread compatibility.
+ *
+ * The library is multi-thread safe. It uses safe guards in functions that
+ * handle common data (i.e. globals).
+ */
 
 
-CATCH_TEST_CASE("Version", "[version]")
+namespace snaplogger
 {
-    CATCH_START_SECTION("verify runtime vs compile time version numbers")
-    {
-        CATCH_REQUIRE(snaplogger::get_major_version()   == SNAPLOGGER_VERSION_MAJOR);
-        CATCH_REQUIRE(snaplogger::get_release_version() == SNAPLOGGER_VERSION_MINOR);
-        CATCH_REQUIRE(snaplogger::get_patch_version()   == SNAPLOGGER_VERSION_PATCH);
-        CATCH_REQUIRE(strcmp(snaplogger::get_version_string(), SNAPLOGGER_VERSION_STRING) == 0);
-    }
-    CATCH_END_SECTION()
-}
 
 
+
+class guard
+{
+public:
+                guard();
+                ~guard();
+};
+
+
+
+} // snaplogger namespace
 // vim: ts=4 sw=4 et

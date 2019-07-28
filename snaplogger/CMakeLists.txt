@@ -1,7 +1,4 @@
 #
-# File:
-#       snaplogger/CMakeLists.txt
-#
 # Description:
 #       A simple to use C++ library to log messages.
 #
@@ -46,7 +43,28 @@ configure_file(
 )
 
 add_library( ${PROJECT_NAME} SHARED
-    log.cpp
+    #log.cpp -- original
+
+    appender.cpp
+    buffer_appender.cpp
+    component.cpp
+    console_appender.cpp
+    date_variable.cpp
+    environment_variable.cpp
+    file_appender.cpp
+    format.cpp
+    guard.cpp
+    logger.cpp
+    logger_variable.cpp
+    map_diagnostic.cpp
+    message.cpp
+    nested_diagnostic.cpp
+    severity.cpp
+    syslog_appender.cpp
+    system_functions.cpp
+    system_variable.cpp
+    user_variable.cpp
+    variable.cpp
     version.cpp
 )
 

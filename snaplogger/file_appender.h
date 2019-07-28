@@ -22,30 +22,52 @@
  * Authors:
  *    Alexis Wilke   alexis@m2osw.com
  */
-#pragma once
 
 /** \file
- * \brief Definitions of the snaplogger version.
+ * \brief Appenders are used to append data to somewhere.
  *
- * This header includes the snaplogger library version and functions you
- * can use to check the current version of the library.
+ * This file declares the base appender class.
  */
 
+// self
+//
+#include    "snaplogger/appender.h"
 
-#define    SNAPLOGGER_VERSION_MAJOR   @SNAPLOGGER_VERSION_MAJOR@
-#define    SNAPLOGGER_VERSION_MINOR   @SNAPLOGGER_VERSION_MINOR@
-#define    SNAPLOGGER_VERSION_PATCH   @SNAPLOGGER_VERSION_PATCH@
-#define    SNAPLOGGER_VERSION_STRING  "@SNAPLOGGER_VERSION_MAJOR@.@SNAPLOGGER_VERSION_MINOR@.@SNAPLOGGER_VERSION_PATCH@"
+
+// snapdev lib
+//
+#include    <snapdev/raii_generic_deleter.h>
+
 
 namespace snaplogger
 {
 
 
-int             get_major_version();
-int             get_release_version();
-int             get_patch_version();
-char const *    get_version_string();
+class file_appender
+    : public appender
+{
+public:
+    typedef std::shared_ptr<file_appender>      pointer_t;
 
+                        file_appender(std::string const name);
+    virtual             ~file_appender() override;
+
+    virtual void        set_config(advgetopt::getopt const & params) override;
+
+    void                set_filename(std::string const & filename);
+
+protected:
+    virtual void        process_message(message const & msg, std::string const & formatted_message) override;
+
+private:
+    std::string         f_filename = std::string();
+    snap::raii_fd_t     f_fd = snap::raii_fd_t();
+    bool                f_initialized = false;
+    bool                f_lock = true;
+    bool                f_flush = true;
+    bool                f_secure = false;
+    bool                f_fallback_to_console = false;
+};
 
 
 } // snaplogger namespace

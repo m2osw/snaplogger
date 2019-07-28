@@ -25,26 +25,67 @@
 #pragma once
 
 /** \file
- * \brief Definitions of the snaplogger version.
+ * \brief Define the component class used as a way to group messages.
  *
- * This header includes the snaplogger library version and functions you
- * can use to check the current version of the library.
+ * Whenever you send a log, you can assign a component to it.
+ *
+ * By default, when a log component's list is empty, it is view as if
+ * the list was only composed of the NORMAL component.
  */
 
 
-#define    SNAPLOGGER_VERSION_MAJOR   @SNAPLOGGER_VERSION_MAJOR@
-#define    SNAPLOGGER_VERSION_MINOR   @SNAPLOGGER_VERSION_MINOR@
-#define    SNAPLOGGER_VERSION_PATCH   @SNAPLOGGER_VERSION_PATCH@
-#define    SNAPLOGGER_VERSION_STRING  "@SNAPLOGGER_VERSION_MAJOR@.@SNAPLOGGER_VERSION_MINOR@.@SNAPLOGGER_VERSION_PATCH@"
+// self
+//
+#include    "snaplogger/message.h"
+
 
 namespace snaplogger
 {
 
 
-int             get_major_version();
-int             get_release_version();
-int             get_patch_version();
-char const *    get_version_string();
+class component
+{
+public:
+    typedef component *                 pointer_t;
+    typedef std::vector<pointer_t>      vector_t;
+
+    static pointer_t            get_component(std::string const & name);
+
+    std::string const &         get_name() const;
+
+private:
+                                component(std::string const & name);
+
+    std::string const           f_name;
+};
+
+
+extern component::pointer_t     debug_component;
+extern component::pointer_t     normal_component;
+extern component::pointer_t     secure_component;
+
+
+inline void add_component(message & msg, component & c)
+{
+    return msg.add_component(c);
+}
+
+
+
+
+//class normal
+//    : public component
+//{
+//public:
+//};
+//
+//
+//class secure
+//    : public component
+//{
+//public:
+//};
+
 
 
 

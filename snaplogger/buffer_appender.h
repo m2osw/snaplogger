@@ -1,6 +1,6 @@
 /*
  * License:
- *    Copyright (c) 2006-2019  Made to Order Software Corp.  All Rights Reserved
+ *    Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
  *
  *    https://snapwebsites.org/
  *    contact@m2osw.com
@@ -23,28 +23,40 @@
  *    Alexis Wilke   alexis@m2osw.com
  */
 
+/** \file
+ * \brief The buffer appender sends its output to a memory buffer.
+ *
+ * This file declares the buffer appender class.
+ */
+
 // self
 //
-#include    "main.h"
+#include    "snaplogger/appender.h"
 
-// snaplogger lib
+
+// C++ lib
 //
-#include    <snaplogger/version.h>
+#include    <sstream>
 
 
 
-
-CATCH_TEST_CASE("Version", "[version]")
+namespace snaplogger
 {
-    CATCH_START_SECTION("verify runtime vs compile time version numbers")
-    {
-        CATCH_REQUIRE(snaplogger::get_major_version()   == SNAPLOGGER_VERSION_MAJOR);
-        CATCH_REQUIRE(snaplogger::get_release_version() == SNAPLOGGER_VERSION_MINOR);
-        CATCH_REQUIRE(snaplogger::get_patch_version()   == SNAPLOGGER_VERSION_PATCH);
-        CATCH_REQUIRE(strcmp(snaplogger::get_version_string(), SNAPLOGGER_VERSION_STRING) == 0);
-    }
-    CATCH_END_SECTION()
-}
 
 
+class buffer_appender
+    : public appender
+    , std::stringstream
+{
+public:
+    typedef std::shared_ptr<buffer_appender>      pointer_t;
+
+                            buffer_appender(std::string const name);
+
+protected:
+    virtual void            process_message(message const & msg, std::string const & formatted_message) override;
+};
+
+
+} // snaplogger namespace
 // vim: ts=4 sw=4 et

@@ -137,7 +137,7 @@
  * \sa log4cplus/include/log4cplus/loggingmacros.h
  */
 
-namespace snap_logger
+namespace snaplogger
 {
 
 
@@ -1366,5 +1366,5 @@ logger trace(char const * file, char const * func, int line)
 }
 
 
-} // namespace snap_logger
+} // snaplogger namespace
 // vim: ts=4 sw=4 et
