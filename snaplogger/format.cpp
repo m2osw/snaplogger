@@ -39,6 +39,7 @@
 
 // C++ lib
 //
+#include    <algorithm>
 #include    <iostream>
 
 
