@@ -63,7 +63,16 @@ DEFINE_LOGGER_VARIABLE(uid)
 
 void uid_variable::process_value(message const & msg, std::string & value) const
 {
-    value += std::to_string(getuid());
+    auto params(get_params());
+    if(params.size() > 0
+    && params[0]->get_name() == "running")
+    {
+        value += std::to_string(getuid());
+    }
+    else
+    {
+        value += std::to_string(msg.get_environment()->get_uid());
+    }
 
     variable::process_value(msg, value);
 }
@@ -73,7 +82,18 @@ DEFINE_LOGGER_VARIABLE(username)
 
 void username_variable::process_value(message const & msg, std::string & value) const
 {
-    passwd * pw(getpwuid(getuid()));
+    uid_t uid;
+    auto params(get_params());
+    if(params.size() > 0
+    && params[0]->get_name() == "running")
+    {
+        uid = getuid();
+    }
+    else
+    {
+        uid = msg.get_environment()->get_uid();
+    }
+    passwd * pw(getpwuid(uid));
     if(pw != nullptr)
     {
         value += pw->pw_name;
@@ -87,7 +107,16 @@ DEFINE_LOGGER_VARIABLE(gid)
 
 void gid_variable::process_value(message const & msg, std::string & value) const
 {
-    value += std::to_string(getgid());
+    auto params(get_params());
+    if(params.size() > 0
+    && params[0]->get_name() == "running")
+    {
+        value += std::to_string(getgid());
+    }
+    else
+    {
+        value += std::to_string(msg.get_environment()->get_gid());
+    }
 
     variable::process_value(msg, value);
 }
@@ -97,7 +126,18 @@ DEFINE_LOGGER_VARIABLE(groupname)
 
 void groupname_variable::process_value(message const & msg, std::string & value) const
 {
-    group * gr(getgrgid(getgid()));
+    gid_t gid;
+    auto params(get_params());
+    if(params.size() > 0
+    && params[0]->get_name() == "running")
+    {
+        gid = getgid();
+    }
+    else
+    {
+        gid = msg.get_environment()->get_gid();
+    }
+    group * gr(getgrgid(gid));
     if(gr != nullptr)
     {
         value += gr->gr_name;

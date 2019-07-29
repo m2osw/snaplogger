@@ -55,7 +55,7 @@ public:
 
     void                        add_config(std::string const & config_filename);
     void                        add_console_appender();
-    void                        add_syslog_appender();
+    void                        add_syslog_appender(std::string const & identity);
     void                        add_file_appender(std::string const & filename);
 
     bool                        is_asynchronous() const;
@@ -71,7 +71,7 @@ private:
 bool                is_configured();
 
 bool                configure_console();
-bool                configure_syslog();
+bool                configure_syslog(std::string const & identity);
 bool                configure_file(std::string const & filename);
 bool                configure_config(std::string const & config_filename);
 

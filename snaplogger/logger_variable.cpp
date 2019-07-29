@@ -34,6 +34,7 @@
 // self
 //
 #include    "snaplogger/exception.h"
+#include    "snaplogger/format.h"
 #include    "snaplogger/map_diagnostic.h"
 #include    "snaplogger/nested_diagnostic.h"
 #include    "snaplogger/variable.h"
@@ -107,7 +108,24 @@ DEFINE_LOGGER_VARIABLE(message)
 
 void message_variable::process_value(message const & msg, std::string & value) const
 {
-    value += msg.get_message();
+    if(msg.get_recursive_message())
+    {
+        // do nothing if we find a ${message} inside the message itself
+        return;
+    }
+
+    std::string const m(msg.get_message());
+    if(m.find("${") == std::string::npos)
+    {
+        value += m;
+    }
+    else
+    {
+        msg.set_recursive_message(true);
+        format f(m);
+        value += f.process_message(msg);
+        msg.set_recursive_message(false);
+    }
 
     variable::process_value(msg, value);
 }

@@ -1,48 +1,8 @@
 
-* Config: /etc/snapwebsites/logger/logger.conf
-          /etc/snapwebsites/logger/<project>.conf
 
-* Component / Type / Mode (i.e. NORMAL, SECURITY, ...)
+* Configuration (proper loading)
 
-
-* Levels
-
-TRACE, DEBUG, NOTICE, UNIMPORTANT, INFO, IMPORTANT, MINOR, WARNING, MAJOR, ERROR, CRITICAL, EMERGENCY, FATAL, OFF
-
-* Appenders
-
-Append to file
-Append to syslog
-Print logs to console
-(network is not available in the lower level, that will be in snaplog)
-
-Log file locations:
-
-    A folder specified in the configuration files
-    Under the $HOME directory of the current user if that's writable.
-       We have to make sure this isn't a public location, though (like /var/www/html!)
-    The current directory
-    /tmp/snaplogger
-    /tmp
-    Console
-    Simulate /dev/null
-
-* Format the line of log
-
-See log4cplus %<letter> ... but we want to use something more robust which
-can be used with variables like syntax (i.e. ${name}) and that way we can
-easily add parameters to that name as in ${name:param1:param2:...}.
-
-We should compile the formats so that way we can very quickly generate the
-output (i.e. compile once reuse many times.)
-
-The output needs to support JSON too. This is big on the Internet these
-days. As an extension we could support XML too. But in all cases it would
-have to be a string with variables...
-
-* Escape Character (\n, \r, \$, \\, \xXX, \uXXXX, \UXXXXXX, etc.)
-
-
+* Components (I started on NORMAL/SECURITY, need to make sure it works)
 
 * Thread support (asynchronous logging)
 

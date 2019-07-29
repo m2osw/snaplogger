@@ -285,7 +285,7 @@ public:
                 {
                     throw logger_logic_error("variable type \"direct\" not registered?.");
                 }
-                param::pointer_t p(std::make_shared<param>(f_text));
+                param::pointer_t p(std::make_shared<param>("msg"));
                 var->add_param(p);
                 p->set_value(text);
                 f_variables.push_back(var);

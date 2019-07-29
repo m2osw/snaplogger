@@ -67,10 +67,19 @@ DEFINE_LOGGER_VARIABLE(hostname)
 
 void hostname_variable::process_value(message const & msg, std::string & value) const
 {
-    char host[HOST_NAME_MAX + 1];
-    gethostname(host, sizeof(host));
-    host[HOST_NAME_MAX] = '\0'; // make sure it's null terminated
-    value += host;
+    auto params(get_params());
+    if(params.size() > 0
+    && params[0]->get_name() == "running")
+    {
+        char host[HOST_NAME_MAX + 1];
+        gethostname(host, sizeof(host));
+        host[HOST_NAME_MAX] = '\0'; // make sure it's null terminated
+        value += host;
+    }
+    else
+    {
+        value += msg.get_environment()->get_hostname();
+    }
 
     variable::process_value(msg, value);
 }
@@ -112,10 +121,19 @@ DEFINE_LOGGER_VARIABLE(domainname)
 
 void domainname_variable::process_value(message const & msg, std::string & value) const
 {
-    char domain[HOST_NAME_MAX + 1];
-    getdomainname(domain, sizeof(domain));
-    domain[HOST_NAME_MAX] = '\0'; // make sure it's null terminated
-    value += domain;
+    auto params(get_params());
+    if(params.size() > 0
+    && params[0]->get_name() == "running")
+    {
+        char domain[HOST_NAME_MAX + 1];
+        getdomainname(domain, sizeof(domain));
+        domain[HOST_NAME_MAX] = '\0'; // make sure it's null terminated
+        value += domain;
+    }
+    else
+    {
+        value += msg.get_environment()->get_domainname();
+    }
 
     variable::process_value(msg, value);
 }
@@ -125,7 +143,16 @@ DEFINE_LOGGER_VARIABLE(pid)
 
 void pid_variable::process_value(message const & msg, std::string & value) const
 {
-    value += std::to_string(getpid());
+    auto params(get_params());
+    if(params.size() > 0
+    && params[0]->get_name() == "running")
+    {
+        value += std::to_string(getpid());
+    }
+    else
+    {
+        value += std::to_string(msg.get_environment()->get_pid());
+    }
 
     variable::process_value(msg, value);
 }
@@ -135,7 +162,16 @@ DEFINE_LOGGER_VARIABLE(tid)
 
 void tid_variable::process_value(message const & msg, std::string & value) const
 {
-    value += std::to_string(static_cast<pid_t>(syscall(SYS_gettid)));
+    auto params(get_params());
+    if(params.size() > 0
+    && params[0]->get_name() == "running")
+    {
+        value += std::to_string(static_cast<pid_t>(syscall(SYS_gettid)));
+    }
+    else
+    {
+        value += std::to_string(msg.get_environment()->get_tid());
+    }
 
     variable::process_value(msg, value);
 }
@@ -145,16 +181,25 @@ DEFINE_LOGGER_VARIABLE(threadname)
 
 void threadname_variable::process_value(message const & msg, std::string & value) const
 {
-    // we assume that the user has a map_diagnostic with the name
-    // "threadname"; this is going to be automatic in our own snap_thread
-    // implementation, any others would have to be done manually
-    //
-    map_diagnostics_t diag(get_map_diagnostics());
-    std::string tid(std::to_string(static_cast<pid_t>(syscall(SYS_gettid))));
-    auto it(diag.find("threadname#" + tid));
-    if(it != diag.end())
+    auto params(get_params());
+    if(params.size() > 0
+    && params[0]->get_name() == "running")
     {
-        value += it->second;
+        // we assume that the user has a map_diagnostic with the name
+        // "threadname"; this is going to be automatic in our own snap_thread
+        // implementation, any others would have to be done manually
+        //
+        map_diagnostics_t diag(get_map_diagnostics());
+        std::string tid(std::to_string(static_cast<pid_t>(syscall(SYS_gettid))));
+        auto it(diag.find("threadname#" + tid));
+        if(it != diag.end())
+        {
+            value += it->second;
+        }
+    }
+    else
+    {
+        value += msg.get_environment()->get_threadname();
     }
 
     variable::process_value(msg, value);

@@ -70,17 +70,11 @@ message::message(
         , char const * func
         , int line)
     : f_severity(sev)
+    , f_filename(file == nullptr ? std::string() : std::string(file))
+    , f_funcname(func == nullptr ? std::string() : std::string(func))
     , f_line(line)
+    , f_environment(create_environment())
 {
-    if(file != nullptr)
-    {
-        f_filename = file;
-    }
-    if(func != nullptr)
-    {
-        f_funcname = func;
-    }
-
     clock_gettime(CLOCK_REALTIME_COARSE, &f_timestamp);
 }
 
@@ -108,6 +102,11 @@ void message::set_line(int line)
     f_line = line;
 }
 
+
+void message::set_recursive_message(bool state) const
+{
+    f_recursive_message = state;
+}
 
 
 severity_t message::get_severity() const
@@ -138,6 +137,21 @@ int message::get_line() const
 {
     return f_line;
 }
+
+
+bool message::get_recursive_message() const
+{
+    return f_recursive_message;
+}
+
+
+environment::pointer_t message::get_environment() const
+{
+    return f_environment;
+}
+
+
+
 
 
 std::string message::get_message() const

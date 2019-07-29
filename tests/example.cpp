@@ -27,13 +27,18 @@
 //
 #include    "main.h"
 
+
 // snaplogger lib
 //
 #include    <snaplogger/logger.h>
 #include    <snaplogger/map_diagnostic.h>
 #include    <snaplogger/message.h>
 
+
+// C lib
+//
 #include    <unistd.h>
+
 
 
 CATCH_TEST_CASE("example", "[example]")
@@ -43,7 +48,7 @@ CATCH_TEST_CASE("example", "[example]")
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "unittest");
         snaplogger::logger::pointer_t ptr(snaplogger::logger::get_instance());
         ptr->add_console_appender();
-        ptr->add_syslog_appender();
+        ptr->add_syslog_appender("example");
         ptr->add_file_appender("my-file.log");
     	SNAP_LOG_ERROR << "Logging this error\n";
     	SNAP_LOG_WARNING << (isatty(fileno(stdout)) ? "" : "Hello world!");

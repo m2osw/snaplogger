@@ -1,9 +1,6 @@
 #
 # Description:
-#       A simple to use C++ library to log messages.
-#
-# Documentation:
-#       See the CMake documentation.
+#       A simple to use C++ library to log messages to configurable outputs.
 #
 # License:
 #       Copyright (c) 2013-2019 Made to Order Software Corp.
@@ -11,24 +8,19 @@
 #       https://snapwebsites.org/projects/libutf8
 #       contact@m2osw.com
 #
-#       Permission is hereby granted, free of charge, to any person obtaining a
-#       copy of this software and associated documentation files (the
-#       "Software"), to deal in the Software without restriction, including
-#       without limitation the rights to use, copy, modify, merge, publish,
-#       distribute, sublicense, and/or sell copies of the Software, and to
-#       permit persons to whom the Software is furnished to do so, subject to
-#       the following conditions:
+#       This program is free software; you can redistribute it and/or modify
+#       it under the terms of the GNU General Public License as published by
+#       the Free Software Foundation; either version 2 of the License, or
+#       (at your option) any later version.
 #
-#       The above copyright notice and this permission notice shall be included
-#       in all copies or substantial portions of the Software.
+#       This program is distributed in the hope that it will be useful,
+#       but WITHOUT ANY WARRANTY; without even the implied warranty of
+#       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#       GNU General Public License for more details.
 #
-#       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#       OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#       MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#       IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#       CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#       You should have received a copy of the GNU General Public License
+#       along with this program; if not, write to the Free Software
+#       Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 
 ##
@@ -50,6 +42,7 @@ add_library( ${PROJECT_NAME} SHARED
     component.cpp
     console_appender.cpp
     date_variable.cpp
+    environment.cpp
     environment_variable.cpp
     file_appender.cpp
     format.cpp
@@ -59,6 +52,7 @@ add_library( ${PROJECT_NAME} SHARED
     map_diagnostic.cpp
     message.cpp
     nested_diagnostic.cpp
+    options.cpp
     severity.cpp
     syslog_appender.cpp
     system_functions.cpp
@@ -105,8 +99,22 @@ install(
 
 install(
     FILES
-        log.h
+        appender.h
+        buffer_appender.h
+        component.h
+        console_appender.h
         exception.h
+        file_appender.h
+        format.h
+        guard.h
+        logger.h
+        map_diagnostic.h
+        message.h
+        nested_diagnostic.h
+        severity.h
+        syslog_appender.h
+        utils.h
+        variable.h
         ${CMAKE_CURRENT_BINARY_DIR}/version.h
 
     DESTINATION

@@ -220,8 +220,9 @@ The following are parameters supported internally:
     ${hostname}                 name of the computer
     ${hostbyname:name=hostname} name of a computer referenced by name or IP
     ${domainname}               name of the domain
-    ${pid}                      PID of the running program
-    ${tid}                      identifier of the running thread
+    ${pid[:running]}            PID of the running program
+    ${pgid[:running]}           GID of the running program
+    ${tid[:running]}            identifier of the running thread
     ${thread_name}              name of the running thread
                                 (equivalent to ${diagnostic:map=thread_name})
 
@@ -275,7 +276,7 @@ The default format:
           ... (${basename}:${line})
 
 If no format is defined for an appender then this format is used. The "..."
-is just to show the continues on the next line.
+is just to show it continues on the following line.
 
 
 ## Diagnostic Features

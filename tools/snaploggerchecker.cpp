@@ -18,7 +18,7 @@
 // snaplogger lib
 //
 #include <snaplogger/exception.h>
-#include <snaplogger/log.h>
+#include <snaplogger/logger.h>
 #include <snaplogger/version.h>
 
 
@@ -94,6 +94,7 @@ advgetopt::option const g_command_line_options[] =
         , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
         , advgetopt::Help("verify the snaplogger configuration files.")
     ),
+
     // OPTIONS
     advgetopt::define_option(
           advgetopt::Name("config")
@@ -157,6 +158,8 @@ advgetopt::option const g_command_line_options[] =
                                                   , advgetopt::GETOPT_FLAG_MULTIPLE
                                                   , advgetopt::GETOPT_FLAG_DEFAULT_OPTION>())
     ),
+
+    // END
     advgetopt::end_options()
 };
 

@@ -25,19 +25,18 @@
 #pragma once
 
 /** \file
- * \brief Appenders are used to append data to somewhere.
+ * \brief Handle logger specific command line and other options.
  *
- * This file declares the base appender class.
+ * The logger supports a few options to override configuration files
+ * and tweak settings from the command line. Since the user is in
+ * control of the environment variable, we do not offer that option
+ * here.
  */
 
-// C++ lib
-//
-#include    <map>
 
-
-// C lib
+// self
 //
-#include    <sys/time.h>
+#include    "advgetopt/advgetopt.h"
 
 
 
@@ -45,16 +44,12 @@ namespace snaplogger
 {
 
 
-constexpr char const        DIAG_KEY_PROGNAME[] = "progname";
-constexpr char const        DIAG_KEY_VERSION[]  = "version";
 
+void            add_logger_options(advgetopt::getopt & opts);
+void            process_logger_options(advgetopt::getopt & opts
+                                     , std::string const & project_name
+                                     , std::string const & config_path = std::string("/etc/logger"));
 
-typedef std::map<std::string, std::string>        map_diagnostics_t;
-
-void                set_diagnostic(std::string const & key, std::string const & diagnostic);
-void                unset_diagnostic(std::string const & key);
-
-map_diagnostics_t   get_map_diagnostics();
 
 
 } // snaplogger namespace

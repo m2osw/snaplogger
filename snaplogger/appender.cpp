@@ -76,8 +76,11 @@ appender::appender(std::string const & name)
     {
         g_default_format = std::make_shared<format>(
             //"${env:name=HOME:padding='-':align=center:exact_width=6} "
-            "${date} ${time} ${hostname} ${progname}[${pid}]: ${severity}:"
-            " ${message:escape} (in function \"${function}()\") (${basename}:${line})"
+            "${date} ${time} ${hostname}"
+            " ${progname}[${pid}]: ${severity}:"
+            " ${message:escape:max_width=1000}"
+            " (in function \"${function}()\")"
+            " (${basename}:${line})"
         );
     }
 

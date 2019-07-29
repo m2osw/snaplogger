@@ -156,12 +156,26 @@ void logger::add_console_appender()
 }
 
 
-void logger::add_syslog_appender()
+void logger::add_syslog_appender(std::string const & identity)
 {
     appender::pointer_t a(std::make_shared<syslog_appender>("syslog"));
 
+    advgetopt::option options[] =
+    {
+        advgetopt::define_option(
+              advgetopt::Name("syslog::identity")
+            , advgetopt::Flags(advgetopt::command_flags<advgetopt::GETOPT_FLAG_REQUIRED>())
+            , advgetopt::DefaultValue(identity.c_str())
+        ),
+        advgetopt::end_options()
+    };
+
     advgetopt::options_environment opt_env;
     opt_env.f_project_name = "logger";
+    if(!identity.empty())
+    {
+        opt_env.f_options = options;
+    }
     advgetopt::getopt opts(opt_env);
     a->set_config(opts);
 
@@ -233,7 +247,7 @@ void logger::log_message(message const & msg)
             }
             else
             {
-                add_syslog_appender();
+                add_syslog_appender(std::string());
             }
         }
 
@@ -270,12 +284,12 @@ bool configure_console()
 }
 
 
-bool configure_syslog()
+bool configure_syslog(std::string const & identity)
 {
     bool result(!is_configured());
     if(result)
     {
-        logger::get_instance()->add_syslog_appender();
+        logger::get_instance()->add_syslog_appender(identity);
     }
 
     return result;

@@ -35,6 +35,7 @@
 
 // self
 //
+#include    "snaplogger/environment.h"
 #include    "snaplogger/severity.h"
 
 
@@ -79,32 +80,37 @@ class message final
     : public std::stringstream
 {
 public:
-                        message(
-                                  severity_t sev = severity_t::SEVERITY_INFORMATION
-                                , char const * file = nullptr
-                                , char const * func = nullptr
-                                , int line = -1);
-    virtual             ~message();
+                            message(
+                                      severity_t sev = severity_t::SEVERITY_INFORMATION
+                                    , char const * file = nullptr
+                                    , char const * func = nullptr
+                                    , int line = -1);
+    virtual                 ~message();
 
-    void                set_severity(severity_t severity);
-    void                set_filename(std::string const & filename);
-    void                set_function(std::string const & funcname);
-    void                set_line(int line);
-    void                add_component(component const & c);
+    void                    set_severity(severity_t severity);
+    void                    set_filename(std::string const & filename);
+    void                    set_function(std::string const & funcname);
+    void                    set_line(int line);
+    void                    set_recursive_message(bool state) const;
+    void                    add_component(component const & c);
 
-    severity_t          get_severity() const;
-    timespec const &    get_timestamp() const;
-    std::string const & get_filename() const;
-    std::string const & get_function() const;
-    int                 get_line() const;
-    std::string         get_message() const;
+    severity_t              get_severity() const;
+    timespec const &        get_timestamp() const;
+    std::string const &     get_filename() const;
+    std::string const &     get_function() const;
+    int                     get_line() const;
+    bool                    get_recursive_message() const;
+    environment::pointer_t  get_environment() const;
+    std::string             get_message() const;
 
 private:
-    timespec            f_timestamp = timespec();
-    severity_t          f_severity = severity_t::SEVERITY_INFORMATION;
-    std::string         f_filename = std::string();
-    std::string         f_funcname = std::string();
-    int                 f_line = 0;
+    timespec                f_timestamp = timespec();
+    severity_t              f_severity = severity_t::SEVERITY_INFORMATION;
+    std::string             f_filename = std::string();
+    std::string             f_funcname = std::string();
+    int                     f_line = 0;
+    mutable bool            f_recursive_message = false;
+    environment::pointer_t  f_environment = environment::pointer_t();
 };
 
 
