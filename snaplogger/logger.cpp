@@ -78,6 +78,24 @@ logger::pointer_t logger::get_instance()
 }
 
 
+/** \brief Reset the logger to its startup state.
+ *
+ * This function resets the logger to non-asynchronous and no appenders.
+ *
+ * This is mainly used in our unit tests so we do not have to run the
+ * tests one at a time. It should nearly never be useful in your environment
+ * except if you do a fork() and wanted the child to have its own special
+ * log environment.
+ */
+void logger::reset()
+{
+    guard g;
+
+    set_asynchronous(false);
+    f_appenders.clear();
+}
+
+
 bool logger::is_configured() const
 {
     guard g;

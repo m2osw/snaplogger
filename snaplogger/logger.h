@@ -50,6 +50,7 @@ public:
 
     static logger::pointer_t    get_instance();
 
+    void                        reset();
     bool                        is_configured() const;
     void                        set_config(advgetopt::getopt const & params);
 

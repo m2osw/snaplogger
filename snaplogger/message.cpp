@@ -173,4 +173,3 @@ std::string message::get_message() const
 
 } // snaplogger namespace
 // vim: ts=4 sw=4 et
-

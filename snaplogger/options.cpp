@@ -37,11 +37,18 @@
 //
 #include    "snaplogger/logger.h"
 #include    "snaplogger/options.h"
+#include    "snaplogger/version.h"
 
 
 // advgetopt lib
 //
+#include    "advgetopt/exception.h"
 #include    "advgetopt/log.h"
+
+
+// last include
+//
+#include <snapdev/poison.h>
 
 
 
@@ -127,6 +134,14 @@ advgetopt::option const g_options[] =
         , advgetopt::Help("print out the path to the option definitons.")
     ),
 
+    // COMMANDS
+    //
+    advgetopt::define_option(
+          advgetopt::Name("logger-version")
+        , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
+        , advgetopt::Help("show the version of the logger library.")
+    ),
+
     // END
     //
     advgetopt::end_options()
@@ -153,9 +168,16 @@ constexpr int const OPTION_CONSOLE      = 0x10;
 
 void process_logger_options(advgetopt::getopt & opts
                           , std::string const & project_name
-                          , std::string const & progname
                           , std::string const & config_path)
 {
+    // COMMANDS
+    //
+    if(opts.is_defined("logger-version"))
+    {
+        std::cout << snaplogger::get_version_string() << std::endl;
+        throw advgetopt::getopt_exception_exit("logger command processed.", 0);
+    }
+
     // LOG CONFIG
     //
     int log_config(0);
@@ -188,9 +210,13 @@ void process_logger_options(advgetopt::getopt & opts
         {
             advgetopt::options_environment opt_env;
 
+            std::string user_config("~/.config/");
+            user_config += project_name;
             char const * config_dirs[] =
             {
-                  config_path.c_str()
+                  "/usr/share/snaplogger/etc"
+                , config_path.c_str()
+                , user_config.c_str()
                 , nullptr
             };
 
@@ -212,9 +238,14 @@ void process_logger_options(advgetopt::getopt & opts
             //
             config_opts.parse_configuration_files();
 
-            if(!progname.empty())
+            if(!opts.get_program_fullname().empty())
             {
-                opt_env.f_configuration_filename = progname.c_str();
+                // if we have a valid program name (non-empty) then try
+                // to load these configuration files
+                //
+                std::string filename(opts.get_program_name());
+                filename += ".conf";
+                opt_env.f_configuration_filename = filename.c_str();
                 config_opts.parse_configuration_files();
             }
 

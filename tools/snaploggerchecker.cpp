@@ -19,7 +19,13 @@
 //
 #include <snaplogger/exception.h>
 #include <snaplogger/logger.h>
+#include <snaplogger/options.h>
 #include <snaplogger/version.h>
+
+
+// advgetopt lib
+//
+#include <advgetopt/exception.h>
 
 
 // snapdev lib
@@ -196,7 +202,7 @@ advgetopt::options_environment const g_options_environment =
     .f_configuration_filename = nullptr,
     .f_configuration_directories = nullptr,
     .f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_PROCESS_SYSTEM_PARAMETERS,
-    .f_help_header = "Usage: %p  [--<opt>] <config-name> ...]\n"
+    .f_help_header = "Usage: %p [--<opt>] <config-name> ...\n"
                      "where --<opt> is one or more of:",
     .f_help_footer = "%c",
     .f_version = SNAPLOGGER_VERSION_STRING,
@@ -229,19 +235,12 @@ private:
 int tool::init(int argc, char * argv[])
 {
     f_opt = std::make_shared<advgetopt::getopt>(g_options_environment);
-    f_opt->parse_program_name(argv);
-    //f_opt->link_aliases();
-    //f_opt->parse_configuration_files();
-    //f_opt->parse_environment_variable();
-    f_opt->parse_arguments(argc, argv, false);
-    if(f_opt->has_flag(advgetopt::GETOPT_ENVIRONMENT_FLAG_PROCESS_SYSTEM_PARAMETERS))
-    {
-        advgetopt::flag_t const result(f_opt->process_system_options(std::cout));
-        if((result & advgetopt::SYSTEM_OPTION_COMMANDS_MASK) != 0)
-        {
-            return 1;
-        }
-    }
+
+    snaplogger::add_logger_options(*f_opt);
+
+    f_opt->finish_parsing(argc, argv);
+
+    snaplogger::process_logger_options(*f_opt, "snaplogger");
 
     return 0;
 }
@@ -265,6 +264,11 @@ int main(int argc, char * argv[])
             return 0;
         }
 
+        return 0;
+    }
+    catch(advgetopt::getopt_exception_exit const & e)
+    {
+        snap::NOTUSED(e);
         return 0;
     }
     catch(std::exception const & e)
