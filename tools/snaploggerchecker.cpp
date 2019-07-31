@@ -240,7 +240,7 @@ int tool::init(int argc, char * argv[])
 
     f_opt->finish_parsing(argc, argv);
 
-    snaplogger::process_logger_options(*f_opt, "snaplogger");
+    snaplogger::process_logger_options(*f_opt, "/etc/snaplogger");
 
     return 0;
 }

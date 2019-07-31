@@ -141,6 +141,11 @@ advgetopt::option const g_options[] =
         , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
         , advgetopt::Help("show the version of the logger library.")
     ),
+    advgetopt::define_option(
+          advgetopt::Name("logger-configuration-filenames")
+        , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
+        , advgetopt::Help("show the list of configuration filenames that would be loaded with the current options.")
+    ),
 
     // END
     //
@@ -167,8 +172,8 @@ constexpr int const OPTION_SYSLOG       = 0x08;
 constexpr int const OPTION_CONSOLE      = 0x10;
 
 void process_logger_options(advgetopt::getopt & opts
-                          , std::string const & project_name
-                          , std::string const & config_path)
+                          , std::string const & config_path
+                          , std::basic_ostream<char> & out)
 {
     // COMMANDS
     //
@@ -202,6 +207,7 @@ void process_logger_options(advgetopt::getopt & opts
         log_config |= OPTION_CONSOLE;
     }
 
+    bool const show_logger_configuration_files(opts.is_defined("logger-configuration-filenames"));
     switch(log_config)
     {
     case 0:
@@ -211,7 +217,7 @@ void process_logger_options(advgetopt::getopt & opts
             advgetopt::options_environment opt_env;
 
             std::string user_config("~/.config/");
-            user_config += project_name;
+            user_config += opts.get_project_name();
             char const * config_dirs[] =
             {
                   "/usr/share/snaplogger/etc"
@@ -225,18 +231,37 @@ void process_logger_options(advgetopt::getopt & opts
                 config_dirs[0] = opts.get_string("log-config-path").c_str();
             }
 
-            opt_env.f_project_name = project_name.c_str();
+            std::string const keep_project_name(opts.get_project_name());
+            opt_env.f_project_name = keep_project_name.c_str();
             opt_env.f_environment_variable_name = "SNAPLOGGER";
             //opt_env.f_configuration_files = nullptr;
             opt_env.f_configuration_filename = "snaplogger.conf";
             opt_env.f_configuration_directories = config_dirs;
-            opt_env.f_environment_flags = 0;
+            opt_env.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_DYNAMIC_PARAMETERS;
 
-            advgetopt::getopt config_opts(opt_env);
+            advgetopt::getopt system_opts(opt_env);
+
+            if(show_logger_configuration_files)
+            {
+                advgetopt::string_list_t list(system_opts.get_configuration_filenames(false, false));
+                out << "Logger common configuration filenames:" << std::endl;
+                for(auto n : list)
+                {
+                    out << " . " << n << "\n";
+                }
+            }
 
             // load the system configuration file first
             //
-            config_opts.parse_configuration_files();
+            system_opts.parse_configuration_files();
+            if(opts.get_program_fullname().empty())
+            {
+                // process environment variable now if no user filename
+                // is going to be loaded
+                //
+                system_opts.parse_environment_variable();
+            }
+            logger::get_instance()->set_config(system_opts);
 
             if(!opts.get_program_fullname().empty())
             {
@@ -246,12 +271,23 @@ void process_logger_options(advgetopt::getopt & opts
                 std::string filename(opts.get_program_name());
                 filename += ".conf";
                 opt_env.f_configuration_filename = filename.c_str();
+                advgetopt::getopt config_opts(opt_env);
+
+                if(show_logger_configuration_files)
+                {
+                    advgetopt::string_list_t list(config_opts.get_configuration_filenames(false, false));
+                    out << "Logger application configuration filenames:" << std::endl;
+                    for(auto n : list)
+                    {
+                        out << " . " << n << "\n";
+                    }
+                    throw advgetopt::getopt_exception_exit("logger command processed.", 0);
+                }
+
                 config_opts.parse_configuration_files();
+                config_opts.parse_environment_variable();
+                logger::get_instance()->set_config(config_opts);
             }
-
-            config_opts.parse_environment_variable();
-
-            logger::get_instance()->set_config(config_opts);
         }
         break;
 

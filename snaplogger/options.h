@@ -39,6 +39,11 @@
 #include    "advgetopt/advgetopt.h"
 
 
+// C++ lib
+//
+#include    <iostream>
+
+
 
 namespace snaplogger
 {
@@ -47,8 +52,8 @@ namespace snaplogger
 
 void            add_logger_options(advgetopt::getopt & opts);
 void            process_logger_options(advgetopt::getopt & opts
-                                     , std::string const & project_name
-                                     , std::string const & config_path = std::string("/etc/logger"));
+                                     , std::string const & config_path = std::string("/etc/snaplogger")
+                                     , std::basic_ostream<char> & out = std::cout);
 
 
 

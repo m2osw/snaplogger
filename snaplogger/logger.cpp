@@ -120,7 +120,17 @@ void logger::set_config(advgetopt::getopt const & params)
         {
             std::string const section_name(sections->get_value(idx));
             std::string const section_type(section_name + "::type");
-            std::string const & type(params.get_string(section_type));
+            std::string type;
+            if(params.is_defined(section_type))
+            {
+                type = params.get_string(section_type);
+            }
+            else
+            {
+                // try with the name of the section if no type is defined
+                //
+                type = section_name;
+            }
             if(!type.empty())
             {
                 appender::pointer_t a(create_appender(type, section_name));
