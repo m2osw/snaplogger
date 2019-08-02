@@ -1,7 +1,4 @@
 /*
- * File:
- *    tests/main.cpp
- *
  * License:
  *    Copyright (c) 2006-2019  Made to Order Software Corp.  All Rights Reserved
  *
@@ -33,14 +30,16 @@
 //
 #include "main.h"
 
-// libutf8 lib
+
+// snaplogger lib
 //
-#include "libutf8/libutf8.h"
-#include "libutf8/version.h"
+#include <snaplogger/version.h>
+
 
 // libexcept lib
 //
-#include "libexcept/exception.h"
+#include <libexcept/exception.h>
+
 
 // C++ lib
 //
@@ -53,8 +52,8 @@
 int main(int argc, char * argv[])
 {
     return SNAP_CATCH2_NAMESPACE::snap_catch2_main(
-              "libutf8"
-            , LIBUTF8_VERSION_STRING
+              "snaplogger"
+            , SNAPLOGGER_VERSION_STRING
             , argc
             , argv
             , []() { libexcept::set_collect_stack(false); }

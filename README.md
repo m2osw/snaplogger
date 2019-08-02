@@ -1,6 +1,6 @@
 
 <p align="center">
-<img alt="advgetopt" title="Advance getopt, a C++ library to handle your command line options and configuration files seamlessly."
+<img alt="snaplogger" title="Multi-destination and easily extensible logger in C++."
 src="https://raw.githubusercontent.com/m2osw/snaplogger/master/doc/snaplogger.png" width="70" height="70"/>
 </p>
 
@@ -530,8 +530,7 @@ only outputs `"normal"` or `"this happened!"`.
 
 # License
 
-The source is covered by the MIT license. The debian folder is covered
-by the GPL 2.0.
+The project is covered by the GPL 2.0 license.
 
 
 # Bugs
