@@ -52,12 +52,19 @@ public:
 
     void                        reset();
     bool                        is_configured() const;
+    bool                        has_appender(std::string const & type) const;
     void                        set_config(advgetopt::getopt const & params);
 
+    void                        add_appender(appender::pointer_t a);
     void                        add_config(std::string const & config_filename);
-    void                        add_console_appender();
-    void                        add_syslog_appender(std::string const & identity);
-    void                        add_file_appender(std::string const & filename);
+    appender::pointer_t         add_console_appender();
+    appender::pointer_t         add_syslog_appender(std::string const & identity);
+    appender::pointer_t         add_file_appender(std::string const & filename);
+
+    void                        set_severity(severity_t severity_level);
+    void                        reduce_severity(severity_t severity_level);
+    void                        add_component_to_include(component::pointer_t comp);
+    void                        add_component_to_ignore(component::pointer_t comp);
 
     bool                        is_asynchronous() const;
     void                        set_asynchronous(bool status);
@@ -65,13 +72,16 @@ public:
 
 private:
     appender::vector_t          f_appenders = appender::vector_t();
+    component::set_t            f_components_to_include = component::set_t();
+    component::set_t            f_components_to_ignore = component::set_t();
     bool                        f_asynchronous = false;
 };
 
 
 bool                is_configured();
+bool                has_appender(std::string const & type);
 
-bool                configure_console();
+bool                configure_console(bool force = false);
 bool                configure_syslog(std::string const & identity);
 bool                configure_file(std::string const & filename);
 bool                configure_config(std::string const & config_filename);

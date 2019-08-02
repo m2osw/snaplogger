@@ -29,6 +29,8 @@
  * This file implements the base appender class.
  */
 
+#include    <snapdev/empty_set_intersection.h>
+
 // self
 //
 #include    "snaplogger/appender.h"
@@ -39,6 +41,11 @@
 // snapdev lib
 //
 #include    <snapdev/not_used.h>
+
+
+// C++ lib
+//
+#include    <iostream>
 
 
 // last include
@@ -63,12 +70,17 @@ appender_factory_t      g_appender_types = appender_factory_t();
 format::pointer_t       g_default_format = format::pointer_t();
 
 
+// if we want to be able to reference such we need to create it TBD
+// (and it should probably be in the null_appender.cpp file instead)
+//APPENDER_FACTORY(null);
+
 
 }
 
 
-appender::appender(std::string const & name)
-    : f_name(name)
+appender::appender(std::string const & name, std::string const & type)
+    : f_type(type)
+    , f_name(name)
 {
     guard g;
 
@@ -93,6 +105,12 @@ appender::~appender()
 }
 
 
+std::string const & appender::get_type() const
+{
+    return f_type;
+}
+
+
 std::string const & appender::get_name() const
 {
     return f_name;
@@ -113,8 +131,16 @@ void appender::set_enabled(bool status)
 }
 
 
+bool appender::unique() const
+{
+    return false;
+}
+
+
 severity_t appender::get_severity() const
 {
+    guard g;
+
     return f_severity;
 }
 
@@ -124,6 +150,17 @@ void appender::set_severity(severity_t severity_level)
     guard g;
 
     f_severity = severity_level;
+}
+
+
+void appender::reduce_severity(severity_t severity_level)
+{
+    guard g;
+
+    if(severity_level < f_severity)
+    {
+        set_severity(severity_level);
+    }
 }
 
 
@@ -165,7 +202,6 @@ void appender::set_config(advgetopt::getopt const & opts)
 
     // SEVERITY
     //
-    f_severity = severity_t::SEVERITY_INFORMATION;
     std::string const specialized_severity(f_name + "::severity");
     if(opts.is_defined(specialized_severity))
     {
@@ -199,6 +235,144 @@ void appender::set_config(advgetopt::getopt const & opts)
                         + "\" not found.");
         }
     }
+
+    // COMPONENTS
+    //
+    std::string comp;
+    std::string const components(f_name + "::components");
+    if(opts.is_defined(components))
+    {
+        comp = opts.get_string(components);
+    }
+    else if(opts.is_defined("components"))
+    {
+        comp = opts.get_string("components");
+    }
+    if(comp.empty())
+    {
+        add_component(normal_component);
+    }
+    else
+    {
+        advgetopt::string_list_t component_names;
+        advgetopt::split_string(comp, component_names, {","});
+        for(auto name : component_names)
+        {
+            add_component(component::get_component(name));
+        }
+    }
+
+    // FILTER
+    //
+    {
+        std::string filter;
+        std::string const specialized_filter(f_name + "::filter");
+        if(opts.is_defined(specialized_filter))
+        {
+            filter = opts.get_string(specialized_filter);
+        }
+        else if(opts.is_defined("filter"))
+        {
+            filter = opts.get_string("filter");
+        }
+        if(!filter.empty())
+        {
+            std::regex_constants::syntax_option_type flags(std::regex::nosubs | std::regex::optimize);
+            std::regex_constants::syntax_option_type type(std::regex::extended);
+            if(filter[0] == '/')
+            {
+                std::string::size_type pos(filter.rfind('/'));
+                if(pos == 0)
+                {
+                    throw invalid_variable(
+                                  "invalid filter \""
+                                + filter
+                                + "\"; missing ending '/'.");
+                }
+                std::string const flag_list(filter.substr(pos + 1));
+                filter = filter.substr(1, pos - 2);
+                if(filter.empty())
+                {
+                    throw invalid_variable(
+                                  "invalid filter \""
+                                + filter
+                                + "\"; the regular expression is empty.");
+                }
+                // TODO: for errors we would need to iterate using the libutf8
+                //       (since we could have a Unicode character after the /)
+                //
+                // TODO: if two type flags are found, err too
+                //
+                int count(0);
+                for(auto f : flag_list)
+                {
+                    switch(f)
+                    {
+                    case 'i':
+                        flags |= std::regex::icase;
+                        break;
+
+                    case 'c':
+                        flags |= std::regex::collate;
+                        break;
+
+                    case 'j':
+                        type = std::regex::ECMAScript;
+                        ++count;
+                        break;
+
+                    case 'b':
+                        type = std::regex::basic;
+                        ++count;
+                        break;
+
+                    case 'x':
+                        type = std::regex::extended;
+                        ++count;
+                        break;
+
+                    case 'a':
+                        type = std::regex::awk;
+                        ++count;
+                        break;
+
+                    case 'g':
+                        type = std::regex::grep;
+                        ++count;
+                        break;
+
+                    case 'e':
+                        type = std::regex::egrep;
+                        ++count;
+                        break;
+
+                    default:
+                        throw invalid_variable(
+                                      "in \""
+                                    + filter
+                                    + "\", found invalid flag '"
+                                    + f
+                                    + "'.");
+
+                    }
+                    if(count > 1)
+                    {
+                        throw invalid_variable(
+                                      "found multiple types in \""
+                                    + filter
+                                    + "\".");
+                    }
+                }
+            }
+            f_filter = std::make_shared<std::regex>(filter, flags | type);
+        }
+    }
+}
+
+
+void appender::add_component(component::pointer_t comp)
+{
+    f_components.insert(comp);
 }
 
 
@@ -219,8 +393,33 @@ void appender::send_message(message const & msg)
         return;
     }
 
+    component::set_t const & components(msg.get_components());
+    if(components.empty())
+    {
+        // user did not supply any component in 'msg', check for
+        // the normal component
+        //
+        if(f_components.find(normal_component) == f_components.end())
+        {
+            return;
+        }
+    }
+    else
+    {
+        if(snap::empty_set_intersection(f_components, components))
+        {
+            return;
+        }
+    }
+
     std::string formatted_message(f_format->process_message(msg));
     if(formatted_message.empty())
+    {
+        return;
+    }
+
+    if(f_filter != nullptr
+    && !std::regex_match(formatted_message, *f_filter))
     {
         return;
     }

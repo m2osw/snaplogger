@@ -33,11 +33,17 @@
 //
 #include    "snaplogger/component.h"
 #include    "snaplogger/exception.h"
+#include    "snaplogger/guard.h"
 
 
 // snapdev lib
 //
 #include    <snapdev/not_used.h>
+
+
+// C++ lib
+//
+#include    <map>
 
 
 // last include
@@ -86,10 +92,13 @@ component::component(std::string const & name)
 
 component::pointer_t component::get_component(std::string const & name)
 {
+    guard g;
+
     auto it(g_components.find(name));
     if(it == g_components.end())
     {
-        return component::pointer_t();
+        component::pointer_t c(new component(name));
+        return c;
     }
 
     return it->second;

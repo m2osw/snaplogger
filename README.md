@@ -6,11 +6,104 @@ src="https://raw.githubusercontent.com/m2osw/snaplogger/master/doc/snaplogger.pn
 
 # Introduction
 
-The snaplogger is based on our `log.cpp/.h` from the libsnapwebsites.
+The snaplogger started based on the functionality offered by the
+`log.cpp/.h` from the libsnapwebsites and various features of the
+log4cplus library.
 
-It allows all our Snap! projects to log errors to file, syslog, console,
-and ultimately through a network connection (although this is part of
-the snaplog, because the snapcommunicator depends on the logger.)
+The current version allows all our Snap! projects to log errors to
+files, the syslog, and the console.
+
+## Features
+
+The following are the main features of this logger:
+
+* Messages using std::stringstream
+
+    Sending logs uses a stringstream. We have a class named `message` which
+    can therefore be used just like any `ostream`.
+    
+    This means all the features supported by `ostream` are available to your
+    logger. You can send hexadecimal, format strings, and overload the
+    `<<` operator in order to add more automatic transformation of objects
+    to strings just as you do when you want to print those objects to
+    `std::cout` or `std::cerr`.
+
+* Severity
+
+    The logs use a severity level. Whenever you create a message you assign
+    a severity to it such as DEBUG, INFO, ERROR, etc. We offer 18 severity
+    levels by default. You can dynamically add more, either in your software
+    or in the severity.conf file.
+
+    Appenders can be assigned a severity. When a message is logged with
+    a lower severity than the appender, then it gets ignored by that
+    appender.
+
+    The severity can also be tweaked directly on the command line.
+
+* Appenders
+
+    A set of classes used to declare the log sinks.
+    
+    It is very easy to develop your own appender. In most cases you want
+    to override the `set_config()` (optional) and the `process_message()`.
+
+* Format
+
+    Your log messages can be formatted in many different ways. The
+    snaplogger supports many variables which support parameters and
+    functions. All of thish is very easily extensible.
+
+    There are many variables supported by default, including displaying
+    the timestamp of the message, environment variables, system information
+    (i.e. hostname), and all the data from the message being logged.
+
+* Diagnostics
+
+    We support two types of diagnostics: map and nested.
+
+    Maps are actually used to save various parameters such as the program
+    name and the program version.
+
+    The nested diagnostics are used to track your location in a stack like
+    manner.
+
+* Component
+
+    The software allows for filtering the output using a "component" or
+    section. When you send a log, you can use an expression such as:
+
+        SNAP_LOG_INFO
+            << snaplogger::section(snaplogger::secure_component)
+            << "My Message Here";
+
+    This means the log will only be sent to the appender's output if the
+    appender includes "secure" as one of its components. This allows us
+    to very quickly prevent messages from going to the wrong place.
+
+* Regex Filtering
+
+    You have the ability to add as many file appenders as you'd like. You
+    can already filter by Severity and Component and with our Regexp support
+    you can further filter by checking whether the log message matches a
+    regular expression or not.
+
+* Multi-thread Safe
+
+    The library is multi-thread safe. It can even be used with an
+    asynchronous feature so you can send many logs and they are
+    processed by a thread. That thread can easily be stopped in case
+    you want to fork() your application.
+
+* advgetopt support
+
+    The logger has a function used to add command line options and another
+    to execute them.
+
+    This adds many features to your command line such as the `--debug`
+    and `--logger-configuration-filenames` options. You can always add
+    more.
+
 
 # Reasons Behind Having Our Own Library
 
@@ -108,6 +201,7 @@ The type is actually the name of the appender.
 
 The base supports the following appenders:
 
+* buffer
 * file
 * console
 * syslog
@@ -115,18 +209,29 @@ The base supports the following appenders:
 Other types can be added by creating a class derived from the snaplogger
 Appender class. For example, the snaplog offers the "network" appender.
 
+The type is mandatory, but if the `type=...` field is not specified,
+the systemt tries with the name of the section. So the following
+means we get a file:
+
+    [file]
+    filename=carrots
+
+Remember that to create multiple entries of the same type, you must use
+different section names. Reusing the same name is useful only to overwrite
+parameters of a previous section definition.
+
 #### Type=File
 
-Write the logs to a file. The file must be named unless your entry is an
-override of another entry of the same name.
+Write the logs to a file. The file must be named unless your section is an
+override of another section of the same name which already has a filename.
 
-    file.name=database
+    filename=database
 
 The filename must not include any slashes or extension (periods are not
 accepted). This way we are in control of those characters. Especially,
 other parameters define where the files go:
 
-    file.path=/var/log/snapwebsites
+    path=/var/log/snapwebsites
 
 ### Severity
 
@@ -175,6 +280,34 @@ Technically, when no component is specified in a log, NORMAL is assumed.
 Otherwise, the appender must include that component or it will be ignored.
 (i.e. that log will not make it to that appender if none of its components
 match the ones in the log being processed.)
+
+### Filter
+
+You can filter the message using a regular expression. It is strongly
+advised that you use this feature only when necessary and possibly not
+in production.
+
+    [overflows]
+    type=file
+    filename=overflows.log
+    filter=/overflow|too large/i
+
+The slashes are optional if you do not need to use any flags.
+
+The supported flags are:
+
+* `a` -- use awk regex
+* `b` -- use basic regex
+* `c` -- use locale to compare
+* `e` -- test egrep regex
+* `g` -- test grep regex
+* `i` -- test case insensitively
+* `j` -- use ECMAScript regex
+* `x` -- use extended POSIX regex (this is the default)
+
+The `a`, `b`, `e`, `g`, `j`, and `x` are mutually exclusive, only one
+of them can be used in your list of flags. We use `x` by default when
+you do not explicitly specify a type.
 
 ### Format
 
@@ -265,7 +398,58 @@ The following are parameters supported internally:
     ${locale:timezone}          timezone name
     ${locale:timezone_offset}   timezone as +hhmm or -hhmm
 
-See [log4cplus supported formats](http://log4cplus.sourceforge.net/docs/html/classlog4cplus_1_1PatternLayout.html).
+The library supports an advance way of formatting messages using
+variables as in:
+
+    ${time}
+
+The variable name can be followed by a colon and a parameter. Many
+parameter can be assigned a value. We offer three types of parameters.
+Direct parameters which transform what the variable returns. For
+example, the `${time:hour}` outputs the hour of the time. Actual
+parameters, such as the `padding` parameter. This one takes a
+value which is one of those three words: "left", "center", or
+"right". That padding value is held in the formatter until we
+are done or another `padding=...` happens. Finally, we have
+the parameters that represent functions. Those further format
+the input data. For example, you can write the PID in your logs.
+You may want to pad the PID with zeroes as in:
+
+    ${pid:padding='0':align=right:exact-width=5}
+
+This way the output of the PID will always look like it is 5 characters.
+
+Formats are extensible. We use the follwogin macro for that purpose:
+
+    DEFINE_LOGGER_VARIABLE(date)
+
+    void date_variable::process_value(message const & msg, std::string & value) const
+    {
+        ...
+    }
+
+Parameters make use of the following macro
+
+    DECLARE_FUNCTION(padding)
+    {
+        ...
+    }
+
+Since you may have parameters of your own, we allow for any parameter to
+be defined with a map of strings. Here is how we save the one character
+for the padding feature;
+
+    d.set_param(std::string("padding"), pad);
+
+Functions receive the `value` of the variable which is reachable with
+the `get_value()` function. Note that it returns a writable reference
+for faster modifications. For example appending is very easy, however,
+prepending still requires a `set_value()` call:
+
+    d.get_value() += " add at the end";
+    d.set_value(padding + d.get_value());
+
+So our format is extremely extensible.
 
 #### Default Format
 

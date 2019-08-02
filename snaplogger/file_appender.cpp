@@ -77,7 +77,7 @@ APPENDER_FACTORY(file);
 
 
 file_appender::file_appender(std::string const name)
-    : appender(name)
+    : appender(name, "file")
 {
 }
 
@@ -90,6 +90,18 @@ file_appender::~file_appender()
 void file_appender::set_config(advgetopt::getopt const & opts)
 {
     appender::set_config(opts);
+
+    // PATH
+    //
+    std::string const path_field(get_name() + "::path");
+    if(opts.is_defined(path_field))
+    {
+        f_path = opts.get_string(path_field);
+    }
+    else if(opts.is_defined("path"))
+    {
+        f_path = opts.get_string("path");
+    }
 
     // FILENAME
     //
@@ -170,12 +182,25 @@ void file_appender::process_message(message const & msg, std::string const & for
                 return;
             }
 
-            f_filename = "/var/log/snaplogger/";
+            f_filename = f_path + "/";
             if(f_secure)
             {
                 f_filename += "secure/";
             }
             f_filename += it->second;
+            f_filename += ".log";
+        }
+        else if(f_filename.find('/') == std::string::npos)
+        {
+            f_filename = f_path + "/" + f_filename;
+        }
+        std::string::size_type pos(f_filename.rfind('/'));
+        if(pos == std::string::npos)
+        {
+            pos = 0;
+        }
+        if(f_filename.find('.', pos + 1) == std::string::npos)
+        {
             f_filename += ".log";
         }
 

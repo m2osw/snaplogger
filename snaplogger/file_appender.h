@@ -60,6 +60,7 @@ protected:
     virtual void        process_message(message const & msg, std::string const & formatted_message) override;
 
 private:
+    std::string         f_path = std::string("/var/log/snaplogger");
     std::string         f_filename = std::string();
     snap::raii_fd_t     f_fd = snap::raii_fd_t();
     bool                f_initialized = false;

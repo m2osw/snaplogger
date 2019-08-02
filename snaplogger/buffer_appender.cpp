@@ -85,7 +85,7 @@ APPENDER_FACTORY(buffer);
 
 
 buffer_appender::buffer_appender(std::string const name)
-    : appender(name)
+    : appender(name, "buffer")
 {
 }
 

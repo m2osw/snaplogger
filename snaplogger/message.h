@@ -35,6 +35,7 @@
 
 // self
 //
+#include    "snaplogger/component.h"
 #include    "snaplogger/environment.h"
 #include    "snaplogger/severity.h"
 
@@ -80,41 +81,75 @@ class message final
     : public std::stringstream
 {
 public:
-                            message(
-                                      severity_t sev = severity_t::SEVERITY_INFORMATION
-                                    , char const * file = nullptr
-                                    , char const * func = nullptr
-                                    , int line = -1);
-    virtual                 ~message();
+                                message(
+                                          severity_t sev = severity_t::SEVERITY_INFORMATION
+                                        , char const * file = nullptr
+                                        , char const * func = nullptr
+                                        , int line = -1);
+    virtual                     ~message();
 
-    void                    set_severity(severity_t severity);
-    void                    set_filename(std::string const & filename);
-    void                    set_function(std::string const & funcname);
-    void                    set_line(int line);
-    void                    set_recursive_message(bool state) const;
-    void                    add_component(component const & c);
+    void                        set_severity(severity_t severity);
+    void                        set_filename(std::string const & filename);
+    void                        set_function(std::string const & funcname);
+    void                        set_line(int line);
+    void                        set_recursive_message(bool state) const;
+    void                        add_component(component::pointer_t c);
 
-    severity_t              get_severity() const;
-    timespec const &        get_timestamp() const;
-    std::string const &     get_filename() const;
-    std::string const &     get_function() const;
-    int                     get_line() const;
-    bool                    get_recursive_message() const;
-    environment::pointer_t  get_environment() const;
-    std::string             get_message() const;
+    severity_t                  get_severity() const;
+    timespec const &            get_timestamp() const;
+    std::string const &         get_filename() const;
+    std::string const &         get_function() const;
+    int                         get_line() const;
+    bool                        get_recursive_message() const;
+    component::set_t const &    get_components() const;
+    environment::pointer_t      get_environment() const;
+    std::string                 get_message() const;
 
 private:
-    timespec                f_timestamp = timespec();
-    severity_t              f_severity = severity_t::SEVERITY_INFORMATION;
-    std::string             f_filename = std::string();
-    std::string             f_funcname = std::string();
-    int                     f_line = 0;
-    mutable bool            f_recursive_message = false;
-    environment::pointer_t  f_environment = environment::pointer_t();
+    timespec                    f_timestamp = timespec();
+    severity_t                  f_severity = severity_t::SEVERITY_INFORMATION;
+    std::string                 f_filename = std::string();
+    std::string                 f_funcname = std::string();
+    int                         f_line = 0;
+    mutable bool                f_recursive_message = false;
+    environment::pointer_t      f_environment = environment::pointer_t();
+    component::set_t            f_components = component::set_t();
 };
 
 
+template<typename CharT, typename Traits>
+inline std::basic_ostream<CharT, Traits> &
+operator << (std::basic_ostream<CharT, Traits> & os, section_ptr sec)
+{
+    message * m(dynamic_cast<message *>(&os));
+    if(m == nullptr)
+    {
+        os << "(section:"
+           << sec.f_component->get_name()
+           << ")";
+    }
+    else
+    {
+        m->add_component(sec.f_component);
+    }
+    return os;
+}
 
+template<typename CharT, typename Traits>
+inline std::basic_ostream<CharT, Traits> &
+secure(std::basic_ostream<CharT, Traits> & os)
+{
+    message * m(dynamic_cast<message *>(&os));
+    if(m == nullptr)
+    {
+        os << "(section:secure)";
+    }
+    else
+    {
+        m->add_component(secure_component);
+    }
+    return os;
+}
 
 
 #define    SNAP_LOG_FATAL               ::snaplogger::message(::snaplogger::severity_t::SEVERITY_FATAL,             __FILE__, __func__, __LINE__)

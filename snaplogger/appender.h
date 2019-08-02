@@ -37,6 +37,7 @@
 
 // C++ lib
 //
+#include    <regex>
 #include    <vector>
 
 
@@ -45,23 +46,30 @@ namespace snaplogger
 {
 
 
+typedef std::shared_ptr<std::regex>         regex_pointer_t;
+
+
 class appender
 {
 public:
     typedef std::shared_ptr<appender>       pointer_t;
     typedef std::vector<pointer_t>          vector_t;
 
-                                appender(std::string const & name);
+                                appender(std::string const & name, std::string const & type = "null");
     virtual                     ~appender();
 
+    std::string const &         get_type() const;
     std::string const &         get_name() const;
     bool                        is_enabled() const;
     virtual void                set_enabled(bool status);
+    virtual bool                unique() const;
 
     severity_t                  get_severity() const;
     virtual void                set_severity(severity_t severity_level);
+    virtual void                reduce_severity(severity_t severity_level);
 
     virtual void                set_config(advgetopt::getopt const & params);
+    void                        add_component(component::pointer_t comp);
 
     format::pointer_t           get_format() const;
     virtual format::pointer_t   set_format(format::pointer_t new_format);
@@ -72,10 +80,13 @@ protected:
     virtual void                process_message(message const & msg, std::string const & formatted_message);
 
 private:
+    std::string const           f_type;
     std::string const           f_name;
     bool                        f_enabled = true;
     format::pointer_t           f_format = format::pointer_t();
     severity_t                  f_severity = severity_t::SEVERITY_INFORMATION;
+    component::set_t            f_components = component::set_t();
+    regex_pointer_t             f_filter = regex_pointer_t();
 };
 
 

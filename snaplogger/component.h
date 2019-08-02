@@ -34,9 +34,12 @@
  */
 
 
-// self
+// C++ lib
 //
-#include    "snaplogger/message.h"
+#include    <set>
+#include    <string>
+#include    <vector>
+
 
 
 namespace snaplogger
@@ -46,8 +49,8 @@ namespace snaplogger
 class component
 {
 public:
-    typedef component *                 pointer_t;
-    typedef std::vector<pointer_t>      vector_t;
+    typedef component *         pointer_t;
+    typedef std::set<pointer_t> set_t;
 
     static pointer_t            get_component(std::string const & name);
 
@@ -65,26 +68,16 @@ extern component::pointer_t     normal_component;
 extern component::pointer_t     secure_component;
 
 
-inline void add_component(message & msg, component & c)
+struct section_ptr
 {
-    return msg.add_component(c);
+    component::pointer_t    f_component;
+};
+
+inline section_ptr section(component::pointer_t comp)
+{
+    return { comp };
 }
 
-
-
-
-//class normal
-//    : public component
-//{
-//public:
-//};
-//
-//
-//class secure
-//    : public component
-//{
-//public:
-//};
 
 
 

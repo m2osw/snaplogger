@@ -32,6 +32,7 @@
 // self
 //
 #include    "snaplogger/console_appender.h"
+#include    "snaplogger/exception.h"
 #include    "snaplogger/file_appender.h"
 #include    "snaplogger/guard.h"
 #include    "snaplogger/logger.h"
@@ -104,6 +105,18 @@ bool logger::is_configured() const
 }
 
 
+bool logger::has_appender(std::string const & type) const
+{
+    return std::find_if(
+          f_appenders.begin()
+        , f_appenders.end()
+        , [&type](auto a)
+        {
+            return type == a->get_type();
+        }) != f_appenders.end();
+}
+
+
 void logger::set_config(advgetopt::getopt const & params)
 {
     if(params.is_defined("asynchronous"))
@@ -136,17 +149,46 @@ void logger::set_config(advgetopt::getopt const & params)
                 appender::pointer_t a(create_appender(type, section_name));
                 if(a != nullptr)
                 {
-                    f_appenders.push_back(a);
+                    add_appender(a);
                 }
                 // else -- this may be a section which does not represent an appender
             }
         }
     }
 
+    guard g;
+
     for(auto a : f_appenders)
     {
         a->set_config(params);
     }
+}
+
+
+void logger::add_appender(appender::pointer_t a)
+{
+    guard g;
+
+    if(a->unique())
+    {
+        std::string const type(a->get_type());
+        auto it(std::find_if(
+                  f_appenders.begin()
+                , f_appenders.end()
+                , [&type](auto app)
+                {
+                    return type == app->get_type();
+                }));
+        if(it != f_appenders.end())
+        {
+            throw duplicate_error(
+                          "an appender of type \""
+                        + type
+                        + "\" can only be added once.");
+        }
+    }
+
+    f_appenders.push_back(a);
 }
 
 
@@ -174,17 +216,24 @@ void logger::add_config(std::string const & config_filename)
 }
 
 
-void logger::add_console_appender()
+appender::pointer_t logger::add_console_appender()
 {
     appender::pointer_t a(std::make_shared<console_appender>("console"));
 
+    advgetopt::options_environment opt_env;
+    opt_env.f_project_name = "logger";
+    advgetopt::getopt opts(opt_env);
+    a->set_config(opts);
+
     guard g;
 
-    f_appenders.push_back(a);
+    add_appender(a);
+
+    return a;
 }
 
 
-void logger::add_syslog_appender(std::string const & identity)
+appender::pointer_t logger::add_syslog_appender(std::string const & identity)
 {
     appender::pointer_t a(std::make_shared<syslog_appender>("syslog"));
 
@@ -193,34 +242,86 @@ void logger::add_syslog_appender(std::string const & identity)
         advgetopt::define_option(
               advgetopt::Name("syslog::identity")
             , advgetopt::Flags(advgetopt::command_flags<advgetopt::GETOPT_FLAG_REQUIRED>())
-            , advgetopt::DefaultValue(identity.c_str())
         ),
         advgetopt::end_options()
     };
 
     advgetopt::options_environment opt_env;
     opt_env.f_project_name = "logger";
+    opt_env.f_options = options;
+    advgetopt::getopt opts(opt_env);
     if(!identity.empty())
     {
-        opt_env.f_options = options;
+        opts.get_option("syslog::identity")->set_value(0, identity);
     }
-    advgetopt::getopt opts(opt_env);
     a->set_config(opts);
 
     guard g;
 
-    f_appenders.push_back(a);
+    add_appender(a);
+
+    return a;
 }
 
 
-void logger::add_file_appender(std::string const & filename)
+appender::pointer_t logger::add_file_appender(std::string const & filename)
 {
     file_appender::pointer_t a(std::make_shared<file_appender>("file"));
-    a->set_filename(filename);
+
+    advgetopt::option options[] =
+    {
+        advgetopt::define_option(
+              advgetopt::Name("file::filename")
+            , advgetopt::Flags(advgetopt::command_flags<advgetopt::GETOPT_FLAG_REQUIRED>())
+        ),
+        advgetopt::end_options()
+    };
+
+    advgetopt::options_environment opt_env;
+    opt_env.f_project_name = "logger";
+    opt_env.f_options = options;
+    advgetopt::getopt opts(opt_env);
+    if(!filename.empty())
+    {
+        opts.get_option("file::filename")->set_value(0, filename);
+    }
+    a->set_config(opts);
 
     guard g;
 
-    f_appenders.push_back(a);
+    add_appender(a);
+
+    return a;
+}
+
+
+void logger::set_severity(severity_t severity_level)
+{
+    for(auto a : f_appenders)
+    {
+        a->set_severity(severity_level);
+    }
+}
+
+
+void logger::reduce_severity(severity_t severity_level)
+{
+    for(auto a : f_appenders)
+    {
+        a->reduce_severity(severity_level);
+    }
+}
+
+
+void logger::add_component_to_include(component::pointer_t comp)
+{
+    f_components_to_include.insert(comp);
+}
+
+
+void logger::add_component_to_ignore(component::pointer_t comp)
+{
+    f_components_to_ignore.insert(comp);
 }
 
 
@@ -264,8 +365,47 @@ void logger::log_message(message const & msg)
     }
 
     appender::vector_t appenders;
+
     {
         guard g;
+
+        bool include(f_components_to_include.empty());
+        component::set_t const & components(msg.get_components());
+        if(components.empty())
+        {
+            if(f_components_to_ignore.find(normal_component) != f_components_to_ignore.end())
+            {
+                return;
+            }
+            if(!include)
+            {
+                if(f_components_to_include.find(normal_component) != f_components_to_include.end())
+                {
+                    include = true;
+                }
+            }
+        }
+        else
+        {
+            for(auto c : components)
+            {
+                if(f_components_to_ignore.find(c) != f_components_to_ignore.end())
+                {
+                    return;
+                }
+                if(!include)
+                {
+                    if(f_components_to_include.find(c) != f_components_to_include.end())
+                    {
+                        include = true;
+                    }
+                }
+            }
+        }
+        if(!include)
+        {
+            return;
+        }
 
         if(f_appenders.empty())
         {
@@ -291,6 +431,8 @@ void logger::log_message(message const & msg)
 
 bool is_configured()
 {
+    guard g;
+
     if(g_instance == nullptr)
     {
         return false;
@@ -300,9 +442,22 @@ bool is_configured()
 }
 
 
-bool configure_console()
+bool has_appender(std::string const & type)
 {
-    bool result(!is_configured());
+    guard g;
+
+    if(g_instance == nullptr)
+    {
+        return false;
+    }
+
+    return g_instance->has_appender(type);
+}
+
+
+bool configure_console(bool force)
+{
+    bool result(!is_configured() || (force && !has_appender("console")));
     if(result)
     {
         logger::get_instance()->add_console_appender();

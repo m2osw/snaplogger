@@ -1,9 +1,5 @@
 
 
-* Configuration (proper loading)
-
-* Components (I started on NORMAL/SECURITY, need to make sure it works)
-
 * Thread support (asynchronous logging)
 
 If allowed by the app. (most our app. do not use fork(), but those that

@@ -47,6 +47,7 @@ public:
                         syslog_appender(std::string const name);
     virtual             ~syslog_appender() override;
 
+    virtual bool        unique() const override;
     virtual void        set_config(advgetopt::getopt const & params) override;
 
 protected:

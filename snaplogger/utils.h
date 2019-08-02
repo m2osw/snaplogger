@@ -22,6 +22,7 @@
  * Authors:
  *    Alexis Wilke   alexis@m2osw.com
  */
+#pragma once
 
 /** \file
  * \brief Appenders are used to append data to somewhere.
@@ -33,6 +34,7 @@
 // C++ lib
 //
 #include    <map>
+#include    <set>
 #include    <string>
 #include    <vector>
 

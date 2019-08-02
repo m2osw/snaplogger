@@ -113,6 +113,12 @@ advgetopt::option const g_options[] =
           advgetopt::Name("log-severity")
         , advgetopt::Flags(advgetopt::command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS
                             , advgetopt::GETOPT_FLAG_REQUIRED>())
+        , advgetopt::Help("reduce the severity level of each appender to the specified level unless it is already lower.")
+    ),
+    advgetopt::define_option(
+          advgetopt::Name("force-severity")
+        , advgetopt::Flags(advgetopt::command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS
+                            , advgetopt::GETOPT_FLAG_REQUIRED>())
         , advgetopt::Help("change the severity level of each appender to the specified level.")
     ),
 
@@ -120,18 +126,11 @@ advgetopt::option const g_options[] =
     //
     advgetopt::define_option(
           advgetopt::Name("log-component")
-        , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+        , advgetopt::Flags(advgetopt::command_flags<
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS
+                    , advgetopt::GETOPT_FLAG_MULTIPLE
+                    , advgetopt::GETOPT_FLAG_REQUIRED>())
         , advgetopt::Help("filter logs by component, use ! in front of a name to prevent those logs.")
-    ),
-    advgetopt::define_option(
-          advgetopt::Name("filter-diagnotics")
-        , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
-        , advgetopt::Help("filter logs by diagnostics, use ! in front of the name to prevent those logs.")
-    ),
-    advgetopt::define_option(
-          advgetopt::Name("path-to-option-definitions")
-        , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
-        , advgetopt::Help("print out the path to the option definitons.")
     ),
 
     // COMMANDS
@@ -171,7 +170,7 @@ constexpr int const OPTION_LOG_CONFIG   = 0x04;
 constexpr int const OPTION_SYSLOG       = 0x08;
 constexpr int const OPTION_CONSOLE      = 0x10;
 
-void process_logger_options(advgetopt::getopt & opts
+bool process_logger_options(advgetopt::getopt & opts
                           , std::string const & config_path
                           , std::basic_ostream<char> & out)
 {
@@ -281,7 +280,6 @@ void process_logger_options(advgetopt::getopt & opts
                     {
                         out << " . " << n << "\n";
                     }
-                    throw advgetopt::getopt_exception_exit("logger command processed.", 0);
                 }
 
                 config_opts.parse_configuration_files();
@@ -313,46 +311,107 @@ void process_logger_options(advgetopt::getopt & opts
 
     default:
         advgetopt::log << advgetopt::log_level_t::error
-                       << "only one of --no-log, --log-file, --log-config, --syslog, --console can be used simultaneously."
+                       << "only one of --no-log, --log-file, --log-config, --syslog, --console can be used on your command line."
                        << advgetopt::end;
-        return;
+        return false;
 
     }
 
+    if(show_logger_configuration_files)
+    {
+        if(log_config != 0)
+        {
+            if(log_config == OPTION_LOG_CONFIG)
+            {
+                out << "Logger application configuration filename:" << std::endl
+                    << " . " << opts.get_string("log-config") << std::endl;
+            }
+            else
+            {
+                out << "No logger application configuration filenames available with the current command line options." << std::endl;
+            }
+        }
+        throw advgetopt::getopt_exception_exit("logger command processed.", 0);
+    }
 
-//
-//    // SEVERITY
-//    //
-//    advgetopt::define_option(
-//          advgetopt::Name("debug")
-//        , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
-//        , advgetopt::Help("change the severity level of each appender to DEBUG.")
-//    ),
-//    advgetopt::define_option(
-//          advgetopt::Name("log-severity")
-//        , advgetopt::Flags(advgetopt::command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS
-//                            , advgetopt::GETOPT_FLAG_REQUIRED>())
-//        , advgetopt::Help("change the severity level of each appender to the specified level.")
-//    ),
-//
-//    // FILTERS
-//    //
-//    advgetopt::define_option(
-//          advgetopt::Name("log-component")
-//        , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
-//        , advgetopt::Help("filter logs by component, use ! in front of a name to prevent those logs.")
-//    ),
-//    advgetopt::define_option(
-//          advgetopt::Name("filter-diagnotics")
-//        , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
-//        , advgetopt::Help("filter logs by diagnostics, use ! in front of the name to prevent those logs.")
-//    ),
-//    advgetopt::define_option(
-//          advgetopt::Name("path-to-option-definitions")
-//        , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
-//        , advgetopt::Help("print out the path to the option definitons.")
-//    ),
+    // SEVERITY
+    //
+    if(opts.is_defined("debug")
+    || opts.is_defined("log-severity")
+    || opts.is_defined("force-severity"))
+    {
+        advgetopt::log << advgetopt::log_level_t::error
+                       << "only one of --debug, --log-severity, --force-severity can be used on your command line."
+                       << advgetopt::end;
+        return false;
+    }
 
+    if(opts.is_defined("debug"))
+    {
+        logger::get_instance()->reduce_severity(severity_t::SEVERITY_DEBUG);
+
+        configure_console(true);
+    }
+    else if(opts.is_defined("log-severity"))
+    {
+        std::string const severity_name(opts.get_string("log-severity"));
+        severity::pointer_t sev(get_severity(severity_name));
+        if(sev == nullptr)
+        {
+            advgetopt::log << advgetopt::log_level_t::error
+                           << "unknown severity level \""
+                           << severity_name
+                           << "\"; please check your spelling."
+                           << advgetopt::end;
+            return false;
+        }
+        logger::get_instance()->reduce_severity(sev->get_severity());
+    }
+    else if(opts.is_defined("force-severity"))
+    {
+        std::string const severity_name(opts.get_string("force-severity"));
+        severity::pointer_t sev(get_severity(severity_name));
+        if(sev == nullptr)
+        {
+            advgetopt::log << advgetopt::log_level_t::error
+                           << "unknown severity level \""
+                           << severity_name
+                           << "\"; please check your spelling."
+                           << advgetopt::end;
+            return false;
+        }
+        logger::get_instance()->set_severity(sev->get_severity());
+    }
+
+    // FILTERS
+    //
+    if(opts.is_defined("log-component"))
+    {
+        size_t const max(opts.size("log-component"));
+        for(size_t idx(0); idx < max; ++idx)
+        {
+            std::string log_component(opts.get_string("log-component", idx));
+            if(!log_component.empty())
+            {
+                if(log_component[0] == '!')
+                {
+                    log_component = log_component.substr(1);
+                    if(!log_component.empty())
+                    {
+                        component::pointer_t comp(component::get_component(log_component));
+                        logger::get_instance()->add_component_to_ignore(comp);
+                    }
+                }
+                else
+                {
+                    component::pointer_t comp(component::get_component(log_component));
+                    logger::get_instance()->add_component_to_include(comp);
+                }
+            }
+        }
+    }
+
+    return true;
 }
 
 

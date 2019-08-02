@@ -102,13 +102,19 @@ facility_by_name        g_facility_by_name[] =
 
 
 syslog_appender::syslog_appender(std::string const name)
-    : appender(name)
+    : appender(name, "syslog")
 {
 }
 
 
 syslog_appender::~syslog_appender()
 {
+}
+
+
+bool syslog_appender::unique() const
+{
+    return true;
 }
 
 

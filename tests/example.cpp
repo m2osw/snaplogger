@@ -46,13 +46,26 @@ CATCH_TEST_CASE("example", "[example]")
     CATCH_START_SECTION("Simple logging")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "unittest");
+
         snaplogger::logger::pointer_t ptr(snaplogger::logger::get_instance());
-        ptr->add_console_appender();
+        ptr->add_console_appender()->add_component(snaplogger::secure_component);
         ptr->add_syslog_appender("example");
-        ptr->add_file_appender("my-file.log");
+        ptr->add_file_appender("my-file.log")->add_component(snaplogger::debug_component);
+        //ptr->add_component_to_ignore(snaplogger::normal_component);
+        //ptr->add_component_to_include(snaplogger::normal_component);
+
     	SNAP_LOG_ERROR << "Logging this error\n";
     	SNAP_LOG_WARNING << (isatty(fileno(stdout)) ? "" : "Hello world!");
     	SNAP_LOG_FATAL << "Saw empty one? " << 123 << std::endl;
+
+        long value(123);
+    	SNAP_LOG_INFORMATION
+                //<< snaplogger::section(snaplogger::secure_component)
+                << snaplogger::secure
+                << snaplogger::section(snaplogger::debug_component)
+                << "Saw empty one? "
+                << value
+                << std::endl;
     }
     CATCH_END_SECTION()
 }

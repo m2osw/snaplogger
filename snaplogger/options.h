@@ -51,7 +51,7 @@ namespace snaplogger
 
 
 void            add_logger_options(advgetopt::getopt & opts);
-void            process_logger_options(advgetopt::getopt & opts
+bool            process_logger_options(advgetopt::getopt & opts
                                      , std::string const & config_path = std::string("/etc/snaplogger")
                                      , std::basic_ostream<char> & out = std::cout);
 

@@ -109,6 +109,15 @@ void message::set_recursive_message(bool state) const
 }
 
 
+void message::add_component(component::pointer_t c)
+{
+    if(c != nullptr)
+    {
+        f_components.insert(c);
+    }
+}
+
+
 severity_t message::get_severity() const
 {
     return f_severity;
@@ -142,6 +151,12 @@ int message::get_line() const
 bool message::get_recursive_message() const
 {
     return f_recursive_message;
+}
+
+
+component::set_t const & message::get_components() const
+{
+    return f_components;
 }
 
 

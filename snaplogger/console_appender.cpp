@@ -170,13 +170,19 @@ name_to_style const       g_name_to_style[] =
 
 
 console_appender::console_appender(std::string const name)
-    : appender(name)
+    : appender(name, "console")
 {
 }
 
 
 console_appender::~console_appender()
 {
+}
+
+
+bool console_appender::unique() const
+{
+    return true;
 }
 
 
