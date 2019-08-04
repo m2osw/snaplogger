@@ -61,11 +61,9 @@ namespace
 
 
 DEFINE_LOGGER_VARIABLE(severity)
-
-void severity_variable::process_value(message const & msg, std::string & value) const
 {
     severity_t sev(msg.get_severity());
-    severity::pointer_t severity(get_severity(sev));
+    severity::pointer_t severity(get_severity(msg, sev));
     if(severity == nullptr)
     {
         // not found, write value directly
@@ -105,8 +103,6 @@ void severity_variable::process_value(message const & msg, std::string & value) 
 
 
 DEFINE_LOGGER_VARIABLE(message)
-
-void message_variable::process_value(message const & msg, std::string & value) const
 {
     if(msg.get_recursive_message())
     {
@@ -132,14 +128,29 @@ void message_variable::process_value(message const & msg, std::string & value) c
 
 
 
-DEFINE_LOGGER_VARIABLE(progname)
-
-void progname_variable::process_value(message const & msg, std::string & value) const
+DEFINE_LOGGER_VARIABLE(project_name)
 {
     // when the advgetopt is properly connected to the logger, then the
     // logger will save the program name in its diagnostic map
     //
-    map_diagnostics_t map(get_map_diagnostics());
+    map_diagnostics_t map(get_map_diagnostics(msg));
+    auto it(map.find(DIAG_KEY_PROJECT_NAME));
+    if(it != map.end())
+    {
+        value += it->second;
+    }
+
+    variable::process_value(msg, value);
+}
+
+
+
+DEFINE_LOGGER_VARIABLE(progname)
+{
+    // when the advgetopt is properly connected to the logger, then the
+    // logger will save the program name in its diagnostic map
+    //
+    map_diagnostics_t map(get_map_diagnostics(msg));
     auto it(map.find(DIAG_KEY_PROGNAME));
     if(it != map.end())
     {
@@ -152,13 +163,11 @@ void progname_variable::process_value(message const & msg, std::string & value) 
 
 
 DEFINE_LOGGER_VARIABLE(version)
-
-void version_variable::process_value(message const & msg, std::string & value) const
 {
     // when the advgetopt is properly connected to the logger, then the
     // logger will save the program name in its diagnostic map
     //
-    map_diagnostics_t map(get_map_diagnostics());
+    map_diagnostics_t map(get_map_diagnostics(msg));
     auto it(map.find(DIAG_KEY_VERSION));
     if(it != map.end())
     {
@@ -170,9 +179,41 @@ void version_variable::process_value(message const & msg, std::string & value) c
 
 
 
-DEFINE_LOGGER_VARIABLE(filename)
+DEFINE_LOGGER_VARIABLE(build_date)
+{
+    // when the advgetopt is properly connected to the logger, then the
+    // logger will save the program name in its diagnostic map
+    //
+    map_diagnostics_t map(get_map_diagnostics(msg));
+    auto it(map.find(DIAG_KEY_BUILD_DATE));
+    if(it != map.end())
+    {
+        value += it->second;
+    }
 
-void filename_variable::process_value(message const & msg, std::string & value) const
+    variable::process_value(msg, value);
+}
+
+
+
+DEFINE_LOGGER_VARIABLE(build_time)
+{
+    // when the advgetopt is properly connected to the logger, then the
+    // logger will save the program name in its diagnostic map
+    //
+    map_diagnostics_t map(get_map_diagnostics(msg));
+    auto it(map.find(DIAG_KEY_BUILD_TIME));
+    if(it != map.end())
+    {
+        value += it->second;
+    }
+
+    variable::process_value(msg, value);
+}
+
+
+
+DEFINE_LOGGER_VARIABLE(filename)
 {
     value += msg.get_filename();
 
@@ -182,8 +223,6 @@ void filename_variable::process_value(message const & msg, std::string & value) 
 
 
 DEFINE_LOGGER_VARIABLE(basename)
-
-void basename_variable::process_value(message const & msg, std::string & value) const
 {
     std::string const filename(msg.get_filename());
     std::string::size_type const pos(filename.rfind('/'));
@@ -202,8 +241,6 @@ void basename_variable::process_value(message const & msg, std::string & value) 
 
 
 DEFINE_LOGGER_VARIABLE(path)
-
-void path_variable::process_value(message const & msg, std::string & value) const
 {
     std::string const filename(msg.get_filename());
     std::string::size_type const pos(filename.rfind('/'));
@@ -218,8 +255,6 @@ void path_variable::process_value(message const & msg, std::string & value) cons
 
 
 DEFINE_LOGGER_VARIABLE(function)
-
-void function_variable::process_value(message const & msg, std::string & value) const
 {
     value += msg.get_function();
 
@@ -229,8 +264,6 @@ void function_variable::process_value(message const & msg, std::string & value) 
 
 
 DEFINE_LOGGER_VARIABLE(line)
-
-void line_variable::process_value(message const & msg, std::string & value) const
 {
     value += std::to_string(msg.get_line());
 
@@ -240,8 +273,6 @@ void line_variable::process_value(message const & msg, std::string & value) cons
 
 
 DEFINE_LOGGER_VARIABLE(diagnostic)
-
-void diagnostic_variable::process_value(message const & msg, std::string & value) const
 {
     constexpr int FLAG_NESTED = 0x01;
     constexpr int FLAG_MAP    = 0x02;
@@ -268,7 +299,7 @@ void diagnostic_variable::process_value(message const & msg, std::string & value
     || (flags & FLAG_NESTED) != 0)
     {
         char sep('{');
-        string_vector_t nested(get_nested_diagnostics());
+        string_vector_t nested(get_nested_diagnostics(msg));
         size_t idx(0);
         if((flags & FLAG_NESTED) != 0
         && static_cast<ssize_t>(nested.size()) > nested_depth)
@@ -291,7 +322,7 @@ void diagnostic_variable::process_value(message const & msg, std::string & value
     if(flags == 0
     || (flags & FLAG_MAP) != 0)
     {
-        auto const diagnostics(get_map_diagnostics());
+        auto const diagnostics(get_map_diagnostics(msg));
         if(!diagnostics.empty())
         {
             if(key.empty())

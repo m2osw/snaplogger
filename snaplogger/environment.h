@@ -66,12 +66,12 @@ public:
     pid_t               get_pid() const;
     gid_t               get_gid() const;
     pid_t               get_tid() const;
-    std::string const & get_username() const;
-    std::string const & get_groupname() const;
-    std::string const & get_hostname() const;
-    std::string const & get_domainname() const;
-    std::string const & get_progname() const;
-    std::string const & get_threadname() const;
+    std::string         get_username() const;
+    std::string         get_groupname() const;
+    std::string         get_hostname() const;
+    std::string         get_domainname() const;
+    std::string         get_progname() const;
+    std::string         get_threadname() const;
 
 private:
     uid_t               f_uid = -1;

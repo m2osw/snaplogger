@@ -45,6 +45,7 @@
 #include    <sys/types.h>
 #include    <unistd.h>
 
+
 // last include
 //
 #include    <snapdev/poison.h>
@@ -60,8 +61,6 @@ namespace
 
 
 DEFINE_LOGGER_VARIABLE(uid)
-
-void uid_variable::process_value(message const & msg, std::string & value) const
 {
     auto params(get_params());
     if(params.size() > 0
@@ -79,8 +78,6 @@ void uid_variable::process_value(message const & msg, std::string & value) const
 
 
 DEFINE_LOGGER_VARIABLE(username)
-
-void username_variable::process_value(message const & msg, std::string & value) const
 {
     uid_t uid;
     auto params(get_params());
@@ -104,8 +101,6 @@ void username_variable::process_value(message const & msg, std::string & value) 
 
 
 DEFINE_LOGGER_VARIABLE(gid)
-
-void gid_variable::process_value(message const & msg, std::string & value) const
 {
     auto params(get_params());
     if(params.size() > 0
@@ -123,8 +118,6 @@ void gid_variable::process_value(message const & msg, std::string & value) const
 
 
 DEFINE_LOGGER_VARIABLE(groupname)
-
-void groupname_variable::process_value(message const & msg, std::string & value) const
 {
     gid_t gid;
     auto params(get_params());

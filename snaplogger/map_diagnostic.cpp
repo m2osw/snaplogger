@@ -32,7 +32,9 @@
 
 // self
 //
-#include    "map_diagnostic.h"
+#include    "snaplogger/map_diagnostic.h"
+
+#include    "snaplogger/private_logger.h"
 
 
 // last include
@@ -45,36 +47,29 @@ namespace snaplogger
 {
 
 
-namespace
-{
-
-
-map_diagnostics_t   g_diagnostics;
-
-
-}
-// no name namespace
-
-
 
 void set_diagnostic(std::string const & key, std::string const & diagnostic)
 {
-    g_diagnostics[key] = diagnostic;
+    get_private_logger()->set_diagnostic(key, diagnostic);
 }
 
 
 void unset_diagnostic(std::string const & key)
 {
-    auto it(g_diagnostics.find(key));
-    g_diagnostics.erase(it);
+    get_private_logger()->unset_diagnostic(key);
 }
 
 
 map_diagnostics_t get_map_diagnostics()
 {
-    return g_diagnostics;
+    return get_private_logger()->get_map_diagnostics();
 }
 
+
+map_diagnostics_t get_map_diagnostics(message const & msg)
+{
+    return get_private_logger(msg)->get_map_diagnostics();
+}
 
 
 

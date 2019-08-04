@@ -30,6 +30,10 @@
  * This file declares the base appender class.
  */
 
+// self
+//
+#include    "snaplogger/message.h"
+
 // C++ lib
 //
 #include    <map>
@@ -45,8 +49,11 @@ namespace snaplogger
 {
 
 
-constexpr char const        DIAG_KEY_PROGNAME[] = "progname";
-constexpr char const        DIAG_KEY_VERSION[]  = "version";
+constexpr char const        DIAG_KEY_PROJECT_NAME[] = "project_name";
+constexpr char const        DIAG_KEY_PROGNAME[]     = "progname";
+constexpr char const        DIAG_KEY_VERSION[]      = "version";
+constexpr char const        DIAG_KEY_BUILD_DATE[]   = "build_date";
+constexpr char const        DIAG_KEY_BUILD_TIME[]   = "build_time";
 
 
 typedef std::map<std::string, std::string>        map_diagnostics_t;
@@ -55,6 +62,7 @@ void                set_diagnostic(std::string const & key, std::string const & 
 void                unset_diagnostic(std::string const & key);
 
 map_diagnostics_t   get_map_diagnostics();
+map_diagnostics_t   get_map_diagnostics(message const & msg);
 
 
 } // snaplogger namespace

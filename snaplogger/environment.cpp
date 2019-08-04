@@ -47,13 +47,10 @@
 // self
 //
 #include    "snaplogger/environment.h"
+
 #include    "snaplogger/guard.h"
 #include    "snaplogger/map_diagnostic.h"
-
-
-// C++ Lib
-//
-//#include    <string>
+#include    "snaplogger/private_logger.h"
 
 
 // C lib
@@ -62,10 +59,9 @@
 #include    <netdb.h>
 #include    <pwd.h>
 #include    <sys/param.h>
-#include    <sys/syscall.h>
 #include    <sys/sysinfo.h>
 #include    <sys/types.h>
-#include    <unistd.h>
+
 
 // last include
 //
@@ -75,23 +71,6 @@
 
 namespace snaplogger
 {
-
-
-namespace
-{
-
-
-
-typedef std::map<pid_t, environment::pointer_t>     environment_map_t;
-
-environment_map_t                                   g_environment;
-
-
-
-}
-// no name namespace
-
-
 
 
 
@@ -165,38 +144,50 @@ pid_t environment::get_tid() const
 }
 
 
-std::string const & environment::get_username() const
+std::string environment::get_username() const
 {
+    guard g;
+
     return f_username;
 }
 
 
-std::string const & environment::get_groupname() const
+std::string environment::get_groupname() const
 {
+    guard g;
+
     return f_groupname;
 }
 
 
-std::string const & environment::get_hostname() const
+std::string environment::get_hostname() const
 {
+    guard g;
+
     return f_hostname;
 }
 
 
-std::string const & environment::get_domainname() const
+std::string environment::get_domainname() const
 {
+    guard g;
+
     return f_domainname;
 }
 
 
-std::string const & environment::get_progname() const
+std::string environment::get_progname() const
 {
+    guard g;
+
     return f_progname;
 }
 
 
-std::string const & environment::get_threadname() const
+std::string environment::get_threadname() const
 {
+    guard g;
+
     return f_threadname;
 }
 
@@ -205,21 +196,9 @@ std::string const & environment::get_threadname() const
 
 
 
-environment::pointer_t  create_environment()
+environment::pointer_t create_environment()
 {
-    pid_t const tid(static_cast<pid_t>(syscall(SYS_gettid)));
-
-    guard g;
-
-    auto it(g_environment.find(tid));
-    if(it == g_environment.end())
-    {
-        auto result(std::make_shared<environment>(tid));
-        g_environment[tid] = result;
-        return result;
-    }
-
-    return it->second;
+    return get_private_logger()->create_environment();
 }
 
 

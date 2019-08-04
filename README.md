@@ -334,10 +334,16 @@ The following are parameters supported internally:
     ${severity[:format=alpha|number]}
                                 severity level description, in color if allowed
     ${message}                  the log message
+    ${project_name}             name of the project
+                                (equivalent to ${diagnostic:map=project_name})
     ${progname}                 name of the running program
                                 (equivalent to ${diagnostic:map=progname})
     ${version}                  show version of running program
                                 (equivalent to ${diagnostic:map=version})
+    ${build_date}               show build date of running program
+                                (equivalent to ${diagnostic:map=build_date})
+    ${build_time}               show build time of running program
+                                (equivalent to ${diagnostic:map=build_time})
     ${filename}                 name of the file where the log occurred
     ${basename}                 only write the basename of the file
     ${path}                     only write the path to the file
@@ -422,17 +428,15 @@ This way the output of the PID will always look like it is 5 characters.
 Formats are extensible. We use the follwogin macro for that purpose:
 
     DEFINE_LOGGER_VARIABLE(date)
-
-    void date_variable::process_value(message const & msg, std::string & value) const
     {
-        ...
+        ...the process_value() function...
     }
 
 Parameters make use of the following macro
 
     DECLARE_FUNCTION(padding)
     {
-        ...
+        ...the apply() function...
     }
 
 Since you may have parameters of your own, we allow for any parameter to

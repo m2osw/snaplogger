@@ -53,6 +53,7 @@ add_library( ${PROJECT_NAME} SHARED
     message.cpp
     nested_diagnostic.cpp
     options.cpp
+    private_logger.cpp
     severity.cpp
     syslog_appender.cpp
     system_functions.cpp
@@ -64,18 +65,20 @@ add_library( ${PROJECT_NAME} SHARED
 
 include_directories(
     ${ADVGETOPT_INCLUDE_DIRS}
+    ${CPPTHREAD_INCLUDE_DIRS}
     ${LIBEXCEPT_INCLUDE_DIRS}
     ${LIBUFTF8_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME}
     ${ADVGETOPT_LIBRARIES}
+    ${CPPTHREAD_LIBRARIES}
     ${LIBEXCEPT_LIBRARIES}
     ${LIBUFTF8_LIBRARIES}
     ${LOG4CPLUS_LIBRARIES}
 )
 
-set_target_properties( ${PROJECT_NAME} PROPERTIES
+set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION
         ${SNAPLOGGER_VERSION_MAJOR}.${SNAPLOGGER_VERSION_MINOR}
 

@@ -64,12 +64,12 @@ APPENDER_FACTORY(syslog);
 
 struct facility_by_name
 {
-    char const *    f_name = nullptr;
-    int             f_facility = LOG_USER;
+    char const * const  f_name = nullptr;
+    int const           f_facility = LOG_USER;
 };
 
 
-facility_by_name        g_facility_by_name[] =
+constexpr facility_by_name g_facility_by_name[] =
 {
     { "auth",       LOG_AUTH     },
     { "authpriv",   LOG_AUTHPRIV },

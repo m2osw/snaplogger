@@ -32,6 +32,7 @@
 // self
 //
 #include    "snaplogger/console_appender.h"
+
 #include    "snaplogger/guard.h"
 
 
@@ -264,7 +265,7 @@ void console_appender::process_message(message const & msg, std::string const & 
     std::string unstyle;
     if(f_is_a_tty || f_force_style)
     {
-        severity::pointer_t const sev(snaplogger::get_severity(msg.get_severity()));
+        severity::pointer_t const sev(snaplogger::get_severity(msg, msg.get_severity()));
         if(sev != nullptr)
         {
             advgetopt::string_list_t styles;

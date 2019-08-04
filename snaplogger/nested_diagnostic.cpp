@@ -32,9 +32,11 @@
 
 // self
 //
+#include    "snaplogger/nested_diagnostic.h"
+
 #include    "snaplogger/guard.h"
 #include    "snaplogger/message.h"
-#include    "snaplogger/nested_diagnostic.h"
+#include    "snaplogger/private_logger.h"
 
 
 // last include
@@ -48,29 +50,12 @@ namespace snaplogger
 
 
 
-namespace
+nested_diagnostic::nested_diagnostic(std::string const & diagnostic, bool emit_enter_exit_events)
+    : f_emit_enter_exit_events(emit_enter_exit_events)
 {
+    get_private_logger()->push_nested_diagnostic(diagnostic);
 
-
-string_vector_t       g_diagnostics = string_vector_t();
-
-
-
-}
-// no name namespace
-
-
-
-nested_diagnostic::nested_diagnostic(std::string const & diagnostic, bool emit_enter_exit_event)
-    : f_emit_enter_exit_event(emit_enter_exit_event)
-{
-    {
-        guard g;
-
-        g_diagnostics.push_back(diagnostic);
-    }
-
-    if(f_emit_enter_exit_event)
+    if(f_emit_enter_exit_events)
     {
         SNAP_LOG_UNIMPORTANT << "entering nested diagnostic";
     }
@@ -79,20 +64,24 @@ nested_diagnostic::nested_diagnostic(std::string const & diagnostic, bool emit_e
 
 nested_diagnostic::~nested_diagnostic()
 {
-    if(f_emit_enter_exit_event)
+    if(f_emit_enter_exit_events)
     {
         SNAP_LOG_UNIMPORTANT << "exiting nested diagnostic";
     }
 
-    guard g;
-
-    g_diagnostics.pop_back();
+    get_private_logger()->pop_nested_diagnostic();
 }
 
 
 string_vector_t get_nested_diagnostics()
 {
-    return g_diagnostics;
+    return get_private_logger()->get_nested_diagnostics();
+}
+
+
+string_vector_t get_nested_diagnostics(message const & msg)
+{
+    return get_private_logger(msg)->get_nested_diagnostics();
 }
 
 

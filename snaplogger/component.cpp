@@ -32,8 +32,10 @@
 // self
 //
 #include    "snaplogger/component.h"
+
 #include    "snaplogger/exception.h"
 #include    "snaplogger/guard.h"
+#include    "snaplogger/private_logger.h"
 
 
 // snapdev lib
@@ -57,57 +59,46 @@ namespace snaplogger
 
 
 
-namespace
-{
+component::pointer_t        g_debug_component(get_component(COMPONENT_DEBUG));
+component::pointer_t        g_normal_component(get_component(COMPONENT_NORMAL));
+component::pointer_t        g_secure_component(get_component(COMPONENT_SECURE));
 
 
-typedef std::map<std::string, component::pointer_t>        component_map_t;
-
-component_map_t     g_components;
-
-
-}
-// no name namespace
-
-
-component::pointer_t        debug_component(component::get_component("debug"));
-component::pointer_t        normal_component(component::get_component("normal"));
-component::pointer_t        secure_component(component::get_component("secure"));
-
-
+/** \brief Create a new component.
+ *
+ * \warning
+ * DO NOT CREATE A COMPONENT DIRECTLY.
+ *
+ * Please use the get_component() function whenever you want to create
+ * a new component. If it already exists, then the existing one will
+ * be returned.
+ *
+ * It is not possible to register the same component more than once.
+ * The get_component() function makes sure that won't happen.
+ *
+ * \param[in] name  The name of the new component.
+ */
 component::component(std::string const & name)
     : f_name(name)
 {
-    if(g_components.find(name) != g_components.end())
-    {
-        throw duplicate_component(
-                  "component \""
-                + name
-                + "\" already exists, it can only be registered once.");
-    }
-
-    g_components[name] = this;
-}
-
-
-component::pointer_t component::get_component(std::string const & name)
-{
-    guard g;
-
-    auto it(g_components.find(name));
-    if(it == g_components.end())
-    {
-        component::pointer_t c(new component(name));
-        return c;
-    }
-
-    return it->second;
 }
 
 
 std::string const & component::get_name() const
 {
     return f_name;
+}
+
+
+component::pointer_t get_component(std::string const & name)
+{
+    return get_private_logger()->get_component(name);
+}
+
+
+component::pointer_t get_component(message const & msg, std::string const & name)
+{
+    return get_private_logger(msg)->get_component(name);
 }
 
 

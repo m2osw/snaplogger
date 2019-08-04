@@ -31,11 +31,13 @@
 
 // self
 //
+#include    "snaplogger/logger.h"
+
 #include    "snaplogger/console_appender.h"
 #include    "snaplogger/exception.h"
 #include    "snaplogger/file_appender.h"
 #include    "snaplogger/guard.h"
-#include    "snaplogger/logger.h"
+#include    "snaplogger/private_logger.h"
 #include    "snaplogger/syslog_appender.h"
 
 
@@ -53,7 +55,30 @@ namespace
 {
 
 
-logger::pointer_t           g_instance = logger::pointer_t();
+
+bool                        g_first_instance = true;
+logger::pointer_t *         g_instance = nullptr;
+
+
+struct auto_delete_logger
+{
+    ~auto_delete_logger()
+    {
+        logger::pointer_t * ptr(nullptr);
+        {
+            guard g;
+            std::swap(ptr, g_instance);
+        }
+        if(ptr != nullptr)
+        {
+            (*ptr)->shutdown();
+            delete ptr;
+        }
+    }
+};
+
+auto_delete_logger          g_logger_deleter = auto_delete_logger();
+
 
 
 }
@@ -66,16 +91,31 @@ logger::logger()
 }
 
 
+logger::~logger()
+{
+}
+
+
 logger::pointer_t logger::get_instance()
 {
     guard g;
 
     if(g_instance == nullptr)
     {
-        g_instance = std::make_shared<logger>();
+        if(!g_first_instance)
+        {
+            throw duplicate_error("preventing an attempt of re-creating the snap logger.");
+        }
+
+        g_first_instance = false;
+
+        // note that we create a `private_logger` object
+        //
+        g_instance = new logger::pointer_t();
+        g_instance->reset(new private_logger());
     }
 
-    return g_instance;
+    return *g_instance;
 }
 
 
@@ -94,6 +134,11 @@ void logger::reset()
 
     set_asynchronous(false);
     f_appenders.clear();
+}
+
+
+void logger::shutdown()
+{
 }
 
 
@@ -295,8 +340,19 @@ appender::pointer_t logger::add_file_appender(std::string const & filename)
 }
 
 
+severity_t logger::get_lowest_severity() const
+{
+    guard g;
+
+    return f_lowest_severity;
+}
+
+
 void logger::set_severity(severity_t severity_level)
 {
+    guard g;
+
+    f_lowest_severity = severity_level;
     for(auto a : f_appenders)
     {
         a->set_severity(severity_level);
@@ -313,14 +369,29 @@ void logger::reduce_severity(severity_t severity_level)
 }
 
 
+void logger::severity_changed(severity_t severity_level)
+{
+    guard g;
+
+    if(severity_level < f_lowest_severity)
+    {
+        f_lowest_severity = severity_level;
+    }
+}
+
+
 void logger::add_component_to_include(component::pointer_t comp)
 {
+    guard g;
+
     f_components_to_include.insert(comp);
 }
 
 
 void logger::add_component_to_ignore(component::pointer_t comp)
 {
+    guard g;
+
     f_components_to_ignore.insert(comp);
 }
 
@@ -337,20 +408,24 @@ void logger::set_asynchronous(bool status)
 {
     status = status != false;
 
-    guard g;
-
-    if(f_asynchronous != status)
+    bool do_delete(false);
     {
-        f_asynchronous = status;
+        guard g;
 
-        if(f_asynchronous)
+        if(f_asynchronous != status)
         {
-            // TODO: create thread
+            f_asynchronous = status;
+            if(!f_asynchronous)
+            {
+                do_delete = true;
+            }
         }
-        else
-        {
-            // TODO: kill thread
-        }
+    }
+
+    if(do_delete)
+    {
+        private_logger * l(dynamic_cast<private_logger *>(this));
+        l->delete_thread();
     }
 }
 
@@ -364,6 +439,25 @@ void logger::log_message(message const & msg)
         return;
     }
 
+    {
+        guard g;
+
+        if(f_asynchronous)
+        {
+            message::pointer_t m(std::make_shared<message>(msg, msg));
+            private_logger * l(dynamic_cast<private_logger *>(this));
+            l->send_message_to_thread(m);
+            return;
+        }
+    }
+
+    process_message(msg);
+}
+
+
+void logger::process_message(message const & msg)
+{
+
     appender::vector_t appenders;
 
     {
@@ -373,13 +467,13 @@ void logger::log_message(message const & msg)
         component::set_t const & components(msg.get_components());
         if(components.empty())
         {
-            if(f_components_to_ignore.find(normal_component) != f_components_to_ignore.end())
+            if(f_components_to_ignore.find(f_normal_component) != f_components_to_ignore.end())
             {
                 return;
             }
             if(!include)
             {
-                if(f_components_to_include.find(normal_component) != f_components_to_include.end())
+                if(f_components_to_include.find(f_normal_component) != f_components_to_include.end())
                 {
                     include = true;
                 }
@@ -438,7 +532,7 @@ bool is_configured()
         return false;
     }
 
-    return g_instance->is_configured();
+    return (*g_instance)->is_configured();
 }
 
 
@@ -451,7 +545,7 @@ bool has_appender(std::string const & type)
         return false;
     }
 
-    return g_instance->has_appender(type);
+    return (*g_instance)->has_appender(type);
 }
 
 

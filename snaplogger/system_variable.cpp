@@ -40,13 +40,15 @@
 #include    "snaplogger/variable.h"
 
 
+// cppthread lib
+//
+#include    <cppthread/thread.h>
+
+
 // C lib
 //
 #include    <netdb.h>
 #include    <sys/param.h>
-#include    <sys/syscall.h>
-#include    <sys/sysinfo.h>
-#include    <unistd.h>
 
 
 // last include
@@ -64,8 +66,6 @@ namespace
 
 
 DEFINE_LOGGER_VARIABLE(hostname)
-
-void hostname_variable::process_value(message const & msg, std::string & value) const
 {
     auto params(get_params());
     if(params.size() > 0
@@ -86,8 +86,6 @@ void hostname_variable::process_value(message const & msg, std::string & value) 
 
 
 DEFINE_LOGGER_VARIABLE(hostbyname)
-
-void hostbyname_variable::process_value(message const & msg, std::string & value) const
 {
     auto params(get_params());
     if(params.empty())
@@ -118,8 +116,6 @@ void hostbyname_variable::process_value(message const & msg, std::string & value
 
 
 DEFINE_LOGGER_VARIABLE(domainname)
-
-void domainname_variable::process_value(message const & msg, std::string & value) const
 {
     auto params(get_params());
     if(params.size() > 0
@@ -140,8 +136,6 @@ void domainname_variable::process_value(message const & msg, std::string & value
 
 
 DEFINE_LOGGER_VARIABLE(pid)
-
-void pid_variable::process_value(message const & msg, std::string & value) const
 {
     auto params(get_params());
     if(params.size() > 0
@@ -159,14 +153,12 @@ void pid_variable::process_value(message const & msg, std::string & value) const
 
 
 DEFINE_LOGGER_VARIABLE(tid)
-
-void tid_variable::process_value(message const & msg, std::string & value) const
 {
     auto params(get_params());
     if(params.size() > 0
     && params[0]->get_name() == "running")
     {
-        value += std::to_string(static_cast<pid_t>(syscall(SYS_gettid)));
+        value += std::to_string(cppthread::gettid());
     }
     else
     {
@@ -178,8 +170,6 @@ void tid_variable::process_value(message const & msg, std::string & value) const
 
 
 DEFINE_LOGGER_VARIABLE(threadname)
-
-void threadname_variable::process_value(message const & msg, std::string & value) const
 {
     auto params(get_params());
     if(params.size() > 0
@@ -190,7 +180,7 @@ void threadname_variable::process_value(message const & msg, std::string & value
         // implementation, any others would have to be done manually
         //
         map_diagnostics_t diag(get_map_diagnostics());
-        std::string tid(std::to_string(static_cast<pid_t>(syscall(SYS_gettid))));
+        std::string const tid(std::to_string(cppthread::gettid()));
         auto it(diag.find("threadname#" + tid));
         if(it != diag.end())
         {

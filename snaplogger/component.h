@@ -36,6 +36,7 @@
 
 // C++ lib
 //
+#include    <memory>
 #include    <set>
 #include    <string>
 #include    <vector>
@@ -46,26 +47,36 @@ namespace snaplogger
 {
 
 
+class message;
+
+
 class component
 {
 public:
-    typedef component *         pointer_t;
-    typedef std::set<pointer_t> set_t;
+    typedef std::shared_ptr<component>      pointer_t;
+    typedef std::set<pointer_t>             set_t;
 
-    static pointer_t            get_component(std::string const & name);
+                                component(std::string const & name);
 
     std::string const &         get_name() const;
 
 private:
-                                component(std::string const & name);
-
     std::string const           f_name;
 };
 
 
-extern component::pointer_t     debug_component;
-extern component::pointer_t     normal_component;
-extern component::pointer_t     secure_component;
+
+component::pointer_t            get_component(std::string const & name);
+component::pointer_t            get_component(message const & msg, std::string const & name);
+
+
+constexpr char const            COMPONENT_DEBUG[]  = "debug";
+constexpr char const            COMPONENT_NORMAL[] = "normal";
+constexpr char const            COMPONENT_SECURE[] = "secure";
+
+extern component::pointer_t     g_debug_component;
+extern component::pointer_t     g_normal_component;
+extern component::pointer_t     g_secure_component;
 
 
 struct section_ptr

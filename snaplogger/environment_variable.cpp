@@ -54,8 +54,6 @@ namespace
 
 
 DEFINE_LOGGER_VARIABLE(env)
-
-void env_variable::process_value(message const & msg, std::string & value) const
 {
     auto params(get_params());
     if(params.empty())

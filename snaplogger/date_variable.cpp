@@ -84,8 +84,6 @@ timespec const g_start_date = []() { timespec tp; clock_gettime(CLOCK_REALTIME_C
 
 
 DEFINE_LOGGER_VARIABLE(date)
-
-void date_variable::process_value(message const & msg, std::string & value) const
 {
     tm t;
     timespec const & timestamp(msg.get_timestamp());
@@ -145,8 +143,6 @@ void date_variable::process_value(message const & msg, std::string & value) cons
 
 
 DEFINE_LOGGER_VARIABLE(time)
-
-void time_variable::process_value(message const & msg, std::string & value) const
 {
     auto nanosec = [](timespec const & tp)
     {
@@ -272,8 +268,6 @@ void time_variable::process_value(message const & msg, std::string & value) cons
 
 
 DEFINE_LOGGER_VARIABLE(locale)
-
-void locale_variable::process_value(message const & msg, std::string & value) const
 {
     tm t;
     timespec const & timestamp(msg.get_timestamp());

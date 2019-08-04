@@ -29,17 +29,19 @@
  * This file implements the base appender class.
  */
 
-#include    <snapdev/empty_set_intersection.h>
 
 // self
 //
 #include    "snaplogger/appender.h"
+
 #include    "snaplogger/exception.h"
 #include    "snaplogger/guard.h"
+#include    "snaplogger/private_logger.h"
 
 
 // snapdev lib
 //
+#include    <snapdev/empty_set_intersection.h>
 #include    <snapdev/not_used.h>
 
 
@@ -62,13 +64,6 @@ namespace
 {
 
 
-typedef std::map<std::string, appender_factory *>    appender_factory_t;
-
-appender_factory_t      g_appender_types = appender_factory_t();
-
-
-format::pointer_t       g_default_format = format::pointer_t();
-
 
 // if we want to be able to reference such we need to create it TBD
 // (and it should probably be in the null_appender.cpp file instead)
@@ -81,22 +76,11 @@ format::pointer_t       g_default_format = format::pointer_t();
 appender::appender(std::string const & name, std::string const & type)
     : f_type(type)
     , f_name(name)
+    , f_normal_component(get_component(COMPONENT_NORMAL))
 {
     guard g;
 
-    if(g_default_format == nullptr)
-    {
-        g_default_format = std::make_shared<format>(
-            //"${env:name=HOME:padding='-':align=center:exact_width=6} "
-            "${date} ${time} ${hostname}"
-            " ${progname}[${pid}]: ${severity}:"
-            " ${message:escape:max_width=1000}"
-            " (in function \"${function}()\")"
-            " (${basename}:${line})"
-        );
-    }
-
-    f_format = g_default_format;
+    f_format = get_private_logger()->get_default_format();
 }
 
 
@@ -150,6 +134,7 @@ void appender::set_severity(severity_t severity_level)
     guard g;
 
     f_severity = severity_level;
+    logger::get_instance()->severity_changed(severity_level);
 }
 
 
@@ -209,7 +194,7 @@ void appender::set_config(advgetopt::getopt const & opts)
         severity::pointer_t sev(snaplogger::get_severity(severity_name));
         if(sev != nullptr)
         {
-            f_severity = sev->get_severity();
+            set_severity(sev->get_severity());
         }
         else
         {
@@ -225,7 +210,7 @@ void appender::set_config(advgetopt::getopt const & opts)
         severity::pointer_t sev(snaplogger::get_severity(severity_name));
         if(sev != nullptr)
         {
-            f_severity = sev->get_severity();
+            set_severity(sev->get_severity());
         }
         else
         {
@@ -250,7 +235,7 @@ void appender::set_config(advgetopt::getopt const & opts)
     }
     if(comp.empty())
     {
-        add_component(normal_component);
+        add_component(f_normal_component);
     }
     else
     {
@@ -258,7 +243,7 @@ void appender::set_config(advgetopt::getopt const & opts)
         advgetopt::split_string(comp, component_names, {","});
         for(auto name : component_names)
         {
-            add_component(component::get_component(name));
+            add_component(get_component(name));
         }
     }
 
@@ -399,7 +384,7 @@ void appender::send_message(message const & msg)
         // user did not supply any component in 'msg', check for
         // the normal component
         //
-        if(f_components.find(normal_component) == f_components.end())
+        if(f_components.find(f_normal_component) == f_components.end())
         {
             return;
         }
@@ -448,16 +433,8 @@ void appender::process_message(message const & msg, std::string const & formatte
 
 
 appender_factory::appender_factory(std::string const & type)
+    : f_type(type)
 {
-    if(g_appender_types.find(type) != g_appender_types.end())
-    {
-        throw duplicate_error(
-                  "trying to register appender type \""
-                + type
-                + "\" twice won't work.");
-    }
-
-    g_appender_types[type] = this;
 }
 
 
@@ -466,16 +443,23 @@ appender_factory::~appender_factory()
 }
 
 
+std::string const & appender_factory::get_type() const
+{
+    return f_type;
+}
+
+
+
+
+void register_appender_factory(appender_factory::pointer_t factory)
+{
+    get_private_logger()->register_appender_factory(factory);
+}
+
 
 appender::pointer_t create_appender(std::string const & type, std::string const & name)
 {
-    auto it(g_appender_types.find(type));
-    if(it != g_appender_types.end())
-    {
-        return it->second->create(name);
-    }
-
-    return appender::pointer_t();
+    return get_private_logger()->create_appender(type, name);
 }
 
 
@@ -494,6 +478,11 @@ safe_format::~safe_format()
 {
     snap::NOTUSED(f_appender->set_format(f_old_format));
 }
+
+
+
+
+
 
 
 } // snaplogger namespace

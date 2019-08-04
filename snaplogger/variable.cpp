@@ -57,9 +57,11 @@
 
 // self
 //
+#include    "snaplogger/variable.h"
+
 #include    "snaplogger/exception.h"
 #include    "snaplogger/guard.h"
-#include    "snaplogger/variable.h"
+#include    "snaplogger/private_logger.h"
 
 
 // libutf8 lib
@@ -90,21 +92,8 @@ namespace
 
 
 
-typedef std::map<std::string, function *>   function_map_t;
-
-function_map_t *                            g_functions = nullptr;
-
-
-
-typedef std::map<std::string, variable_factory *>       variable_factory_map_t;
-
-variable_factory_map_t *         g_variable_factories = nullptr;
 
 DEFINE_LOGGER_VARIABLE(direct)
-
-void direct_variable::process_value(
-                  message const & msg
-                , std::string & value) const
 {
     snap::NOTUSED(msg);
 
@@ -147,7 +136,7 @@ param::type_t param::get_type() const
 }
 
 
-std::string const & param::get_value() const
+std::string param::get_value() const
 {
     if(f_type != type_t::TYPE_STRING)
     {
@@ -202,18 +191,24 @@ variable::~variable()
 
 void variable::add_param(param::pointer_t p)
 {
+    guard g;
+
     f_params.push_back(p);
 }
 
 
-param::vector_t const & variable::get_params() const
+param::vector_t variable::get_params() const
 {
+    guard g;
+
     return f_params;
 }
 
 
 std::string variable::get_value(message const & msg) const
 {
+    guard g;
+
     std::string value;
     process_value(msg, value);
     return value;
@@ -222,12 +217,13 @@ std::string variable::get_value(message const & msg) const
 
 void variable::process_value(message const & msg, std::string & value) const
 {
+    auto l(get_private_logger(msg));
+
     {
         guard g;
 
-        if(g_functions == nullptr)
+        if(!l->has_functions())
         {
-std::cerr << "-------------- no funcs?!\n";
             // no functions available, we're done
             return;
         }
@@ -244,11 +240,12 @@ std::cerr << "-------------- no funcs?!\n";
             continue;
         }
 
-        auto it(g_functions->find(name));
-        if(it != g_functions->end())
+        auto func(l->get_function(name));
+        if(func != nullptr)
         {
-            it->second->apply(msg, d, p);
+            func->apply(msg, d, p);
         }
+        // else -- ignore missing functions
     }
 
     value = libutf8::to_u8string(d.get_value());
@@ -260,14 +257,13 @@ std::cerr << "-------------- no funcs?!\n";
 
 
 
-variable_factory::variable_factory(std::string const & type)
-{
-    if(g_variable_factories == nullptr)
-    {
-        g_variable_factories = new variable_factory_map_t;
-    }
 
-    (*g_variable_factories)[type] = this;
+
+
+
+variable_factory::variable_factory(std::string const & type)
+    : f_type(type)
+{
 }
 
 
@@ -276,32 +272,27 @@ variable_factory::~variable_factory()
 }
 
 
+std::string const & variable_factory::get_type() const
+{
+    return f_type;
+}
 
 
 
+
+void register_variable_factory(variable_factory::pointer_t factory)
+{
+    get_private_logger()->register_variable_factory(factory);
+}
 
 
 
 variable::pointer_t get_variable(std::string const & type)
 {
-    if(g_variable_factories == nullptr)
-    {
-        throw invalid_variable("No variable factories were registered yet; you can't create variable with type \""
-                             + type
-                             + "\".");
-    }
-
-    auto it(g_variable_factories->find(type));
-    if(it == g_variable_factories->end())
-    {
-        // TBD: should we instead return a null var.?
-        throw invalid_variable("You can't create variable with type \""
-                             + type
-                             + "\", no such variable type was registered.");
-    }
-
-    return it->second->create_variable();
+    return get_private_logger()->get_variable(type);
 }
+
+
 
 
 
@@ -309,20 +300,28 @@ variable::pointer_t get_variable(std::string const & type)
 
 
 function::function(std::string const & function_name)
+    : f_name(function_name)
 {
-    guard g;
-
-    if(g_functions == nullptr)
-    {
-        g_functions = new function_map_t();
-    }
-
-    (*g_functions)[function_name] = this;
 }
 
 
 function::~function()
 {
+}
+
+
+std::string const & function::get_name() const
+{
+    return f_name;
+}
+
+
+
+void register_function(function::pointer_t func)
+{
+    guard g;
+
+    get_private_logger()->register_function(func);
 }
 
 

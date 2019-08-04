@@ -33,8 +33,9 @@
 
 // self
 //
-#include    "snaplogger/exception.h"
 #include    "snaplogger/format.h"
+
+#include    "snaplogger/exception.h"
 
 
 // C++ lib

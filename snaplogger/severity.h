@@ -53,6 +53,8 @@ namespace snaplogger
 {
 
 
+class message;
+
 
 enum class severity_t
 {
@@ -73,7 +75,11 @@ enum class severity_t
     SEVERITY_ALERT              = 220,
     SEVERITY_EMERGENCY          = 230,
     SEVERITY_FATAL              = 250,
-    SEVERITY_OFF                = 255
+    SEVERITY_OFF                = 255,
+
+    SEVERITY_DEFAULT = SEVERITY_INFORMATION,
+    SEVERITY_MIN = SEVERITY_ALL,
+    SEVERITY_MAX = SEVERITY_OFF
 };
 
 
@@ -112,7 +118,9 @@ private:
 
 void                    add_severity(severity::pointer_t sev);
 severity::pointer_t     get_severity(std::string const & name);
+severity::pointer_t     get_severity(message const & msg, std::string const & name);
 severity::pointer_t     get_severity(severity_t sev);
+severity::pointer_t     get_severity(message const & msg, severity_t sev);
 
 
 

@@ -35,20 +35,22 @@
 
 // self
 //
-#include    "snaplogger/logger.h"
 #include    "snaplogger/options.h"
+
+#include    "snaplogger/logger.h"
+#include    "snaplogger/map_diagnostic.h"
 #include    "snaplogger/version.h"
 
 
 // advgetopt lib
 //
-#include    "advgetopt/exception.h"
-#include    "advgetopt/log.h"
+#include    <advgetopt/exception.h>
+#include    <advgetopt/log.h>
 
 
 // last include
 //
-#include <snapdev/poison.h>
+#include    <snapdev/poison.h>
 
 
 
@@ -160,6 +162,21 @@ advgetopt::option const g_options[] =
 
 void add_logger_options(advgetopt::getopt & opts)
 {
+    auto env(opts.get_options_environment());
+    if(env.f_version != nullptr)
+    {
+        set_diagnostic(DIAG_KEY_VERSION, env.f_version);
+    }
+    if(env.f_build_date != nullptr)
+    {
+        set_diagnostic(DIAG_KEY_BUILD_DATE, env.f_build_date);
+    }
+    if(env.f_build_time != nullptr)
+    {
+        set_diagnostic(DIAG_KEY_BUILD_TIME, env.f_build_time);
+    }
+    set_diagnostic(DIAG_KEY_PROJECT_NAME, opts.get_project_name());
+
     opts.parse_options_info(g_options, true);
 }
 
@@ -174,6 +191,8 @@ bool process_logger_options(advgetopt::getopt & opts
                           , std::string const & config_path
                           , std::basic_ostream<char> & out)
 {
+    set_diagnostic(DIAG_KEY_PROGNAME, opts.get_program_name());
+
     // COMMANDS
     //
     if(opts.is_defined("logger-version"))
@@ -398,13 +417,13 @@ bool process_logger_options(advgetopt::getopt & opts
                     log_component = log_component.substr(1);
                     if(!log_component.empty())
                     {
-                        component::pointer_t comp(component::get_component(log_component));
+                        component::pointer_t comp(get_component(log_component));
                         logger::get_instance()->add_component_to_ignore(comp);
                     }
                 }
                 else
                 {
-                    component::pointer_t comp(component::get_component(log_component));
+                    component::pointer_t comp(get_component(log_component));
                     logger::get_instance()->add_component_to_include(comp);
                 }
             }

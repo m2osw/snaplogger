@@ -40,6 +40,7 @@
 // self
 //
 #include    "snaplogger/buffer_appender.h"
+
 #include    "snaplogger/guard.h"
 
 

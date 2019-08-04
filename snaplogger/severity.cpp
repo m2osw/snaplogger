@@ -34,9 +34,11 @@
 
 // self
 //
+#include    "snaplogger/severity.h"
+
 #include    "snaplogger/exception.h"
 #include    "snaplogger/guard.h"
-#include    "snaplogger/severity.h"
+#include    "snaplogger/private_logger.h"
 
 
 // advgetopt lib
@@ -71,12 +73,7 @@ namespace
 {
 
 
-typedef std::map<severity_t, severity::pointer_t>     severity_by_severity_t;
-typedef std::map<std::string, severity::pointer_t>    severity_by_name_t;
-
-severity_by_severity_t      g_severity_by_severity;
-severity_by_name_t          g_severity_by_name;
-
+bool        g_severity_auto_added = false;
 
 
 struct system_severity
@@ -90,7 +87,7 @@ struct system_severity
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
-system_severity const       g_system_severity[] =
+constexpr system_severity g_system_severity[] =
 {
     {
         .f_severity     = severity_t::SEVERITY_ALL,
@@ -219,7 +216,6 @@ system_severity const       g_system_severity[] =
         .f_styles       = nullptr
     }
 };
-//size_t const    g_system_severity_size(sizeof(g_system_severity) / sizeof(g_system_severity[0]));
 
 
 
@@ -252,10 +248,13 @@ void auto_add_severities()
 {
     guard g;
 
-    if(!g_severity_by_severity.empty())
+    if(g_severity_auto_added)
     {
         return;
     }
+    g_severity_auto_added = true;
+
+    private_logger::pointer_t l(get_private_logger());
 
     for(auto ss : g_system_severity)
     {
@@ -272,22 +271,7 @@ void auto_add_severities()
             sev->set_styles(ss.f_styles);
         }
 
-        // the very first time we need to avoid an never ending recursive
-        // call (since we get called by add_severity())
-        //
-        if(g_severity_by_severity.empty())
-        {
-            g_severity_by_severity[sev->get_severity()] = sev;
-
-            for(auto n : sev->get_all_names())
-            {
-                g_severity_by_name[n] = sev;
-            }
-        }
-        else
-        {
-            add_severity(sev);
-        }
+        l->add_severity(sev);
     }
 
     // load user editable parameters
@@ -327,7 +311,7 @@ void auto_add_severities()
                 }
                 else
                 {
-                    throw invalid_severity("we found two severity levels named \""
+                    throw duplicate_error("we found two severity levels named \""
                                          + name
                                          + "\" in your severity.ini file.");
                 }
@@ -350,13 +334,13 @@ void auto_add_severities()
                 sev = get_severity(static_cast<severity_t>(level));
                 if(sev != nullptr)
                 {
-                    throw invalid_severity("there is another severity with level "
+                    throw duplicate_error("there is another severity with level "
                                          + std::to_string(level)
-                                         + ", try using alias=... instead.");
+                                         + ", try using aliases=... instead.");
                 }
 
                 sev = std::make_shared<severity>(static_cast<severity_t>(level), name);
-                add_severity(sev);
+                l->add_severity(sev);
             }
 
             std::string const aliases_field(name + "::aliases");
@@ -402,7 +386,7 @@ severity::severity(severity_t sev, std::string const & name, bool system)
 }
 
 
-severity_t severity::severity::get_severity() const
+severity_t severity::get_severity() const
 {
     return f_severity;
 }
@@ -461,69 +445,36 @@ std::string severity::get_styles() const
 
 void add_severity(severity::pointer_t sev)
 {
-    guard g;
-
     auto_add_severities();
-
-    auto it(g_severity_by_severity.find(sev->get_severity()));
-    if(it != g_severity_by_severity.end())
-    {
-        if(it->second->is_system())
-        {
-            throw invalid_severity("a system severity cannot be replaced.");
-        }
-    }
-
-    for(auto n : sev->get_all_names())
-    {
-        auto s(g_severity_by_name.find(n));
-        if(s != g_severity_by_name.end())
-        {
-            if(s->second->is_system())
-            {
-                throw invalid_severity("a system severity cannot be replaced.");
-            }
-        }
-    }
-
-    g_severity_by_severity[sev->get_severity()] = sev;
-
-    for(auto n : sev->get_all_names())
-    {
-        g_severity_by_name[n] = sev;
-    }
+    get_private_logger()->add_severity(sev);
 }
 
 
 severity::pointer_t get_severity(std::string const & name)
 {
-    guard g;
-
     auto_add_severities();
+    return get_private_logger()->get_severity(name);
+}
 
-    auto it(g_severity_by_name.find(name));
-    if(it == g_severity_by_name.end())
-    {
-        return severity::pointer_t();
-    }
 
-    return it->second;
+severity::pointer_t get_severity(message const & msg, std::string const & name)
+{
+    auto_add_severities();
+    return get_private_logger(msg)->get_severity(name);
 }
 
 
 severity::pointer_t get_severity(severity_t sev)
 {
-    guard g;
-
     auto_add_severities();
+    return get_private_logger()->get_severity(sev);
+}
 
-    auto it(g_severity_by_severity.find(sev));
-    if(it == g_severity_by_severity.end())
-    {
-        return severity::pointer_t();
-    }
 
-    return it->second;
+severity::pointer_t get_severity(message const & msg, severity_t sev)
+{
+    auto_add_severities();
+    return get_private_logger(msg)->get_severity(sev);
 }
 
 

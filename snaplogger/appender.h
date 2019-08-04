@@ -85,6 +85,7 @@ private:
     bool                        f_enabled = true;
     format::pointer_t           f_format = format::pointer_t();
     severity_t                  f_severity = severity_t::SEVERITY_INFORMATION;
+    component::pointer_t        f_normal_component = component::pointer_t();
     component::set_t            f_components = component::set_t();
     regex_pointer_t             f_filter = regex_pointer_t();
 };
@@ -93,10 +94,16 @@ private:
 class appender_factory
 {
 public:
+    typedef std::shared_ptr<appender_factory>   pointer_t;
+
                                     appender_factory(std::string const & type);
     virtual                         ~appender_factory();
 
+    std::string const &             get_type() const;
     virtual appender::pointer_t     create(std::string const & name) = 0;
+
+private:
+    std::string const               f_type;
 };
 
 
@@ -108,14 +115,20 @@ public:
         name##_appender_factory()                                       \
             : appender_factory(#name)                                   \
         {}                                                              \
-        virtual ::snaplogger::appender::pointer_t create(std::string const & name) override   \
+        virtual ::snaplogger::appender::pointer_t                       \
+                            create(std::string const & name) override   \
         {                                                               \
             return std::make_shared<name##_appender>(name);             \
         }                                                               \
     };                                                                  \
-    name##_appender_factory      g_##file##_factory
+    int g_##name##_register_appender_factory = []() {                   \
+            register_appender_factory(                                  \
+                    std::make_shared<name##_appender_factory>());       \
+            return 0;                                                   \
+        }()
 
 
+void                register_appender_factory(appender_factory::pointer_t factory);
 appender::pointer_t create_appender(std::string const & type, std::string const & name);
 
 
@@ -131,6 +144,8 @@ private:
     appender::pointer_t f_appender;
     format::pointer_t   f_old_format;
 };
+
+
 
 
 } // snaplogger namespace

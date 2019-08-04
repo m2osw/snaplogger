@@ -43,64 +43,23 @@
 
 // libexcept lib
 //
-#include    "libexcept/exception.h"
+#include    <libexcept/exception.h>
 
 
 namespace snaplogger
 {
 
 
-class logger_logic_error
-    : public libexcept::logic_exception_t
-{
-public:
-    logger_logic_error(std::string const & msg) : logic_exception_t(msg) {}
-};
 
+DECLARE_LOGIC_ERROR(logger_logic_error);
 
-class logger_error
-    : public libexcept::exception_t
-{
-public:
-    logger_error(std::string const & msg) : exception_t(msg) {}
-};
+DECLARE_MAIN_EXCEPTION(logger_error);
 
+DECLARE_EXCEPTION(logger_error, duplicate_error);
+DECLARE_EXCEPTION(logger_error, invalid_variable);
+DECLARE_EXCEPTION(logger_error, invalid_parameter);
+DECLARE_EXCEPTION(logger_error, invalid_severity);
 
-class duplicate_error
-    : public logger_error
-{
-public:
-    duplicate_error(std::string const & msg) : logger_error(msg) {}
-};
-
-
-class invalid_variable
-    : public logger_error
-{
-public:
-    invalid_variable(std::string const & msg) : logger_error(msg) {}
-};
-
-
-class invalid_parameter : public logger_error
-{
-public:
-    invalid_parameter(std::string const & msg) : logger_error(msg) {}
-};
-
-
-class invalid_severity : public logger_error
-{
-public:
-    invalid_severity(std::string const & msg) : logger_error(msg) {}
-};
-
-
-class duplicate_component : public logger_error
-{
-public:
-    duplicate_component(std::string const & msg) : logger_error(msg) {}
-};
 
 
 } // namespace snaplogger

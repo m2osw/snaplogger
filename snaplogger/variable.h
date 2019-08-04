@@ -83,7 +83,7 @@ namespace snaplogger
 #define SNAPLOGGER_VAR_DOMAINNAME   "domainname"
 #define SNAPLOGGER_VAR_ENV          "env"
 #define SNAPLOGGER_VAR_FILENAME     "filename"
-#define SNAPLOGGER_VAR_FUNCTION     "functon"
+#define SNAPLOGGER_VAR_FUNCTION     "function"
 #define SNAPLOGGER_VAR_GID          "gid"
 #define SNAPLOGGER_VAR_GROUPNAME    "groupname"
 #define SNAPLOGGER_VAR_HOSTBYNAME   "hostbyname"
@@ -141,7 +141,7 @@ public:
 
     type_t              get_type() const;
 
-    std::string const & get_value() const;
+    std::string         get_value() const;
     void                set_value(std::string const & value);
 
     int64_t             get_integer() const;
@@ -164,8 +164,7 @@ public:
     virtual             ~variable();
 
     void                add_param(param::pointer_t p);
-    param::vector_t const &
-                        get_params() const;
+    param::vector_t     get_params() const;
     std::string         get_value(message const & msg) const;
 
 protected:
@@ -179,11 +178,21 @@ private:
 class variable_factory
 {
 public:
+    typedef std::shared_ptr<variable_factory>       pointer_t;
+
                                     variable_factory(std::string const & type);
     virtual                         ~variable_factory();
 
+    std::string const &             get_type() const;
     virtual variable::pointer_t     create_variable() = 0;
-};
+
+private:
+    std::string const               f_type;
+}; 
+
+
+void                    register_variable_factory(variable_factory::pointer_t factory);
+variable::pointer_t     get_variable(std::string const & type);
 
 
 #define DEFINE_LOGGER_VARIABLE(type)                    \
@@ -208,12 +217,19 @@ public:
             return std::make_shared<type##_variable>(); \
         }                                               \
     };                                                  \
-    type##_variable_factory g_##type##_variable_factory;
+    int g_##type##_variable_factory = []() {            \
+            ::snaplogger::register_variable_factory     \
+                    (std::make_shared<                  \
+                        type##_variable_factory>());    \
+            return 0;                                   \
+        } ();                                           \
+    void type##_variable::process_value(                \
+                  ::snaplogger::message const & msg     \
+                , std::string & value) const
 
 
 
 
-variable::pointer_t     get_variable(std::string const & type);
 
 
 
@@ -268,14 +284,24 @@ private:
 class function
 {
 public:
+    typedef std::shared_ptr<function>   pointer_t;
+
                         function(std::string const & function_name);
     virtual             ~function();
+
+    std::string const & get_name() const;
 
     virtual void        apply(
                               message const & msg
                             , function_data & data
                             , param::pointer_t const & p) = 0;
+
+private:
+    std::string const   f_name;
 };
+
+
+void register_function(function::pointer_t func);
 
 
 #define DECLARE_FUNCTION(name)                                              \
@@ -288,7 +314,10 @@ public:
             , ::snaplogger::function_data & d                               \
             , ::snaplogger::param::pointer_t const & p) override;           \
     };                                                                      \
-    name##_function g_##name##_function;                                    \
+    int g_##name##_function = []() {                                        \
+            register_function(std::make_shared<name##_function>());         \
+            return 0;                                                       \
+        } ();                                                               \
     void name##_function::apply(                                            \
               ::snaplogger::message const & msg                             \
             , ::snaplogger::function_data & d                               \

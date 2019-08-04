@@ -31,8 +31,9 @@
 
 // self
 // 
-#include    "snaplogger/logger.h"
 #include    "snaplogger/message.h"
+
+#include    "snaplogger/logger.h"
 
 
 // C++ lib
@@ -69,19 +70,60 @@ message::message(
         , char const * file
         , char const * func
         , int line)
-    : f_severity(sev)
+    : f_logger(logger::get_instance())
+    , f_severity(sev)
     , f_filename(file == nullptr ? std::string() : std::string(file))
     , f_funcname(func == nullptr ? std::string() : std::string(func))
     , f_line(line)
     , f_environment(create_environment())
 {
     clock_gettime(CLOCK_REALTIME_COARSE, &f_timestamp);
+
+    if(f_severity < f_logger->get_lowest_severity())
+    {
+        f_null.reset(new null_buffer);
+        std::ostream & ref = *this;
+        f_saved_buffer = ref.rdbuf(f_null.get());
+    }
+}
+
+
+message::message(std::basic_stringstream<char> const & m, message const & msg)
+    : f_logger(msg.f_logger)
+    , f_timestamp(msg.f_timestamp)
+    , f_severity(msg.f_severity)
+    , f_filename(msg.f_filename)
+    , f_funcname(msg.f_funcname)
+    , f_line(msg.f_line)
+    , f_recursive_message(msg.f_recursive_message)
+    , f_environment(msg.f_environment)
+    , f_components(msg.f_components)
+    , f_null(null_buffer::pointer_t())
+    , f_saved_buffer(nullptr)
+    , f_copy(true)
+{
+    *this << m.rdbuf();
 }
 
 
 message::~message()
 {
-    logger::get_instance()->log_message(*this);
+    if(!f_copy)
+    {
+        f_logger->log_message(*this);
+    }
+
+    if(f_saved_buffer != nullptr)
+    {
+        std::ostream & ref = *this;
+        ref.rdbuf(f_saved_buffer);
+    }
+}
+
+
+void message::set_severity(severity_t severity)
+{
+    f_severity = severity;
 }
 
 
@@ -115,6 +157,12 @@ void message::add_component(component::pointer_t c)
     {
         f_components.insert(c);
     }
+}
+
+
+std::shared_ptr<logger> message::get_logger() const
+{
+    return f_logger;
 }
 
 
@@ -164,9 +212,6 @@ environment::pointer_t message::get_environment() const
 {
     return f_environment;
 }
-
-
-
 
 
 std::string message::get_message() const

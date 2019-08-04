@@ -47,6 +47,7 @@
 
 // C++ lib
 //
+#include    <sstream>
 #include    <streambuf>
 
 
@@ -60,13 +61,15 @@ namespace snaplogger
 {
 
 
-class component;
+class logger;
 
 
 class null_buffer
     : public std::streambuf
 {
 public:
+    typedef std::unique_ptr<null_buffer>    pointer_t;
+
     virtual int         overflow(int c) override;
 };
 
@@ -78,15 +81,21 @@ public:
 // object to be created and immediately destroyed from the stack
 //
 class message final
-    : public std::stringstream
+    : public std::basic_stringstream<char>
 {
 public:
+    typedef std::shared_ptr<message>    pointer_t;
+
                                 message(
                                           severity_t sev = severity_t::SEVERITY_INFORMATION
                                         , char const * file = nullptr
                                         , char const * func = nullptr
                                         , int line = -1);
+                                message(std::basic_stringstream<char> const & m, message const & msg);
+                                message(message const & rhs) = delete;
     virtual                     ~message();
+
+    message &                   operator = (message const & rhs) = delete;
 
     void                        set_severity(severity_t severity);
     void                        set_filename(std::string const & filename);
@@ -95,6 +104,7 @@ public:
     void                        set_recursive_message(bool state) const;
     void                        add_component(component::pointer_t c);
 
+    std::shared_ptr<logger>     get_logger() const;
     severity_t                  get_severity() const;
     timespec const &            get_timestamp() const;
     std::string const &         get_filename() const;
@@ -106,6 +116,7 @@ public:
     std::string                 get_message() const;
 
 private:
+    std::shared_ptr<logger>     f_logger = std::shared_ptr<logger>(); // make sure it does not go away under our feet
     timespec                    f_timestamp = timespec();
     severity_t                  f_severity = severity_t::SEVERITY_INFORMATION;
     std::string                 f_filename = std::string();
@@ -114,6 +125,9 @@ private:
     mutable bool                f_recursive_message = false;
     environment::pointer_t      f_environment = environment::pointer_t();
     component::set_t            f_components = component::set_t();
+    null_buffer::pointer_t      f_null = null_buffer::pointer_t();
+    std::streambuf *            f_saved_buffer = nullptr;
+    bool                        f_copy = false;
 };
 
 
@@ -135,6 +149,7 @@ operator << (std::basic_ostream<CharT, Traits> & os, section_ptr sec)
     return os;
 }
 
+
 template<typename CharT, typename Traits>
 inline std::basic_ostream<CharT, Traits> &
 secure(std::basic_ostream<CharT, Traits> & os)
@@ -146,7 +161,7 @@ secure(std::basic_ostream<CharT, Traits> & os)
     }
     else
     {
-        m->add_component(secure_component);
+        m->add_component(g_secure_component);
     }
     return os;
 }

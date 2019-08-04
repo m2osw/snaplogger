@@ -26,8 +26,8 @@
 /** \file
  * \brief Create a guard in all functions that need to run on their own.
  *
- * This librar y is thread safe. It uses on mutex which it locks and
- * unlocks using a class named guard:
+ * This library is thread safe. It uses one mutex to guard any access
+ * which requires safe access:
  *
  * \code
  *     {
@@ -40,12 +40,13 @@
 
 // self
 //
-#include    "guard.h"
+#include    "snaplogger/guard.h"
 
 
-// C lib
+// cppthread lib
 //
-#include    <pthread.h>
+#include    <cppthread/guard.h>
+#include    <cppthread/mutex.h>
 
 
 // last include
@@ -64,8 +65,7 @@ namespace
 
 
 
-bool                    g_initialized = false;
-pthread_mutex_t         g_mutex = pthread_mutex_t();
+cppthread::mutex *      g_mutex = nullptr;
 
 
 
@@ -78,27 +78,25 @@ pthread_mutex_t         g_mutex = pthread_mutex_t();
 
 guard::guard()
 {
-    if(!g_initialized)
     {
-        // TODO: this could happen after threads were created
-        //       how do you resolve such?!
+        // we know for sure that g_system_mutex was already initialized
+        // so we can use it here
         //
-        g_initialized = true;
+        cppthread::guard lock(*cppthread::g_system_mutex);
 
-        pthread_mutexattr_t attr;
-        pthread_mutexattr_init(&attr);
-        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-        pthread_mutex_init(&g_mutex, &attr);
-        pthread_mutexattr_destroy(&attr);
+        if(g_mutex == nullptr)
+        {
+            g_mutex = new cppthread::mutex;
+        }
     }
 
-    pthread_mutex_lock(&g_mutex);
+    g_mutex->lock();
 }
 
 
 guard::~guard()
 {
-    pthread_mutex_unlock(&g_mutex);
+    g_mutex->unlock();
 }
 
 

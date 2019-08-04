@@ -32,8 +32,8 @@
 
 // self
 //
-#include    "appender.h"
-#include    "message.h"
+#include    "snaplogger/appender.h"
+#include    "snaplogger/message.h"
 
 
 
@@ -41,16 +41,19 @@ namespace snaplogger
 {
 
 
+
 class logger
 {
 public:
     typedef std::shared_ptr<logger>     pointer_t;
+    typedef std::weak_ptr<logger>       weak_pointer_t;
 
-                                logger();
+    virtual                     ~logger();
 
     static logger::pointer_t    get_instance();
 
     void                        reset();
+    virtual void                shutdown();
     bool                        is_configured() const;
     bool                        has_appender(std::string const & type) const;
     void                        set_config(advgetopt::getopt const & params);
@@ -61,19 +64,32 @@ public:
     appender::pointer_t         add_syslog_appender(std::string const & identity);
     appender::pointer_t         add_file_appender(std::string const & filename);
 
+    severity_t                  get_lowest_severity() const;
     void                        set_severity(severity_t severity_level);
     void                        reduce_severity(severity_t severity_level);
+    void                        severity_changed(severity_t severity_level);
     void                        add_component_to_include(component::pointer_t comp);
     void                        add_component_to_ignore(component::pointer_t comp);
 
     bool                        is_asynchronous() const;
     void                        set_asynchronous(bool status);
     void                        log_message(message const & msg);
+    void                        process_message(message const & msg);
+
+protected:
+                                logger();
+
+    component::pointer_t        f_normal_component = component::pointer_t();
 
 private:
+                                logger(logger const & rhs) = delete;
+
+    logger &                    operator = (logger const & rhs) = delete;
+
     appender::vector_t          f_appenders = appender::vector_t();
     component::set_t            f_components_to_include = component::set_t();
     component::set_t            f_components_to_ignore = component::set_t();
+    severity_t                  f_lowest_severity = severity_t::SEVERITY_OFF;
     bool                        f_asynchronous = false;
 };
 

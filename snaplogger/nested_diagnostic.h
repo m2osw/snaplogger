@@ -32,7 +32,8 @@
 
 // self
 //
-#include    "utils.h"
+#include    "snaplogger/message.h"
+#include    "snaplogger/utils.h"
 
 
 
@@ -40,17 +41,22 @@ namespace snaplogger
 {
 
 
+
 class nested_diagnostic
 {
 public:
-                            nested_diagnostic(std::string const & diagnostic, bool emit_enter_exit_event = false);
+                            nested_diagnostic(std::string const & diagnostic, bool emit_enter_exit_events = false);
     virtual                 ~nested_diagnostic();
 
 private:
-    bool                    f_emit_enter_exit_event = false;
+    bool                    f_emit_enter_exit_events = false;
 };
 
+
 string_vector_t             get_nested_diagnostics();
+string_vector_t             get_nested_diagnostics(message const & msg);
+
+
 
 } // snaplogger namespace
 // vim: ts=4 sw=4 et
