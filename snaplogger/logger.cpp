@@ -67,7 +67,7 @@ struct auto_delete_logger
         logger::pointer_t * ptr(nullptr);
         {
             guard g;
-            std::swap(ptr, g_instance);
+            swap(ptr, g_instance);
         }
         if(ptr != nullptr)
         {

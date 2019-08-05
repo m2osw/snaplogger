@@ -468,9 +468,9 @@ void private_logger::delete_thread()
     {
         guard g;
 
-        std::swap(thread,              f_thread);
-        std::swap(asynchronous_logger, f_asynchronous_logger);
-        std::swap(fifo,                f_fifo);
+        swap(thread,              f_thread);
+        swap(asynchronous_logger, f_asynchronous_logger);
+        swap(fifo,                f_fifo);
     }
 
     if(fifo != nullptr)

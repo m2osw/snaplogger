@@ -35,8 +35,6 @@ configure_file(
 )
 
 add_library( ${PROJECT_NAME} SHARED
-    #log.cpp -- original
-
     appender.cpp
     buffer_appender.cpp
     component.cpp
@@ -106,6 +104,7 @@ install(
         buffer_appender.h
         component.h
         console_appender.h
+        environment.h
         exception.h
         file_appender.h
         format.h
@@ -114,6 +113,7 @@ install(
         map_diagnostic.h
         message.h
         nested_diagnostic.h
+        options.h
         severity.h
         syslog_appender.h
         utils.h
