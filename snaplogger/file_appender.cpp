@@ -148,6 +148,15 @@ void file_appender::set_config(advgetopt::getopt const & opts)
 }
 
 
+void file_appender::reopen()
+{
+    guard g;
+
+    f_fd.reset();
+    f_initialized = false;
+}
+
+
 void file_appender::set_filename(std::string const & filename)
 {
     if(f_filename != filename)

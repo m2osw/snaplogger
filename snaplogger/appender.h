@@ -69,6 +69,7 @@ public:
     virtual void                reduce_severity(severity_t severity_level);
 
     virtual void                set_config(advgetopt::getopt const & params);
+    virtual void                reopen();
     void                        add_component(component::pointer_t comp);
 
     format::pointer_t           get_format() const;

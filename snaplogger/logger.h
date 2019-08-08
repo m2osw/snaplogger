@@ -57,6 +57,7 @@ public:
     bool                        is_configured() const;
     bool                        has_appender(std::string const & type) const;
     void                        set_config(advgetopt::getopt const & params);
+    void                        reopen();
 
     void                        add_appender(appender::pointer_t a);
     void                        add_config(std::string const & config_filename);
@@ -96,6 +97,7 @@ private:
 
 bool                is_configured();
 bool                has_appender(std::string const & type);
+void                reopen();
 
 bool                configure_console(bool force = false);
 bool                configure_syslog(std::string const & identity);

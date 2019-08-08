@@ -210,6 +210,17 @@ void logger::set_config(advgetopt::getopt const & params)
 }
 
 
+void logger::reopen()
+{
+    guard g;
+
+    for(auto a : f_appenders)
+    {
+        a->reopen();
+    }
+}
+
+
 void logger::add_appender(appender::pointer_t a)
 {
     guard g;
@@ -546,6 +557,19 @@ bool has_appender(std::string const & type)
     }
 
     return (*g_instance)->has_appender(type);
+}
+
+
+void reopen()
+{
+    guard g;
+
+    if(g_instance == nullptr)
+    {
+        return;
+    }
+
+    (*g_instance)->reopen();
 }
 
 

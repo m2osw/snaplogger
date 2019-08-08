@@ -22,6 +22,7 @@
  * Authors:
  *    Alexis Wilke   alexis@m2osw.com
  */
+#pragma once
 
 /** \file
  * \brief The buffer appender sends its output to a memory buffer.

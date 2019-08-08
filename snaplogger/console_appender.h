@@ -22,6 +22,7 @@
  * Authors:
  *    Alexis Wilke   alexis@m2osw.com
  */
+#pragma once
 
 /** \file
  * \brief The console appender sends its output to stdout.

@@ -22,6 +22,7 @@
  * Authors:
  *    Alexis Wilke   alexis@m2osw.com
  */
+#pragma once
 
 /** \file
  * \brief Appenders are used to append data to somewhere.
@@ -39,6 +40,7 @@
 #include    <snapdev/raii_generic_deleter.h>
 
 
+
 namespace snaplogger
 {
 
@@ -53,6 +55,7 @@ public:
     virtual             ~file_appender() override;
 
     virtual void        set_config(advgetopt::getopt const & params) override;
+    virtual void        reopen() override;
 
     void                set_filename(std::string const & filename);
 

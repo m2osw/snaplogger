@@ -355,6 +355,11 @@ void appender::set_config(advgetopt::getopt const & opts)
 }
 
 
+void appender::reopen()
+{
+}
+
+
 void appender::add_component(component::pointer_t comp)
 {
     f_components.insert(comp);
