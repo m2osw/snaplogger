@@ -122,7 +122,8 @@ private:
             return std::make_shared<name##_appender>(name);             \
         }                                                               \
     };                                                                  \
-    int g_##name##_register_appender_factory = []() {                   \
+    int __attribute__((unused))                                         \
+        g_##name##_register_appender_factory = []() {                   \
             register_appender_factory(                                  \
                     std::make_shared<name##_appender_factory>());       \
             return 0;                                                   \

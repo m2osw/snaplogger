@@ -18,9 +18,6 @@
  *    You should have received a copy of the GNU General Public License along
  *    with this program; if not, write to the Free Software Foundation, Inc.,
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Authors:
- *    Alexis Wilke   alexis@m2osw.com
  */
 
 /** \file
@@ -90,10 +87,14 @@ DEFINE_LOGGER_VARIABLE(username)
     {
         uid = msg.get_environment()->get_uid();
     }
-    passwd * pw(getpwuid(uid));
-    if(pw != nullptr)
+
+    char buf[1024];
+    passwd pw;
+    passwd * pw_ptr(nullptr);
+    if(getpwuid_r(uid, &pw, buf, sizeof(buf), &pw_ptr) == 0
+    && pw_ptr == &pw)
     {
-        value += pw->pw_name;
+        value += pw.pw_name;
     }
 
     variable::process_value(msg, value);
@@ -130,10 +131,14 @@ DEFINE_LOGGER_VARIABLE(groupname)
     {
         gid = msg.get_environment()->get_gid();
     }
-    group * gr(getgrgid(gid));
-    if(gr != nullptr)
+
+    char buf[1024];
+    group gr;
+    group * gr_ptr(nullptr);
+    if(getgrgid_r(gid, &gr, buf, sizeof(buf), &gr_ptr) == 0
+    && gr_ptr == &gr)
     {
-        value += gr->gr_name;
+        value += gr.gr_name;
     }
 
     variable::process_value(msg, value);

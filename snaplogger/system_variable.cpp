@@ -18,9 +18,6 @@
  *    You should have received a copy of the GNU General Public License along
  *    with this program; if not, write to the Free Software Foundation, Inc.,
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Authors:
- *    Alexis Wilke   alexis@m2osw.com
  */
 
 /** \file
@@ -71,10 +68,12 @@ DEFINE_LOGGER_VARIABLE(hostname)
     if(params.size() > 0
     && params[0]->get_name() == "running")
     {
-        char host[HOST_NAME_MAX + 1];
-        gethostname(host, sizeof(host));
-        host[HOST_NAME_MAX] = '\0'; // make sure it's null terminated
-        value += host;
+        char host[HOST_NAME_MAX + 2];
+        if(gethostname(host, HOST_NAME_MAX + 1) == 0)
+        {
+            host[HOST_NAME_MAX + 1] = '\0'; // make sure it's null terminated
+            value += host;
+        }
     }
     else
     {
@@ -121,10 +120,12 @@ DEFINE_LOGGER_VARIABLE(domainname)
     if(params.size() > 0
     && params[0]->get_name() == "running")
     {
-        char domain[HOST_NAME_MAX + 1];
-        getdomainname(domain, sizeof(domain));
-        domain[HOST_NAME_MAX] = '\0'; // make sure it's null terminated
-        value += domain;
+        char domain[HOST_NAME_MAX + 2];
+        if(getdomainname(domain, HOST_NAME_MAX + 1) == 0)
+        {
+            domain[HOST_NAME_MAX + 1] = '\0'; // make sure it's null terminated
+            value += domain;
+        }
     }
     else
     {

@@ -217,7 +217,8 @@ variable::pointer_t     get_variable(std::string const & type);
             return std::make_shared<type##_variable>(); \
         }                                               \
     };                                                  \
-    int g_##type##_variable_factory = []() {            \
+    int __attribute__((unused))                         \
+        g_##type##_variable_factory = []() {            \
             ::snaplogger::register_variable_factory     \
                     (std::make_shared<                  \
                         type##_variable_factory>());    \
@@ -314,7 +315,7 @@ void register_function(function::pointer_t func);
             , ::snaplogger::function_data & d                               \
             , ::snaplogger::param::pointer_t const & p) override;           \
     };                                                                      \
-    int g_##name##_function = []() {                                        \
+    int __attribute__((unused)) g_##name##_function = []() {                \
             register_function(std::make_shared<name##_function>());         \
             return 0;                                                       \
         } ();                                                               \

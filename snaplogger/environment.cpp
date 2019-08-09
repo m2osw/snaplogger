@@ -18,9 +18,6 @@
  *    You should have received a copy of the GNU General Public License along
  *    with this program; if not, write to the Free Software Foundation, Inc.,
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Authors:
- *    Alexis Wilke   alexis@m2osw.com
  */
 
 /** \file
@@ -81,37 +78,46 @@ environment::environment(pid_t tid)
     f_pid = getpid();
     f_gid = getgid();
 
-    passwd * pw(getpwuid(f_uid));
-    if(pw != nullptr)
+    char buf[1024];
+    passwd pw;
+    passwd * pw_ptr(nullptr);
+    if(getpwuid_r(f_uid, &pw, buf, sizeof(buf), &pw_ptr) == 0
+    && pw_ptr == &pw)
     {
-        f_username = pw->pw_name;
+        f_username = pw.pw_name;
     }
 
-    group * gr(getgrgid(f_gid));
-    if(gr != nullptr)
+    group gr;
+    group * gr_ptr(nullptr);
+    if(getgrgid_r(f_gid, &gr, buf, sizeof(buf), &gr_ptr) == 0
+    && gr_ptr == &gr)
     {
-        f_groupname += gr->gr_name;
+        f_groupname += gr.gr_name;
     }
 
-    char host_buffer[HOST_NAME_MAX + 1];
-    host_buffer[HOST_NAME_MAX] = '\0'; // make sure it's null terminated
+    char host_buffer[HOST_NAME_MAX + 2];
+    host_buffer[HOST_NAME_MAX + 1] = '\0'; // make sure it's null terminated
 
-    gethostname(host_buffer, sizeof(host_buffer));
-    f_hostname = host_buffer;
+    if(gethostname(host_buffer, HOST_NAME_MAX + 1) == 0)
+    {
+        f_hostname = host_buffer;
+    }
 
-    getdomainname(host_buffer, sizeof(host_buffer));
-    f_domainname = host_buffer;
+    if(getdomainname(host_buffer, HOST_NAME_MAX + 1) == 0)
+    {
+        f_domainname = host_buffer;
+    }
 
-    map_diagnostics_t diag(get_map_diagnostics());
+    map_diagnostics_t const diag(get_map_diagnostics());
 
-    auto prog_it(diag.find("progname"));
+    auto const prog_it(diag.find("progname"));
     if(prog_it != diag.end())
     {
         f_progname = prog_it->second;
     }
 
-    std::string tid_str(std::to_string(tid));
-    auto thread_it(diag.find("threadname#" + tid_str));
+    std::string const tid_str(std::to_string(tid));
+    auto const thread_it(diag.find("threadname#" + tid_str));
     if(thread_it != diag.end())
     {
         f_threadname = thread_it->second;
