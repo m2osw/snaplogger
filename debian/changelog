@@ -1,3 +1,9 @@
+snaplogger (1.0.1.0~xenial) xenial; urgency=high
+
+  * log4cplus is not a dependency, removed it from the CMakeLists.txt.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sat, 10 Aug 2019 00:59:59 -0800
+
 snaplogger (1.0.0.0~xenial) xenial; urgency=high
 
   * Moving the log.cpp/.h to its own project so we can use it everywhere.

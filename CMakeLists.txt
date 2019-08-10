@@ -35,7 +35,6 @@ find_package(AdvGetOpt        REQUIRED)
 find_package(CppThread        REQUIRED)
 find_package(LibExcept        REQUIRED)
 find_package(LibUtf8          REQUIRED)
-find_package(log4cplus        REQUIRED)
 find_package(SnapDev          REQUIRED)
 find_package(SnapDoxygen              )
 
