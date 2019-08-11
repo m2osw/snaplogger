@@ -236,8 +236,8 @@ advgetopt::options_environment g_config_option =
     //.f_version = nullptr,
     //.f_license = nullptr,
     //.f_copyright = nullptr,
-    //.f_build_date = __DATE__,
-    //.f_build_time = __TIME__,
+    //.f_build_date = UTC_BUILD_DATE,
+    //.f_build_time = UTC_BUILD_TIME,
     //.f_groups = nullptr
 };
 #pragma GCC diagnostic pop
