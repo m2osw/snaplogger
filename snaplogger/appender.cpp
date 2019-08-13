@@ -149,6 +149,12 @@ void appender::reduce_severity(severity_t severity_level)
 }
 
 
+bool appender::operator < (appender const & rhs) const
+{
+    return f_severity < rhs.f_severity;
+}
+
+
 void appender::set_config(advgetopt::getopt const & opts)
 {
     guard g;
@@ -389,7 +395,8 @@ void appender::send_message(message const & msg)
         // user did not supply any component in 'msg', check for
         // the normal component
         //
-        if(f_components.find(f_normal_component) == f_components.end())
+        if(!f_components.empty()
+        && f_components.find(f_normal_component) == f_components.end())
         {
             return;
         }

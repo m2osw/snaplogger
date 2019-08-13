@@ -67,6 +67,7 @@ public:
     severity_t                  get_severity() const;
     virtual void                set_severity(severity_t severity_level);
     virtual void                reduce_severity(severity_t severity_level);
+    bool                        operator < (appender const & rhs) const;
 
     virtual void                set_config(advgetopt::getopt const & params);
     virtual void                reopen();

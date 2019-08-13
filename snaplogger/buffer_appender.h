@@ -47,7 +47,7 @@ namespace snaplogger
 
 class buffer_appender
     : public appender
-    , std::stringstream
+    , public std::stringstream
 {
 public:
     typedef std::shared_ptr<buffer_appender>      pointer_t;

@@ -47,7 +47,8 @@ if( Catch2_FOUND )
     add_executable( ${PROJECT_NAME}
         main.cpp
 
-        example.cpp
+        #example.cpp
+        message.cpp
         version.cpp
     )
 

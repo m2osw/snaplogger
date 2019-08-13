@@ -79,7 +79,8 @@ message::message(
 {
     clock_gettime(CLOCK_REALTIME_COARSE, &f_timestamp);
 
-    if(f_severity < f_logger->get_lowest_severity())
+    if(f_severity < f_logger->get_lowest_severity()
+    || f_severity == severity_t::SEVERITY_OFF)
     {
         f_null.reset(new null_buffer);
         std::ostream & ref = *this;

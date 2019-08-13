@@ -97,7 +97,7 @@ void buffer_appender::process_message(message const & msg, std::string const & f
 
     guard g;
 
-    *this << formatted_message << std::endl;
+    *this << formatted_message;
 }
 
 

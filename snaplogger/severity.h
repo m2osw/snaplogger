@@ -122,6 +122,23 @@ severity::pointer_t     get_severity(message const & msg, std::string const & na
 severity::pointer_t     get_severity(severity_t sev);
 severity::pointer_t     get_severity(message const & msg, severity_t sev);
 
+template<typename CharT, typename Traits>
+inline std::basic_ostream<CharT, Traits> &
+operator << (std::basic_ostream<CharT, Traits> & os, severity_t sev)
+{
+    severity::pointer_t s(get_severity(sev));
+    if(s == nullptr)
+    {
+        os << "(unknown severity: "
+           << static_cast<int>(sev)
+           << ")";
+    }
+    else
+    {
+        os << s->get_name();
+    }
+    return os;
+}
 
 
 

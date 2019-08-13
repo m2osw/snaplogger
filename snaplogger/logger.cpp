@@ -134,6 +134,7 @@ void logger::reset()
 
     set_asynchronous(false);
     f_appenders.clear();
+    f_lowest_severity = severity_t::SEVERITY_OFF;
 }
 
 
@@ -245,6 +246,8 @@ void logger::add_appender(appender::pointer_t a)
     }
 
     f_appenders.push_back(a);
+
+    severity_changed(a->get_severity());
 }
 
 
@@ -388,6 +391,15 @@ void logger::severity_changed(severity_t severity_level)
     {
         f_lowest_severity = severity_level;
     }
+    else if(severity_level > f_lowest_severity)
+    {
+        // if the severity level grew we have to search for the new lowest;
+        // this happens very rarely while running, it's likely to happen
+        // up to once per appender on initialization.
+        //
+        auto minmax(std::minmax_element(f_appenders.begin(), f_appenders.end()));
+        f_lowest_severity = (*minmax.first)->get_severity();
+    }
 }
 
 
@@ -443,26 +455,32 @@ void logger::set_asynchronous(bool status)
 
 void logger::log_message(message const & msg)
 {
-    if(const_cast<message &>(msg).tellp() == 0)
+    if(const_cast<message &>(msg).tellp() != 0)
     {
-        // no message, ignore
-        //
-        return;
-    }
-
-    {
-        guard g;
-
-        if(f_asynchronous)
+        bool asynchronous(false);
         {
-            message::pointer_t m(std::make_shared<message>(msg, msg));
-            private_logger * l(dynamic_cast<private_logger *>(this));
-            l->send_message_to_thread(m);
-            return;
+            guard g;
+
+            if(f_asynchronous)
+            {
+                message::pointer_t m(std::make_shared<message>(msg, msg));
+                private_logger * l(dynamic_cast<private_logger *>(this));
+                l->send_message_to_thread(m);
+                asynchronous = true;
+            }
+        }
+
+        if(!asynchronous)
+        {
+            process_message(msg);
         }
     }
 
-    process_message(msg);
+    if(f_fatal_severity != severity_t::SEVERITY_OFF
+    && msg.get_severity() >= f_fatal_severity)
+    {
+        throw fatal_error("A fatal error occurred.");
+    }
 }
 
 

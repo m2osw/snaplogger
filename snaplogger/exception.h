@@ -53,6 +53,7 @@ namespace snaplogger
 
 DECLARE_LOGIC_ERROR(logger_logic_error);
 
+DECLARE_MAIN_EXCEPTION(fatal_error);
 DECLARE_MAIN_EXCEPTION(logger_error);
 
 DECLARE_EXCEPTION(logger_error, duplicate_error);

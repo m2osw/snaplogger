@@ -67,6 +67,7 @@ public:
 
     severity_t                  get_lowest_severity() const;
     void                        set_severity(severity_t severity_level);
+    void                        set_fatal_severity(severity_t severity_level);
     void                        reduce_severity(severity_t severity_level);
     void                        severity_changed(severity_t severity_level);
     void                        add_component_to_include(component::pointer_t comp);
@@ -91,6 +92,7 @@ private:
     component::set_t            f_components_to_include = component::set_t();
     component::set_t            f_components_to_ignore = component::set_t();
     severity_t                  f_lowest_severity = severity_t::SEVERITY_OFF;
+    severity_t                  f_fatal_severity = severity_t::SEVERITY_OFF;
     bool                        f_asynchronous = false;
 };
 
