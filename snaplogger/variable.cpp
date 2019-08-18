@@ -1,26 +1,22 @@
 /*
- * License:
- *    Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
  *
- *    https://snapwebsites.org/
- *    contact@m2osw.com
+ * https://snapwebsites.org/project/snaplogger
+ * contact@m2osw.com
  *
- *    This program is free software; you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation; either version 2 of the License, or
- *    (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- *    This program is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License along
- *    with this program; if not, write to the Free Software Foundation, Inc.,
- *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Authors:
- *    Alexis Wilke   alexis@m2osw.com
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /** \file
@@ -118,9 +114,17 @@ DEFINE_LOGGER_VARIABLE(direct)
 
 
 
+//////////////////////////////
+// PARAM
+//
+
 param::param(std::string const & name)
     : f_name(name)
 {
+    if(f_name.empty())
+    {
+        throw invalid_parameter("a parameter must have a non-empty name.");
+    }
 }
 
 
@@ -184,6 +188,10 @@ void param::set_integer(std::int64_t integer)
 
 
 
+//////////////////////////////
+// VARIABLE
+//
+
 variable::~variable()
 {
 }
@@ -225,7 +233,7 @@ void variable::process_value(message const & msg, std::string & value) const
         if(!l->has_functions())
         {
             // no functions available, we're done
-            return;
+            return;     // LCOV_EXCL_LINE
         }
     }
 
@@ -235,11 +243,6 @@ void variable::process_value(message const & msg, std::string & value) const
     for(auto p : f_params)
     {
         std::string const & name(p->get_name());
-        if(name.empty())
-        {
-            continue;
-        }
-
         auto func(l->get_function(name));
         if(func != nullptr)
         {
@@ -260,6 +263,10 @@ void variable::process_value(message const & msg, std::string & value) const
 
 
 
+
+//////////////////////////////
+// VARIABLE FACTORY
+//
 
 variable_factory::variable_factory(std::string const & type)
     : f_type(type)
@@ -298,6 +305,52 @@ variable::pointer_t get_variable(std::string const & type)
 
 
 
+//////////////////////////////
+// FUNCTION DATA
+//
+
+void function_data::set_value(std::string value)
+{
+    f_value = libutf8::to_u32string(value);
+}
+
+void function_data::set_value(std::u32string value)
+{
+    f_value = value;
+}
+
+std::u32string & function_data::get_value()
+{
+    return f_value;
+}
+
+void function_data::set_param(std::string const & name, std::string const & value)
+{
+    f_params[name] = libutf8::to_u32string(value);
+}
+
+void function_data::set_param(std::string const & name, std::u32string const & value)
+{
+    f_params[name] = value;
+}
+
+std::u32string function_data::get_param(std::string const & name, std::u32string const & default_value)
+{
+    auto it(f_params.find(name));
+    if(it == f_params.end())
+    {
+        return default_value;
+    }
+    return it->second;
+}
+
+
+
+
+
+//////////////////////////////
+// FUNCTION
+//
 
 function::function(std::string const & function_name)
     : f_name(function_name)

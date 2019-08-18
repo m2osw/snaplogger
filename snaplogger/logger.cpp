@@ -1,26 +1,22 @@
 /*
- * License:
- *    Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
  *
- *    https://snapwebsites.org/
- *    contact@m2osw.com
+ * https://snapwebsites.org/project/snaplogger
+ * contact@m2osw.com
  *
- *    This program is free software; you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation; either version 2 of the License, or
- *    (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- *    This program is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License along
- *    with this program; if not, write to the Free Software Foundation, Inc.,
- *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Authors:
- *    Alexis Wilke   alexis@m2osw.com
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /** \file
@@ -160,6 +156,24 @@ bool logger::has_appender(std::string const & type) const
         {
             return type == a->get_type();
         }) != f_appenders.end();
+}
+
+
+appender::pointer_t logger::get_appender(std::string const & name) const
+{
+    auto it(std::find_if(
+          f_appenders.begin()
+        , f_appenders.end()
+        , [&name](auto a)
+        {
+            return name == a->get_name();
+        }));
+    if(it == f_appenders.end())
+    {
+        return appender::pointer_t();
+    }
+
+    return *it;
 }
 
 
@@ -479,6 +493,7 @@ void logger::log_message(message const & msg)
     if(f_fatal_severity != severity_t::SEVERITY_OFF
     && msg.get_severity() >= f_fatal_severity)
     {
+        call_fatal_error_callback();
         throw fatal_error("A fatal error occurred.");
     }
 }
@@ -486,7 +501,6 @@ void logger::log_message(message const & msg)
 
 void logger::process_message(message const & msg)
 {
-
     appender::vector_t appenders;
 
     {
@@ -548,6 +562,21 @@ void logger::process_message(message const & msg)
     for(auto a : appenders)
     {
         a->send_message(msg);
+    }
+}
+
+
+void logger::set_fatal_error_callback(std::function<void(void)> & f)
+{
+    f_fatal_error_callback = f;
+}
+
+
+void logger::call_fatal_error_callback()
+{
+    if(f_fatal_error_callback != nullptr)
+    {
+        f_fatal_error_callback();
     }
 }
 

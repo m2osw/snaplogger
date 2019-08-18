@@ -1,26 +1,22 @@
 /*
- * License:
- *    Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
  *
- *    https://snapwebsites.org/
- *    contact@m2osw.com
+ * https://snapwebsites.org/project/snaplogger
+ * contact@m2osw.com
  *
- *    This program is free software; you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation; either version 2 of the License, or
- *    (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- *    This program is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License along
- *    with this program; if not, write to the Free Software Foundation, Inc.,
- *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Authors:
- *    Alexis Wilke   alexis@m2osw.com
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #pragma once
 
@@ -56,6 +52,7 @@ public:
     virtual void                shutdown();
     bool                        is_configured() const;
     bool                        has_appender(std::string const & type) const;
+    appender::pointer_t         get_appender(std::string const & name) const;
     void                        set_config(advgetopt::getopt const & params);
     void                        reopen();
 
@@ -77,6 +74,8 @@ public:
     void                        set_asynchronous(bool status);
     void                        log_message(message const & msg);
     void                        process_message(message const & msg);
+    void                        set_fatal_error_callback(std::function<void(void)> & f);
+    void                        call_fatal_error_callback();
 
 protected:
                                 logger();
@@ -93,6 +92,7 @@ private:
     component::set_t            f_components_to_ignore = component::set_t();
     severity_t                  f_lowest_severity = severity_t::SEVERITY_OFF;
     severity_t                  f_fatal_severity = severity_t::SEVERITY_OFF;
+    std::function<void(void)>   f_fatal_error_callback = nullptr;
     bool                        f_asynchronous = false;
 };
 

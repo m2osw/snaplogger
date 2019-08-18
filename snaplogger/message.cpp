@@ -1,26 +1,22 @@
 /*
- * License:
- *    Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
  *
- *    https://snapwebsites.org/
- *    contact@m2osw.com
+ * https://snapwebsites.org/project/snaplogger
+ * contact@m2osw.com
  *
- *    This program is free software; you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation; either version 2 of the License, or
- *    (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- *    This program is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License along
- *    with this program; if not, write to the Free Software Foundation, Inc.,
- *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Authors:
- *    Alexis Wilke   alexis@m2osw.com
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /** \file
@@ -33,6 +29,7 @@
 // 
 #include    "snaplogger/message.h"
 
+#include    "snaplogger/exception.h"
 #include    "snaplogger/logger.h"
 
 
@@ -109,11 +106,6 @@ message::message(std::basic_stringstream<char> const & m, message const & msg)
 
 message::~message()
 {
-    if(!f_copy)
-    {
-        f_logger->log_message(*this);
-    }
-
     if(f_saved_buffer != nullptr)
     {
         std::ostream & ref = *this;
@@ -227,6 +219,18 @@ std::string message::get_message() const
         s.pop_back();
     }
     return s;
+}
+
+
+void send_message(std::basic_ostream<char> & out)
+{
+    message * msg(dynamic_cast<message *>(&out));
+    if(msg == nullptr)
+    {
+        throw not_a_message("the 'out' parameter to the send_message() function is expected to be a snaplogger::message object.");
+    }
+
+    logger::get_instance()->log_message(*msg);
 }
 
 

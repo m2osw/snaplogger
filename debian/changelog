@@ -1,3 +1,27 @@
+snaplogger (1.0.3.0~xenial) xenial; urgency=high
+
+  * Fixed the message destructor, I moved the call to logger::log_message() to
+    the send_message() function so exceptions work as expected.
+  * Fixed the macros (SNAP_LOG_...) so they are compatible with the new scheme.
+  * Do not allow empty parameter names.
+  * Moved the function_data implementation to the .cpp file.
+  * Fixed appender::send_message(), f_enabled must be true.
+  * Fixed path to project, this is not libutf8.
+  * Moved the list of authors to the AUTHOR.txt file.
+  * Simplified headers to only include the basic GPL 2.x reference.
+  * Added the ${date:day} variable.
+  * Put the empty(), clear(), str() functions in our buffer_appender().
+  * By default removed the leading '0' of the `mm` and `dd`.
+  * Added a get_appender() by name instead of just type.
+  * Added a callback for fatal error reporting before our throw.
+  * Updated the existing tests according to the other changes made.
+  * Fixed the slow message_severity test, instead of 16 million, run only
+    2,700 iterations.
+  * Finished up the message tests for 100% coverage.
+  * Added the new variable.cpp test for 100% coverage.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sun, 18 Aug 2019 13:03:05 -0800
+
 snaplogger (1.0.2.0~xenial) xenial; urgency=high
 
   * Added a fatal error exception.

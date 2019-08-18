@@ -1,26 +1,22 @@
 /*
- * License:
- *    Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
  *
- *    https://snapwebsites.org/
- *    contact@m2osw.com
+ * https://snapwebsites.org/project/snaplogger
+ * contact@m2osw.com
  *
- *    This program is free software; you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation; either version 2 of the License, or
- *    (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- *    This program is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License along
- *    with this program; if not, write to the Free Software Foundation, Inc.,
- *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Authors:
- *    Alexis Wilke   alexis@m2osw.com
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #pragma once
 
@@ -239,40 +235,12 @@ variable::pointer_t     get_variable(std::string const & type);
 class function_data
 {
 public:
-    void set_value(std::string value)
-    {
-        f_value = libutf8::to_u32string(value);
-    }
-
-    void set_value(std::u32string value)
-    {
-        f_value = value;
-    }
-
-    std::u32string & get_value()
-    {
-        return f_value;
-    }
-
-    void set_param(std::string const & name, std::string const & value)
-    {
-        f_params[name] = libutf8::to_u32string(value);
-    }
-
-    void set_param(std::string const & name, std::u32string const & value)
-    {
-        f_params[name] = value;
-    }
-
-    std::u32string get_param(std::string const & name, std::u32string const & default_value)
-    {
-        auto it(f_params.find(name));
-        if(it == f_params.end())
-        {
-            return default_value;
-        }
-        return it->second;
-    }
+    void                set_value(std::string value);
+    void                set_value(std::u32string value);
+    std::u32string &    get_value();
+    void                set_param(std::string const & name, std::string const & value);
+    void                set_param(std::string const & name, std::u32string const & value);
+    std::u32string      get_param(std::string const & name, std::u32string const & default_value);
 
 private:
     std::u32string      f_value = std::u32string();

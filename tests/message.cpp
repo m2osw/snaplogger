@@ -1,26 +1,22 @@
 /*
- * License:
- *    Copyright (c) 2006-2019  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2006-2019  Made to Order Software Corp.  All Rights Reserved
  *
- *    https://snapwebsites.org/
- *    contact@m2osw.com
+ * https://snapwebsites.org/project/snaplogger
+ * contact@m2osw.com
  *
- *    This program is free software; you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation; either version 2 of the License, or
- *    (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- *    This program is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License along
- *    with this program; if not, write to the Free Software Foundation, Inc.,
- *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Authors:
- *    Alexis Wilke   alexis@m2osw.com
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 // self
@@ -31,16 +27,43 @@
 // snaplogger lib
 //
 #include    <snaplogger/buffer_appender.h>
+#include    <snaplogger/exception.h>
 #include    <snaplogger/format.h>
 #include    <snaplogger/logger.h>
 #include    <snaplogger/map_diagnostic.h>
 #include    <snaplogger/message.h>
 #include    <snaplogger/severity.h>
+#include    <snaplogger/version.h>
 
 
 // C lib
 //
 #include    <unistd.h>
+
+
+
+CATCH_TEST_CASE("not_a_message", "[message]")
+{
+    CATCH_START_SECTION("Call send_message() with wrong ostream")
+    {
+        CATCH_REQUIRE_THROWS_MATCHES(
+                  snaplogger::send_message(std::cout)
+                , snaplogger::not_a_message
+                , Catch::Matchers::ExceptionMessage(
+                          "the 'out' parameter to the send_message() function is expected to be a snaplogger::message object."));
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("Print snaplogger::secure to wrong ostream")
+    {
+        std::stringstream buffer;
+        std::streambuf * old(std::cout.rdbuf(buffer.rdbuf()));
+        std::cout << snaplogger::secure << std::endl;
+        CATCH_REQUIRE(buffer.str() == "(section:secure)\n");
+        std::cout.rdbuf(old);
+    }
+    CATCH_END_SECTION()
+}
 
 
 
@@ -65,26 +88,29 @@ CATCH_TEST_CASE("message_capture", "[message]")
 
         l->add_appender(buffer);
 
-        SNAP_LOG_ERROR << "Logging this error";
+        SNAP_LOG_ERROR << "Logging this error" << SNAP_LOG_SEND;
         CATCH_REQUIRE(buffer->str() == "Logging this error\n");
-        buffer->str(std::string());
+
+        // test the other str() function too
+        //
+        buffer->str("Start: ");
 
         // show that the "\n" does not get duplicated
         //
-        SNAP_LOG_ERROR << "Error with newline\n";
-        CATCH_REQUIRE(buffer->str() == "Error with newline\n");
-        buffer->str(std::string());
+        SNAP_LOG_ERROR << "Error with newline\n" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == "Start: Error with newline\n");
+        buffer->clear();
 
         // show that the "\r\n" gets replaced by "\n"
         //
-        SNAP_LOG_ERROR << "Error with CRLF\r\n";
+        SNAP_LOG_ERROR << "Error with CRLF\r\n" << SNAP_LOG_SEND;
         CATCH_REQUIRE(buffer->str() == "Error with CRLF\n");
-        buffer->str(std::string());
+        buffer->clear();
 
         // severity too low, no change to buffer
         //
-        SNAP_LOG_DEBUG << "Debug Message " << M_PI << " which does not make it at all...\n";
-        CATCH_REQUIRE(buffer->str().empty());
+        SNAP_LOG_DEBUG << "Debug Message " << M_PI << " which does not make it at all...\n" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->empty());
 
         l->reset();
     }
@@ -111,15 +137,15 @@ CATCH_TEST_CASE("message_capture", "[message]")
 
         l->add_appender(buffer);
 
-        SNAP_LOG_ERROR << "A JSON error message";
+        SNAP_LOG_ERROR << "A JSON error message" << SNAP_LOG_SEND;
         CATCH_REQUIRE(buffer->str() == "{\"version\":1,\"message\":\"A JSON error message\"}\n");
-        buffer->str(std::string());
+        buffer->clear();
 
         // show that the "\n" does not get duplicated
         //
-        SNAP_LOG_ERROR << "See what happens with a \"quoted string\" within the message\n";
+        SNAP_LOG_ERROR << "See what happens with a \"quoted string\" within the message\n" << SNAP_LOG_SEND;
         CATCH_REQUIRE(buffer->str() == "{\"version\":1,\"message\":\"See what happens with a \\\"quoted string\\\" within the message\"}\n");
-        buffer->str(std::string());
+        buffer->clear();
 
         l->reset();
     }
@@ -175,7 +201,7 @@ CATCH_TEST_CASE("message_copy", "[message]")
 
         // no destructor called, the output is still empty
         //
-        CATCH_REQUIRE(buffer->str().empty());
+        CATCH_REQUIRE(buffer->empty());
 
         copy.reset();
 
@@ -185,9 +211,9 @@ CATCH_TEST_CASE("message_copy", "[message]")
 
         // destructor against copy does not trigger send_message()
         //
-        CATCH_REQUIRE(buffer->str().empty());
+        CATCH_REQUIRE(buffer->empty());
 
-        msg.reset();
+        snaplogger::send_message(*msg);
 
         // now we get the message as expected!
         //
@@ -195,6 +221,10 @@ CATCH_TEST_CASE("message_copy", "[message]")
         // original, but not as a client... we may want to have the ability
         // to cancel a message, though.)
         //
+        CATCH_REQUIRE(buffer->str() == "Logging an error.\n");
+
+        msg.reset();
+
         CATCH_REQUIRE(buffer->str() == "Logging an error.\n");
 
         l->reset();
@@ -207,7 +237,7 @@ CATCH_TEST_CASE("message_severity", "[message][severity]")
 {
     CATCH_START_SECTION("Appender vs Message severity")
     {
-        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "message-copying");
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "message-severity");
 
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
@@ -229,12 +259,13 @@ CATCH_TEST_CASE("message_severity", "[message][severity]")
             buffer->set_severity(static_cast<snaplogger::severity_t>(i));
             for(int j(min_severity); j <= max_severity; ++j)
             {
-                ::snaplogger::message(
-                          static_cast<::snaplogger::severity_t>(j)
-                        , __FILE__
-                        , __func__
-                        , __LINE__
-                    ) << "The message itself";
+                snaplogger::send_message(
+                    ::snaplogger::message(
+                              static_cast<::snaplogger::severity_t>(j)
+                            , __FILE__
+                            , __func__
+                            , __LINE__
+                        ) << "The message itself");
 
                 if(j >= i
                 && i != static_cast<int>(snaplogger::severity_t::SEVERITY_OFF)
@@ -244,9 +275,9 @@ CATCH_TEST_CASE("message_severity", "[message][severity]")
                 }
                 else
                 {
-                    CATCH_REQUIRE(buffer->str().empty());
+                    CATCH_REQUIRE(buffer->empty());
                 }
-                buffer->str(std::string());
+                buffer->clear();
             }
         }
 
@@ -273,12 +304,12 @@ CATCH_TEST_CASE("message_severity", "[message][severity]")
 
         int const min_severity(static_cast<int>(snaplogger::severity_t::SEVERITY_MIN));
         int const max_severity(static_cast<int>(snaplogger::severity_t::SEVERITY_MAX));
-        for(int i(min_severity); i <= max_severity; ++i)
+        for(int i(min_severity); i <= max_severity; i += 1 + (rand() & 15))
         {
             buffer->set_severity(static_cast<snaplogger::severity_t>(i));
-            for(int j(min_severity); j <= max_severity; ++j)
+            for(int j(min_severity); j <= max_severity; j += 1 + (rand() & 15))
             {
-                for(int k(min_severity); k <= max_severity; ++k)
+                for(int k(min_severity); k <= max_severity; k += 1 + (rand() & 15))
                 {
                     ::snaplogger::message::pointer_t msg(std::make_shared<::snaplogger::message>(
                               static_cast<::snaplogger::severity_t>(j)
@@ -289,7 +320,7 @@ CATCH_TEST_CASE("message_severity", "[message][severity]")
                     *msg << "Start of message";
                     msg->set_severity(static_cast<::snaplogger::severity_t>(k));
                     *msg << " -- end of message";
-                    msg.reset();
+                    snaplogger::send_message(*msg);
 //std::cerr << "checking with " << i << ", " << j << ", " << k << "\n";
 
                     if(j >= i
@@ -309,9 +340,9 @@ CATCH_TEST_CASE("message_severity", "[message][severity]")
                     }
                     else
                     {
-                        CATCH_REQUIRE(buffer->str().empty());
+                        CATCH_REQUIRE(buffer->empty());
                     }
-                    buffer->str(std::string());
+                    buffer->clear();
                 }
             }
         }
@@ -320,6 +351,224 @@ CATCH_TEST_CASE("message_severity", "[message][severity]")
     }
     CATCH_END_SECTION()
 }
+
+
+CATCH_TEST_CASE("message_format", "[message][format]")
+{
+    CATCH_START_SECTION("Message is Recursive")
+    {
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "basic-format");
+
+        // these two are not called in this test
+        //
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROJECT_NAME, "test-logger");
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_VERSION, "5.32.1024");
+
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
+
+        advgetopt::options_environment opt_env;
+        opt_env.f_project_name = "test-logger";
+        opt_env.f_version = "5.32.1024";
+        advgetopt::getopt opts(opt_env);
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${project_name} ${message} v${version}"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+
+        SNAP_LOG_WARNING
+            << "Message Project Name = ${project_name} and Version = ${version} -- uses \"recursive\""
+            << SNAP_LOG_SEND;
+
+        CATCH_REQUIRE(buffer->str() ==
+                "test-logger Message Project Name = test-logger and"
+                " Version = 5.32.1024 -- uses \"recursive\" v5.32.1024"
+                "\n");
+
+        l->reset();
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("${message} itself is not recursive")
+    {
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "prevent-infinite-loop");
+
+        // these two are not called in this test
+        //
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROJECT_NAME, "test-logger");
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_VERSION, "5.32.1024");
+
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
+
+        advgetopt::options_environment opt_env;
+        opt_env.f_project_name = "test-logger";
+        opt_env.f_version = "5.32.1024";
+        advgetopt::getopt opts(opt_env);
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${project_name} ${message} v${version}"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+
+        SNAP_LOG_WARNING
+            << "Message ${message} says: Project Name = ${project_name} and Version = ${version} -- uses \"recursive\""
+            << SNAP_LOG_SEND;
+
+        CATCH_REQUIRE(buffer->str() ==
+                "test-logger Message  says: Project Name = test-logger and"
+                " Version = 5.32.1024 -- uses \"recursive\" v5.32.1024"
+                "\n");
+
+        l->reset();
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("${pid} uses the get_environment() function")
+    {
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "get-environment");
+
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
+
+        advgetopt::options_environment opt_env;
+        advgetopt::getopt opts(opt_env);
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message}"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+
+        SNAP_LOG_WARNING
+            << "Test PID = ${pid} == ${pid:running}"
+            << SNAP_LOG_SEND;
+
+        CATCH_REQUIRE(buffer->str() ==
+                  "Test PID = " + std::to_string(getpid())
+                + " == " + std::to_string(getpid())
+                + "\n");
+
+        l->reset();
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("Verify year")
+    {
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "get-environment");
+
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        CATCH_REQUIRE(l->get_appender("test-buffer") == nullptr);
+
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
+
+        advgetopt::options_environment opt_env;
+        advgetopt::getopt opts(opt_env);
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message}"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+
+        CATCH_REQUIRE(l->get_appender("test-buffer") == buffer);
+
+        // we create a message so we can check the timestamp in our test
+        //
+        snaplogger::message::pointer_t msg(std::make_shared<snaplogger::message>
+                        (::snaplogger::severity_t::SEVERITY_ERROR, __FILE__, __func__, __LINE__));
+        *msg << "Created message on YYYY = ${date:year}, MM = ${date:month}, DD = ${date:day}";
+
+        timespec const stamp(msg->get_timestamp());
+
+        snaplogger::send_message(*msg);
+
+        tm t;
+        gmtime_r(&stamp.tv_sec, &t);
+        char year[16];
+        char month[16];
+        char day[16];
+        strftime(year,  16, "%Y", &t);
+        strftime(month, 16, "%m", &t);
+        strftime(day,   16, "%d", &t);
+
+        CATCH_REQUIRE(buffer->str() ==
+                  std::string("Created message on YYYY = ")
+                + year
+                + ", MM = "
+                + std::to_string(std::atoi(month))  // remove the leading '0' if necessary
+                + ", DD = "
+                + std::to_string(std::atoi(day))    // remove the leading '0' if necessary
+                + "\n");
+
+        l->reset();
+    }
+    CATCH_END_SECTION()
+}
+
+
+CATCH_TEST_CASE("message_component_filter", "[message][component]")
+{
+    CATCH_START_SECTION("Filter Message with Component")
+    {
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "component-filter");
+
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
+
+        advgetopt::options_environment opt_env;
+        advgetopt::getopt opts(opt_env);
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message}"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+
+        SNAP_LOG_WARNING
+            << snaplogger::secure       // mark as a secure message
+            << "This message is secure but not the buffer"
+            << SNAP_LOG_SEND;
+
+        CATCH_REQUIRE(buffer->empty());
+
+        SNAP_LOG_WARNING
+            << "Test number: "
+            << 2
+            << " with buffer still unsecure..."
+            << SNAP_LOG_SEND_SECURELY;  // mark at the end
+
+        CATCH_REQUIRE(buffer->empty());
+
+        // mark the buffer as a secure buffer now
+        //
+        buffer->add_component(snaplogger::g_secure_component);
+
+        SNAP_LOG_WARNING
+            << snaplogger::secure       // mark as a secure message
+            << "This message is secure and so is the buffer"
+            << SNAP_LOG_SEND;
+
+        CATCH_REQUIRE(buffer->str() == "This message is secure and so is the buffer\n");
+
+        buffer->clear();
+
+        SNAP_LOG_WARNING
+            << "Test number: "
+            << 4
+            << " with secure buffer..."
+            << SNAP_LOG_SEND_SECURELY;  // mark at the end
+
+        CATCH_REQUIRE(buffer->str() == "Test number: 4 with secure buffer...\n");
+
+        l->reset();
+    }
+    CATCH_END_SECTION()
+}
+
 
 
 // vim: ts=4 sw=4 et

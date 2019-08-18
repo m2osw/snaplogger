@@ -1,0 +1,3 @@
+
+Alexis Wilke <alexis@m2osw.com>  --  primary author of the snaplogger library
+

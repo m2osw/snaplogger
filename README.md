@@ -376,12 +376,13 @@ The following are parameters supported internally:
 
     # Date/Time
     ${date}                     year/month/day, year includes century
+    ${date:day}                 day of month as a number (1 to 31)
     ${date:day_of_week_name}    name of day of week, English
-    ${date:day_of_week}         day of week in numbers
+    ${date:day_of_week}         day of week as a number
     ${date:year_week}           year week (1 to 53)
     ${date:year_day}            year day (1 to 366)
     ${date:month_name}          name of month, English
-    ${date:month}               month number (1 to 12)
+    ${date:month}               month as a number (1 to 12)
     ${date:year}                year as a number (i.e. "2020")
     ${time}                     hour:minute:second in 24 hour
     ${time:hour=24|12}          hour number; (0 to 23 or 1 to 12)
@@ -534,7 +535,8 @@ only outputs `"normal"` or `"this happened!"`.
 
 # License
 
-The project is covered by the GPL 2.0 license.
+The project is covered by the
+[GPL 2.0 license](https://github.com/m2osw/snaplogger/blob/master/LICENSE.txt).
 
 
 # Bugs
