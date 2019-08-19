@@ -92,15 +92,13 @@ public:
     bool                is_system() const;
 
     std::string         get_name() const;
-    string_vector_t     get_all_names() const;
-
     void                add_alias(std::string const & name);
-    string_vector_t     get_aliases() const;
+    string_vector_t     get_all_names() const;
 
     void                set_description(std::string const & description);
     std::string         get_description() const;
 
-    void                set_styles(std::string const & color);
+    void                set_styles(std::string const & styles);
     std::string         get_styles() const;
 
 private:

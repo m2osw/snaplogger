@@ -83,13 +83,13 @@ CATCH_TEST_CASE("message_capture", "[message]")
         advgetopt::getopt opts(opt_env);
         buffer->set_config(opts);
 
-        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message}"));
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${severity}: ${message}"));
         buffer->set_format(f);
 
         l->add_appender(buffer);
 
         SNAP_LOG_ERROR << "Logging this error" << SNAP_LOG_SEND;
-        CATCH_REQUIRE(buffer->str() == "Logging this error\n");
+        CATCH_REQUIRE(buffer->str() == "error: Logging this error\n");
 
         // test the other str() function too
         //
@@ -98,13 +98,13 @@ CATCH_TEST_CASE("message_capture", "[message]")
         // show that the "\n" does not get duplicated
         //
         SNAP_LOG_ERROR << "Error with newline\n" << SNAP_LOG_SEND;
-        CATCH_REQUIRE(buffer->str() == "Start: Error with newline\n");
+        CATCH_REQUIRE(buffer->str() == "Start: error: Error with newline\n");
         buffer->clear();
 
         // show that the "\r\n" gets replaced by "\n"
         //
         SNAP_LOG_ERROR << "Error with CRLF\r\n" << SNAP_LOG_SEND;
-        CATCH_REQUIRE(buffer->str() == "Error with CRLF\n");
+        CATCH_REQUIRE(buffer->str() == "error: Error with CRLF\n");
         buffer->clear();
 
         // severity too low, no change to buffer
@@ -523,7 +523,7 @@ CATCH_TEST_CASE("message_component_filter", "[message][component]")
         advgetopt::getopt opts(opt_env);
         buffer->set_config(opts);
 
-        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message}"));
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message} (${severity})"));
         buffer->set_format(f);
 
         l->add_appender(buffer);
@@ -552,17 +552,17 @@ CATCH_TEST_CASE("message_component_filter", "[message][component]")
             << "This message is secure and so is the buffer"
             << SNAP_LOG_SEND;
 
-        CATCH_REQUIRE(buffer->str() == "This message is secure and so is the buffer\n");
+        CATCH_REQUIRE(buffer->str() == "This message is secure and so is the buffer (warning)\n");
 
         buffer->clear();
 
         SNAP_LOG_WARNING
             << "Test number: "
             << 4
-            << " with secure buffer..."
+            << " with secure buffer...\r\n"
             << SNAP_LOG_SEND_SECURELY;  // mark at the end
 
-        CATCH_REQUIRE(buffer->str() == "Test number: 4 with secure buffer...\n");
+        CATCH_REQUIRE(buffer->str() == "Test number: 4 with secure buffer... (warning)\n");
 
         l->reset();
     }

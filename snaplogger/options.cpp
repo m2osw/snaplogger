@@ -177,11 +177,16 @@ void add_logger_options(advgetopt::getopt & opts)
 }
 
 
-constexpr int const OPTION_NO_LOG       = 0x01;
-constexpr int const OPTION_LOG_FILE     = 0x02;
-constexpr int const OPTION_LOG_CONFIG   = 0x04;
-constexpr int const OPTION_SYSLOG       = 0x08;
-constexpr int const OPTION_CONSOLE      = 0x10;
+constexpr int const OPTION_NO_LOG           = 0x01;
+constexpr int const OPTION_LOG_FILE         = 0x02;
+constexpr int const OPTION_LOG_CONFIG       = 0x04;
+constexpr int const OPTION_SYSLOG           = 0x08;
+constexpr int const OPTION_CONSOLE          = 0x10;
+
+constexpr int const OPTION_DEBUG_SEVERITY   = 0x20;
+constexpr int const OPTION_LOG_SEVERITY     = 0x40;
+constexpr int const OPTION_FORCE_SEVERITY   = 0x80;
+
 
 bool process_logger_options(advgetopt::getopt & opts
                           , std::string const & config_path
@@ -351,51 +356,71 @@ bool process_logger_options(advgetopt::getopt & opts
 
     // SEVERITY
     //
-    if(opts.is_defined("debug")
-    || opts.is_defined("log-severity")
-    || opts.is_defined("force-severity"))
+    int severity_selection(0);
+    if(opts.is_defined("debug"))
     {
+        severity_selection |= OPTION_DEBUG_SEVERITY;
+    }
+    if(opts.is_defined("log-severity"))
+    {
+        severity_selection |= OPTION_LOG_SEVERITY;
+    }
+    if(opts.is_defined("force-severity"))
+    {
+        severity_selection |= OPTION_FORCE_SEVERITY;
+    }
+
+    switch(severity_selection)
+    {
+    case 0:
+        // keep as is
+        break;
+
+    case OPTION_DEBUG_SEVERITY:
+        logger::get_instance()->reduce_severity(severity_t::SEVERITY_DEBUG);
+        configure_console(true);
+        break;
+
+    case OPTION_LOG_SEVERITY:
+        {
+            std::string const severity_name(opts.get_string("log-severity"));
+            severity::pointer_t sev(get_severity(severity_name));
+            if(sev == nullptr)
+            {
+                advgetopt::log << advgetopt::log_level_t::error
+                               << "unknown severity level \""
+                               << severity_name
+                               << "\"; please check your spelling."
+                               << advgetopt::end;
+                return false;
+            }
+            logger::get_instance()->reduce_severity(sev->get_severity());
+        }
+        break;
+
+    case OPTION_FORCE_SEVERITY:
+        {
+            std::string const severity_name(opts.get_string("force-severity"));
+            severity::pointer_t sev(get_severity(severity_name));
+            if(sev == nullptr)
+            {
+                advgetopt::log << advgetopt::log_level_t::error
+                               << "unknown severity level \""
+                               << severity_name
+                               << "\"; please check your spelling."
+                               << advgetopt::end;
+                return false;
+            }
+            logger::get_instance()->set_severity(sev->get_severity());
+        }
+        break;
+
+    default:
         advgetopt::log << advgetopt::log_level_t::error
                        << "only one of --debug, --log-severity, --force-severity can be used on your command line."
                        << advgetopt::end;
         return false;
-    }
 
-    if(opts.is_defined("debug"))
-    {
-        logger::get_instance()->reduce_severity(severity_t::SEVERITY_DEBUG);
-
-        configure_console(true);
-    }
-    else if(opts.is_defined("log-severity"))
-    {
-        std::string const severity_name(opts.get_string("log-severity"));
-        severity::pointer_t sev(get_severity(severity_name));
-        if(sev == nullptr)
-        {
-            advgetopt::log << advgetopt::log_level_t::error
-                           << "unknown severity level \""
-                           << severity_name
-                           << "\"; please check your spelling."
-                           << advgetopt::end;
-            return false;
-        }
-        logger::get_instance()->reduce_severity(sev->get_severity());
-    }
-    else if(opts.is_defined("force-severity"))
-    {
-        std::string const severity_name(opts.get_string("force-severity"));
-        severity::pointer_t sev(get_severity(severity_name));
-        if(sev == nullptr)
-        {
-            advgetopt::log << advgetopt::log_level_t::error
-                           << "unknown severity level \""
-                           << severity_name
-                           << "\"; please check your spelling."
-                           << advgetopt::end;
-            return false;
-        }
-        logger::get_instance()->set_severity(sev->get_severity());
     }
 
     // FILTERS

@@ -37,6 +37,11 @@
 #include    "snaplogger/syslog_appender.h"
 
 
+// advgetopt lib
+//
+#include    <advgetopt/log.h>
+
+
 // cppthread lib
 //
 #include    <cppthread/runner.h>
@@ -51,6 +56,56 @@
 namespace snaplogger
 {
 
+
+namespace
+{
+
+
+
+void getopt_logs(advgetopt::log_level_t l, std::string const & m)
+{
+    severity_t sev(severity_t::SEVERITY_ERROR);
+    switch(l)
+    {
+    case advgetopt::log_level_t::debug:
+        sev = severity_t::SEVERITY_DEBUG;
+        break;
+
+    case advgetopt::log_level_t::info:
+        sev = severity_t::SEVERITY_INFORMATION;
+        break;
+
+    case advgetopt::log_level_t::warning:
+        sev = severity_t::SEVERITY_WARNING;
+        break;
+
+    //case advgetopt::log_level_t::error:
+    default:
+        // anything else, keep SEVERITY_ERROR
+        break;
+
+    case advgetopt::log_level_t::fatal:
+        sev = severity_t::SEVERITY_FATAL;
+        break;
+
+    }
+
+    message msg(sev, __FILE__, __func__, __LINE__);
+    msg << m;
+
+    // this call cannot create a loop, if the creation of the logger
+    // generates an advgetopt log, then the second call will generate
+    // an exception (see get_instance() in snaplogger/logger.cpp)
+    //
+    logger::pointer_t lg(logger::get_instance());
+
+    lg->log_message(msg);
+}
+
+
+
+}
+// no name namespace
 
 
 namespace detail
@@ -104,6 +159,8 @@ private:
 private_logger::private_logger()
 {
     f_normal_component = get_component(COMPONENT_NORMAL);
+
+    advgetopt::set_log_callback(getopt_logs);
 }
 
 
@@ -123,18 +180,18 @@ void private_logger::register_appender_factory(appender_factory::pointer_t facto
 {
     if(factory == nullptr)
     {
-        throw logger_logic_error(
-                "register_appender_factory() called with a nullptr.");
+        throw logger_logic_error(                                       // LCOV_EXCL_LINE
+                "register_appender_factory() called with a nullptr.");  // LCOV_EXCL_LINE
     }
 
     guard g;
 
     if(f_appender_factories.find(factory->get_type()) != f_appender_factories.end())
     {
-        throw duplicate_error(
-                  "trying to register appender type \""
-                + factory->get_type()
-                + "\" twice won't work.");
+        throw duplicate_error(                                  // LCOV_EXCL_LINE
+                  "trying to register appender type \""         // LCOV_EXCL_LINE
+                + factory->get_type()                           // LCOV_EXCL_LINE
+                + "\" twice won't work.");                      // LCOV_EXCL_LINE
     }
 
     f_appender_factories[factory->get_type()] = factory;
@@ -207,12 +264,6 @@ environment::pointer_t private_logger::create_environment()
     }
 
     return it->second;
-}
-
-
-bool private_logger::has_severities() const
-{
-    return !f_severity_by_severity.empty();
 }
 
 

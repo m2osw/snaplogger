@@ -7,8 +7,8 @@ src="https://raw.githubusercontent.com/m2osw/snaplogger/master/doc/snaplogger.pn
 # Introduction
 
 The snaplogger started based on the functionality offered by the
-`log.cpp/.h` from the libsnapwebsites and various features of the
-log4cplus library.
+`log.cpp/.h` from the **libsnapwebsites** and various features of the
+**log4cplus** library.
 
 The current version allows all our Snap! projects to log errors to
 files, the syslog, and the console.
@@ -17,16 +17,16 @@ files, the syslog, and the console.
 
 The following are the main features of this logger:
 
-* Messages using std::stringstream
+* Messages using `std::stringstream`
 
-    Sending logs uses a stringstream. We have a class named `message` which
-    can therefore be used just like any `ostream`.
+    Sending log messages uses an `std::stringstream`. When creating a
+    `message` class, it can be used just like any `std::basic_ostream<char>`.
     
-    This means all the features supported by `ostream` are available to your
-    logger. You can send hexadecimal, format strings, and overload the
-    `<<` operator in order to add more automatic transformation of objects
-    to strings just as you do when you want to print those objects to
-    `std::cout` or `std::cerr`.
+    This means all the features supported by `std::basic_ostream` are
+    available. You can send hexadecimal (`... << std::hex << ...`), format
+    strings, and overload the `<<` operator in order to add more automatic
+    transformation of objects to strings just as you do when you want to
+    print those objects to `std::cout` or `std::cerr`.
 
 * Severity
 
@@ -36,7 +36,7 @@ The following are the main features of this logger:
     or in the severity.conf file.
 
     Appenders can be assigned a severity. When a message is logged with
-    a lower severity than the appender, then it gets ignored by that
+    a lower severity than the appender's, then it gets ignored by that
     appender.
 
     The severity can also be tweaked directly on the command line.
@@ -45,25 +45,47 @@ The following are the main features of this logger:
 
     A set of classes used to declare the log sinks.
     
+    The library offers the following appenders:
+
+    - buffer
+    - console
+    - file
+    - syslog
+    
     It is very easy to develop your own appender. In most cases you want
     to override the `set_config()` (optional) and the `process_message()`.
+
+    The  project will add a log service. This has several
+    advantages over the direct appenders offered by the base library. The
+    main two are certainly:
+    
+    - It can access any files since the service can be running as root
+    - It can do work in parallel on a separate computer.
+    
+    The [#eventdispatcher] makes use of the base snaplogger library which
+    is why this server extension is in a separate project.
 
 * Format
 
     Your log messages can be formatted in many different ways. The
-    snaplogger supports many variables which support parameters and
-    functions. All of thish is very easily extensible.
-
+    `snaplogger` library supports many variables which support parameters
+    and functions. All of this is very easily extensible.
+    
     There are many variables supported by default, including displaying
     the timestamp of the message, environment variables, system information
     (i.e. hostname), and all the data from the message being logged.
+    
+    Our tests verifies a standard one line text message and a JSON message
+    to make sure that we support either format. You could also use a CSV
+    type of format.
 
 * Diagnostics
 
     We support two types of diagnostics: map and nested.
 
     Maps are actually used to save various parameters such as the program
-    name and the program version.
+    name and the program version. You can use as many parameters as you'd
+    like to show in your logs.
 
     The nested diagnostics are used to track your location in a stack like
     manner.
@@ -75,11 +97,27 @@ The following are the main features of this logger:
 
         SNAP_LOG_INFO
             << snaplogger::section(snaplogger::secure_component)
-            << "My Message Here";
+            << "My Message Here"
+            << SNAP_LOG_END;
 
     This means the log will only be sent to the appender's output if the
     appender includes "secure" as one of its components. This allows us
     to very quickly prevent messages from going to the wrong place.
+
+    **Note:** The secure component has special options that allows you
+    to quickly use that one. For example:
+
+        SNAP_LOG_INFO
+            << "My Secure Message"
+            << SNAP_LOG_END_SECURELY;
+
+    Also we have a special modifier you can use like this:
+
+        SNAP_LOG_INFO
+            << snaplogger::secure
+            << SNAP_LOG_END;
+
+    This gives you examples on how to implement your own flags.
 
 * Regex Filtering
 
@@ -93,7 +131,7 @@ The following are the main features of this logger:
     The library is multi-thread safe. It can even be used with an
     asynchronous feature so you can send many logs and they are
     processed by a thread. That thread can easily be stopped in case
-    you want to fork() your application.
+    you want to `fork()` your application.
 
 * advgetopt support
 
@@ -104,41 +142,47 @@ The following are the main features of this logger:
     and `--logger-configuration-filenames` options. You can always add
     more.
 
+    The library also is setup to capture logs from the `advgetopt` and
+    the cppthread libraries (both use the `advgetopt` log feature.)
+
 
 # Reasons Behind Having Our Own Library
 
 We want to be in control of the capabilities of our logger and we want
 to be able to use it in our `snap_child` objects in a thread. Many
-capabilities which are not readily available in log4cplus.
+capabilities which are not readily available in `log4cplus`.
 
 # API
 
 ## Appenders
 
-An appender is an object that allows the log to be _appended_.
+An appender is an object that allows the log messages to be _appended_.
 
-This is the same terminology used by log4cplus.
+This is the same terminology used by `log4cplus`.
 
 We have a C++ base class which allows you to create your own appenders.
 These get registered and then the user can make use of those by naming
 them in their configuration files.
 
-We offer the following appenders:
+In the base library, We offer the following appenders:
 
-* File
-* Console
-* Syslog
+* buffer
+* console
+* file
+* syslog
 
-A network appender will be available through snaplog. We want to have
-access to snapnetwork but snapnetwork depends on snaplogger so we have
-to have another project to log to a remote log service.
+A network appender (service) will be available through [#logserver]. We
+want to have access to [#eventdispatcher] but [#eventdispatcher] depends
+on [#logserver] so we have to have another project to log to a remote
+server.
 
 ## Configuration Files
 
-You configure snaplogger via a set of configuration files.
+You configure `snaplogger` via a set of configuration files.
 
-These files are found under `/etc/logger` by default, but the `snapwebsites`
-environment checks for these files under `/etc/snapwebsites/logger`.
+These files are found under `/etc/snaplogger` by default, but the
+`snapwebsites` environment checks for these files under
+`/etc/snapwebsites/logger`.
 
 The configuration files include parameters that setup the log. These
 are:
@@ -197,9 +241,9 @@ of the same type. For example, you may want to write to an `all.log` file:
 
 ### Type
 
-The type is actually the name of the appender.
+The type is often the name of the appender.
 
-The base supports the following appenders:
+The base supports the following types (appenders):
 
 * buffer
 * file
@@ -207,10 +251,10 @@ The base supports the following appenders:
 * syslog
 
 Other types can be added by creating a class derived from the snaplogger
-Appender class. For example, the snaplog offers the "network" appender.
+Appender class. For example, the `logserver` offers the "network" appender.
 
 The type is mandatory, but if the `type=...` field is not specified,
-the systemt tries with the name of the section. So the following
+the system tries with the name of the section. So the following
 means we get a file:
 
     [file]
@@ -218,9 +262,10 @@ means we get a file:
 
 Remember that to create multiple entries of the same type, you must use
 different section names. Reusing the same name is useful only to overwrite
-parameters of a previous section definition.
+parameters of a previous section definition. Some type of appenders
+(i.e. syslog) do not allow duplication, so you can only have one of those.
 
-#### Type=File
+#### type=file
 
 Write the logs to a file. The file must be named unless your section is an
 override of another section of the same name which already has a filename.
@@ -237,27 +282,31 @@ other parameters define where the files go:
 
 By default the severity is set to INFORMATION.
 
-This means anything below that severity gets ignored. Anything equal or above
-that severity gets included.
+This means anything below that severity, such as DEBUG or NOTICE, gets ignored.
+Anything equal or above that severity gets included.
 
-The severity can be different for each component and each appender.
+The severity can be different for each appender.
 
 We support the following levels:
 
-* TRACE
-* DEBUG
-* NOTICE
-* UNIMPORTANT
-* INFORMATION
-* IMPORTANT
-* MINOR
-* WARNING
-* MAJOR
-* ERROR
-* CRITICAL
-* EMERGENCY
-* FATAL
-* OFF
+* `ALL`
+* `TRACE`
+* `DEBUG`
+* `NOTICE`
+* `UNIMPORTANT`
+* `INFORMATION`
+* `IMPORTANT`
+* `MINOR`
+* `DEPRECATED`
+* `WARNING`
+* `MAJOR`
+* `RECOVERAL_ERROR`
+* `ERROR`
+* `CRITICAL`
+* `ALERT`
+* `EMERGENCY`
+* `FATAL`
+* `OFF`
 
 The severity can also be changed dynamically (along the way, from command line
 arguments, etc.)
@@ -270,13 +319,13 @@ arguments, etc.)
 Each entry can be segregated in a specific component. This gives your
 application the ability to send the log to a specific component.
 
-In Snap!, we make use of the NORMAL and SECURE components. The SECURE
-logs are better protected (more constratined chmod, sub-folder, etc.)
-than the NORMAL component.
+In Snap!, we make use of the `NORMAL` and `SECURE` components. The `SECURE`
+logs are better protected (more constrained `chmod`, sub-folder, etc.)
+than the `NORMAL` component.
 
 Others can be added.
 
-Technically, when no component is specified in a log, NORMAL is assumed.
+Technically, when no component is specified in a log, `NORMAL` is assumed.
 Otherwise, the appender must include that component or it will be ignored.
 (i.e. that log will not make it to that appender if none of its components
 match the ones in the log being processed.)
@@ -316,8 +365,8 @@ It supports a set of variables which are written as in:
 
     ${<name>[:<param>[=<value>]:...]}
 
-This syntax instead of %\<letter> was chosen because it's much more versatile.
-The following are parameters supported internally:
+This syntax, instead of %\<letter>, was chosen because it's much more
+versatile. The following are parameters supported internally:
 
     # Functions
     ${...:align=left|right}     truncate keeps left or right size, padding
@@ -405,35 +454,35 @@ The following are parameters supported internally:
     ${locale:timezone}          timezone name
     ${locale:timezone_offset}   timezone as +hhmm or -hhmm
 
-The library supports an advance way of formatting messages using
+The library supports an advanced way of formatting messages using
 variables as in:
 
     ${time}
 
 The variable name can be followed by a colon and a parameter. Many
-parameter can be assigned a value. We offer three types of parameters.
+parameters can be assigned a value. We offer three types of parameters.
 Direct parameters which transform what the variable returns. For
-example, the `${time:hour}` outputs the hour of the time. Actual
-parameters, such as the `padding` parameter. This one takes a
+example, the `${time:hour}` outputs the hour of the message timestamp.
+Actual parameters, such as the `align` parameter. This one takes a
 value which is one of those three words: "left", "center", or
-"right". That padding value is held in the formatter until we
-are done or another `padding=...` happens. Finally, we have
+"right". That alignment is held in the formatter until we
+are done or another `align=...` happens. Finally, we have
 the parameters that represent functions. Those further format
 the input data. For example, you can write the PID in your logs.
 You may want to pad the PID with zeroes as in:
 
     ${pid:padding='0':align=right:exact-width=5}
 
-This way the output of the PID will always look like it is 5 characters.
+This way the output of the PID will always look like it is 5 digits.
 
-Formats are extensible. We use the follwogin macro for that purpose:
+Formats are extensible. We use the following macro for that purpose:
 
     DEFINE_LOGGER_VARIABLE(date)
     {
         ...the process_value() function...
     }
 
-Parameters make use of the following macro
+Parameters make use of the following macro:
 
     DECLARE_FUNCTION(padding)
     {
@@ -461,11 +510,19 @@ So our format is extremely extensible.
 The default format:
 
     ${date} ${time} ${hostname} ${progname}[${pid}]: ${severity}: ...
-          ... ${message:escape} (in function \"${function}()\") ...
+          ... ${message:escape:max_width=1000} ...
+          ... (in function \"${function}()\") ...
           ... (${basename}:${line})
 
 If no format is defined for an appender then this format is used. The "..."
 is just to show it continues on the following line.
+
+#### JSON Format
+
+To support the JSON format you need to be careful with double quotes.
+They need to be escaped.
+
+    {"date":"${date}",
 
 
 ## Diagnostic Features
@@ -516,14 +573,14 @@ the map.
         }
     }
 
-In this case, the `"state"` key changes depening on various parameters
+In this case, the `"state"` key changes depending on various parameters
 of yours. It would be complicated for you to maintain all the statuses
 of your app. for when a log message is to be generated (and you could
 be calling all sorts of sub-functions that have no clue of said state!)
 
 With the `map_diagnostic` you change the diagnostic message as you change
 your program state. Much more practical. There is no limit to the number
-of keps or the message (although you certainly want to limit both.)
+of maps or the message (although you certainly want to limit both.)
 
 When you use the `${diagnostic}`, all the keys are written by default
 (i.e. `state=normal,size=33,...`) You can setup your logger's format

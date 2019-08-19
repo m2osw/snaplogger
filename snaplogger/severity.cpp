@@ -88,8 +88,8 @@ constexpr system_severity g_system_severity[] =
     {
         .f_severity     = severity_t::SEVERITY_ALL,
         .f_name         = "all",
-        .f_alias        = nullptr,
-        .f_description  = "everything",
+        .f_alias        = "everything",
+        .f_description  = "all",
         .f_styles       = nullptr
     },
     {
@@ -152,7 +152,7 @@ constexpr system_severity g_system_severity[] =
         .f_severity     = severity_t::SEVERITY_WARNING,
         .f_name         = "warning",
         .f_alias        = "warn",
-        .f_description  = "warn",
+        .f_description  = "warning",
         .f_styles       = "orange"
     },
     {
@@ -179,8 +179,8 @@ constexpr system_severity g_system_severity[] =
     {
         .f_severity     = severity_t::SEVERITY_CRITICAL,
         .f_name         = "critical",
-        .f_alias        = nullptr,
-        .f_description  = "crit",
+        .f_alias        = "crit",
+        .f_description  = "critical",
         .f_styles       = "red"
     },
     {
@@ -194,13 +194,13 @@ constexpr system_severity g_system_severity[] =
         .f_severity     = severity_t::SEVERITY_EMERGENCY,
         .f_name         = "emergency",
         .f_alias        = "emerg",
-        .f_description  = "emerg",
+        .f_description  = "emergency",
         .f_styles       = "red"
     },
     {
         .f_severity     = severity_t::SEVERITY_FATAL,
         .f_name         = "fatal",
-        .f_alias        = nullptr,
+        .f_alias        = "fatal-error",
         .f_description  = "fatal",
         .f_styles       = "red"
     },
@@ -220,7 +220,7 @@ advgetopt::options_environment g_config_option =
 {
     .f_project_name = "logger",
     .f_options = nullptr,
-    .f_options_files_directory = "/etc/snapwebsites/logger",
+    .f_options_files_directory = "/etc/snaplogger",
     .f_environment_variable_name = nullptr,
     .f_configuration_files = nullptr,
     .f_configuration_filename = "severity.ini",
@@ -403,6 +403,13 @@ std::string severity::get_name() const
 void severity::add_alias(std::string const & name)
 {
     f_names.push_back(name);
+
+    private_logger::pointer_t l(get_private_logger());
+    severity::pointer_t s(l->get_severity(f_names[0]));
+    if(s != nullptr)
+    {
+        l->add_severity(s);
+    }
 }
 
 
@@ -420,13 +427,17 @@ void severity::set_description(std::string const & description)
 
 std::string severity::get_description() const
 {
+    if(f_description.empty())
+    {
+        return get_name();
+    }
     return f_description;
 }
 
 
-void severity::set_styles(std::string const & color)
+void severity::set_styles(std::string const & styles)
 {
-    f_styles = color;
+    f_styles = styles;
 }
 
 

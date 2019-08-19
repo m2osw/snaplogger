@@ -99,7 +99,6 @@ public:
 
     environment::pointer_t      create_environment();
 
-    bool                        has_severities() const;
     void                        add_severity(severity::pointer_t sev);
     severity::pointer_t         get_severity(std::string const & name) const;
     severity::pointer_t         get_severity(severity_t sev) const;
