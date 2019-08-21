@@ -137,4 +137,11 @@ operator << (std::basic_ostream<CharT, Traits> & os, severity_t sev)
 
 
 } // snaplogger namespace
+
+
+// outside of namespace so it can be used right up
+//
+snaplogger::severity::pointer_t     operator ""_sev (char const * name, unsigned long size);
+
+
 // vim: ts=4 sw=4 et

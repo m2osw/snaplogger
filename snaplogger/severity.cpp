@@ -487,4 +487,12 @@ severity::pointer_t get_severity(message const & msg, severity_t sev)
 
 
 } // snaplogger namespace
+
+
+snaplogger::severity::pointer_t operator ""_sev (char const * name, unsigned long size)
+{
+    return snaplogger::get_severity(std::string(name, size));
+}
+
+
 // vim: ts=4 sw=4 et

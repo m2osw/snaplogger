@@ -45,7 +45,6 @@
 
 
 
-
 CATCH_TEST_CASE("severity", "[severity]")
 {
     CATCH_START_SECTION("Create Severity")
@@ -145,6 +144,22 @@ CATCH_TEST_CASE("severity", "[severity]")
             snaplogger::message msg(::snaplogger::severity_t::SEVERITY_ERROR, __FILE__, __func__, __LINE__);
             CATCH_REQUIRE(snaplogger::get_severity(msg, "bad-error") == s);
             CATCH_REQUIRE(snaplogger::get_severity(msg, "big-error") == s);
+        }
+
+        // actually create a valid severity
+        {
+            snaplogger::severity_t const level(static_cast<snaplogger::severity_t>(25));
+            snaplogger::severity::pointer_t s(std::make_shared<snaplogger::severity>(level, "remark"));
+
+            snaplogger::add_severity(s);
+
+            snaplogger::severity::pointer_t r("remark"_sev);
+            CATCH_REQUIRE(r == s);
+
+            CATCH_REQUIRE(r->get_severity() == level);
+            CATCH_REQUIRE(s->get_severity() == level);
+            CATCH_REQUIRE(r->get_name() == "remark");
+            CATCH_REQUIRE(s->get_name() == "remark");
         }
     }
     CATCH_END_SECTION()

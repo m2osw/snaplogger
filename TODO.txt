@@ -1,15 +1,35 @@
 
 
-* Thread support (asynchronous logging)
+* Allow a form of subcribe to the logs
 
-If allowed by the app. (most our app. do not use fork(), but those that
-do need to not use threads...) we can create a thread. Whenever log arrives,
-we send it to the thread which then formats it and sends it to the various
-outputs (file, network, console, syslog...) all the appenders.
+This should be a pubsub type of a thing. However, the logger is below the
+eventdispatcher so it has no network abilities at all (to avoid code
+duplication)
 
-Another couple of ideas are to send the logs through a pipe and/or network
-but just those appender are not unlikely going to be somewhat slow in
-themselves. Plus we'd have to something format the data to send it.
+However, since we can implement any type of appender, we can have one which
+is a simple callback or have a pubsub appender in the logserver project
+which will be used to send all the logs here and there. It may be smart
+to implement that feature only in the `server daemon` since that one is
+remote and thus you do not eat on local resources (i.e. you can then have
+log dedicated machines which allow for subscriptions.)
+
+The subscription can then be used by a tool which would replace fail2ban.
+(i.e. a form of extension to the snapwatchdog service)
+
+For `syslog` messages, we can use (I think) the
+[`librelp`](https://www.rsyslog.com/librelp-1-1-0/) and setup the
+system to forward messages to our service.
+
+Then the syslog.d/... setup looks like this:
+
+    *.* @remote-host:3333
+
+The port number and "remote-host" have to be chosen so things actually work.
+The default UDP port is 514, there is no relp default port in rsyslog. In
+our /etc/services we have the following:
+
+    syslog          514/udp
+    syslog-tls      6514/tcp
 
 
 
