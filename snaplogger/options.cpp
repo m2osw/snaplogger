@@ -95,7 +95,7 @@ advgetopt::option const g_options[] =
     //
     advgetopt::define_option(
           advgetopt::Name("log-config-path")
-        , advgetopt::Flags(advgetopt::command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS
+        , advgetopt::Flags(advgetopt::all_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS
                                                   , advgetopt::GETOPT_FLAG_REQUIRED>())
         , advgetopt::Help("the path to the configuration folders.")
     ),

@@ -1,1 +1,4 @@
 usr/lib/lib*.so.*
+usr/bin/shredlog                    usr/bin/
+conf/severity.ini                   etc/snaplogger/
+conf/shredlog.conf                  etc/snaplogger/

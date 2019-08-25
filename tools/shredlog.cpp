@@ -77,9 +77,92 @@
  * This tool is used to shred files (by calling `shred -uf <filename>` for
  * exampe.)
  *
- * The tool actually makes use of `shred` to delete files and `rm` to delete
- * files and directories when shredding is turned off. In recursive mode,
- * the `shred` tool is used along the `rmdir` to remove directories.
+ * The shredlog tool can be used to shred and delete files and directories.
+ *
+ * It can be used to work recursively (`--recursive`) so an entire tree
+ * can be destroyed in one go.
+ *
+ * The default mode (`--auto`) checks each file for its device. If that
+ * device is an HDD, then the `shred` tool is used to first overwrite that
+ * file's data and then delete it (the deletion happens if you use the
+ * `--unlink` option along the `--auto`).
+ *
+ * We offer several other modes, especially, the auto-detection of HDD or
+ * SSD drives fails badly on any VPS (the ones you run on your computer
+ * at home and at data centers like DigialOcean). I think this is because
+ * by default the systems that create virtualize  computers have fake
+ * drives for HDD and thus they _say_ that the drives are rotational.
+ * Hopefully this will be fixed at some point so the virtual system can
+ * detect the original drive type and replicate that in the virtual
+ * environment.
+ *
+ * The different modes:
+ *
+ * \li `--auto` -- let shredlog detect what to do; if the drive is an HDD,
+ * then just shred the file; if the drive is an SSD, delete the file.
+ *
+ * \li `--delete` -- always delete the file (`rm \<filename>`)
+ *
+ * \li `--shred` -- always shred the file (`shred \<filename>`)
+ *
+ * \li `--unlink` -- in shred mode, also delete the file once done with the
+ * shredding (so `shred -u \<filename>`)
+ *
+ * So `--unlink` flag can be used with `--auto`, `--delete`, and `--shred`.
+ * With `--delete` it is somewhat redundant.
+ *
+ * Our tool supports all the command line options like `shred`.
+ *
+ * \li `--exact` -- do not round the file size to an exact number of blocks
+ * which means you may not overwrite some of the data appearing after
+ * the end (in the last block); this is useful on file where on APPEND
+ * is used (i.e. logs, journals) and encrypted files which anyway are
+ * going to use such and _break_ the encryption stream
+ *
+ * \li `--force` -- force the shredding and/or deletion of files. If the
+ * file does not exist, remain silent.
+ *
+ * \li `--iterations=\<count>` -- the number of passes to shred the file;
+ * this defaults to 3; the more passes the more likely the original data
+ * will not be recoverable
+ *
+ * \li `--random-source` -- specify a filename to read random data from
+ * (i.e. `/dev/random`)
+ *
+ * \li `--recursive` -- work recursively through directories; otherwise
+ * a directory is deleted with `rmdir ...` unless `--force` is used and
+ * a directory gets deleted with `rm -rf ...` (i.e. no shredding will
+ * happen on the files inside the directory unless `--recursive` is
+ * specified!)
+ *
+ * \li `--remove=\<unlink|wipe|wipesync>` -- specify how `shred` will delete
+ * a file; `unlink` -- just call `unlink()`; `wipe` -- first truncate the
+ * file, rename it multiple times, then `unlink()` it; `wipesync` -- like
+ * `wipe` but use `sync` wherever possible (i.e. so each modification gets
+ * commited on disk; otherwise it will only happen in memory)
+ *
+ * \li `--size=\<count[KMG]>` -- specify the maximum number of bytes to
+ * shred; you can specify K, M, or G to change the number in kilo, mega,
+ * and giga bytes; this size is the maximum, if the file is smaller, it
+ * does not get enlarged
+ *
+ * \li `--verbose` -- show what is happening
+ *
+ * \li `--zero` -- before truncating/deleting the file, make one more pass
+ * writing all zeroes to the file; this allows for hiding the fact that
+ * the file was shredded and possibly the type of random source
+ *
+ * \warning
+ * Note that by default the `shredlog` command is used in `auto` mode
+ * which means that the files get deleted if on an SSD drive and only
+ * shredded on an HDD drive (i.e. in the latter the file remains on
+ * disk, only its data was overwriten with random data.)
+ * \warning
+ * It is strongly suggested that you always use the `--unlink` command
+ * line option. We may actually change this behavior in later versions
+ * where the `--unlink` gets removed and the behavior will be to always
+ * delete everything in the end with a possibility of shredding in
+ * between. In that case, we may want to rename the tool `rmlog`.
  */
 
 namespace
@@ -121,6 +204,13 @@ advgetopt::option const g_options[] =
 
     // OPTIONS
     //
+    advgetopt::define_option(
+          advgetopt::Name("exact")
+        , advgetopt::ShortName('x')
+        , advgetopt::Flags(advgetopt::standalone_all_flags<
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+        , advgetopt::Help("do not round file sizes up to the next full block; this is the default for non-regular files.")
+    ),
     advgetopt::define_option(
           advgetopt::Name("force")
         , advgetopt::ShortName('f')
@@ -173,13 +263,6 @@ advgetopt::option const g_options[] =
         , advgetopt::Flags(advgetopt::standalone_all_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
         , advgetopt::Help("show progress.")
-    ),
-    advgetopt::define_option(
-          advgetopt::Name("extract")
-        , advgetopt::ShortName('x')
-        , advgetopt::Flags(advgetopt::standalone_all_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
-        , advgetopt::Help("do not round file sizes up to the next full block; this is the default for non-regular files.")
     ),
     advgetopt::define_option(
           advgetopt::Name("zero")
@@ -346,6 +429,7 @@ int tool::execute()
         break;
 
     case CMD_DELETE:
+    case CMD_DELETE | CMD_UNLINK:
         f_select = select_t::SELECT_DELETE;
         break;
 
@@ -572,11 +656,11 @@ int tool::process(std::string const & filename)
             {
                 if(f_opt->is_defined("unlink"))
                 {
-                    select = select_t::SELECT_SHRED;
+                    select = select_t::SELECT_BOTH;
                 }
                 else
                 {
-                    select = select_t::SELECT_BOTH;
+                    select = select_t::SELECT_SHRED;
                 }
             }
             else
