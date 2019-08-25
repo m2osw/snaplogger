@@ -590,6 +590,134 @@ to only print certain keys. For example:
 
 only outputs `"normal"` or `"this happened!"`.
 
+
+# Properly Deleting Log Files
+
+Whenever you create a packge for your project and the purge function is used
+to completely remove your project, you should delete all the corresponding log
+files along everything else. In your `postrm` script, you want to delete
+secure logs and logs with user data such as IP addresses using the shred
+command. Anything that includes _compromising_ data.
+
+Here is an example to remove the Snap! Firewall secure logs:
+
+    shred -fu /var/log/snapwebsites/snapfirewall.log*
+
+Similarly, the `logrotate` tool needs to be used with the shredding feature:
+
+    /var/log/snapwebsites/secure/snapfirewall.log {
+        ...
+        shred
+        ...
+    }
+
+This way your files will properly be shredded.
+
+## Shredding and SSD
+
+Note that SSD drives are likely to write new data at a new address. In
+other words, you are not overwritting anything. If you are using SSD
+drives, then do not use any kind of shredding. This means you are left
+with encryption (see below) if you want to make your logs safe.
+
+## Do I Really Need Shredding Files?
+
+If you are in full control of the hardware, you probably do not need to
+spend any time shredding anything. If you use a VPS or even a dedicated
+server at a data center which you are not the only user, then you do
+want to use the `shred` command. You may lose your VPS which then gets
+assigned to another user which could possibly find a way to read your
+data (it _should_ not be possible for them to do that, but...)
+
+## Is `shred` Working on my File System/Device?
+
+Chances are it will work as expected, but some types of file systems often
+do not overwrite existing systems. Maybe it writes new data at new locations
+in a sequencial manner. It could also be be that some data ends up in the
+journal instead of the file itself. Shred uses `sync` by default, but all
+file system do not respect that command 100%.
+
+Please check the docs with `man shred`.
+
+Also you may be interested by `apt-get install secure-delete` and then
+check out `srm`. This tool has the advantage of deleting a whole tree of
+folders without the need for a `find ...` command to find all the files
+to delete. It has the same drawbacks as `shred` in link with the file
+system not overwriting the existing sectors or using a journal.
+
+Finally, the device you are using will itself have a controller which
+may or may not overwrite the data on the same sector. Good controllers
+for SSDs are very likely to write blocks of data to new addresses so
+the writes remain fast (otherwise a read + re-write cycle would always
+be required).
+
+## Instead of Shredding
+
+Another solution, which we do not recommand because it is slower, is to use
+an encrypted drive. For logs, though, it can be a good idea to send them
+over the wire (i.e. use the [#logserver]) and encrypt the drive where you
+write the logs on that [#logserver] computer.
+
+Encryption makes things slower, but when taking advantage of newer hardware
+it is still pretty fast. From various sources, it looks like the impact is
+only around +0.25%. In other words, the costs are probably worth looking
+into using ext4 encryption. Note that this is true even with SSD drives.
+So with HDD drives, you are even less likely to notice the difference.
+Note also that encrypted data take more space on disk. 1 sector is going
+to be more than the usual 512 bytes of data.
+
+You may also want to look into how it works: i.e. if you reboot, do you
+have to enter a passphrase before the computer can actually work? This can
+be rather complicated on a large live system. Again, you may want to limit
+the encryption to partitions with data that require it (i.e. maybe `/var/log`
+and `/var/lib/cassandra/data`). I have no clue how that works on a VPS which
+auto-formats your drive and even less how you can enter your password to
+unlock the encryption on a reboot. Make sure to try your services and
+properly document the matter.
+
+**Side Note:** If you have a separate computer, you may conside having
+the `/var/log` folder on a separate partition and make it non-executable
+(i.e. do not use the `defaults` options and do not include the `exec` flag,
+see the `man mount` manual page for details.) This should work on any
+computer, but a [#logserver] will get even more logs and thus having
+a separate partition makes even more sense in that situation.
+
+## What About Other Files?
+
+The shredding mechanism can be used with any file. Obviously, it makes the
+delete very slow, so it is recommended to only use this technique against
+files that are likely to require it, such as your logs.
+
+Two other places where I use the technique:
+
+1. Configuration files where I have important data such as encryption keys,
+   passwords, and various _top-secret_ IP addresses.
+2. Database files, for example, a Cassandra node is going to use
+   `/var/lib/cassandra/data` for your database. You could encrypt/shred
+   these files.
+
+
+# TRIM on SSD
+
+For servers specifically setup to receive logs, you may want to consider
+using the TRIM feature of _ext4_, _btrfs_, and _fat_ (as of Linux 4.4).
+
+If you are using a VPS from a system such as DigitalOcean, then you do
+not have access to the low level setup of the drive so you can't do
+anything about the TRIM feature.
+
+If you own your own hardware, then this feature makes sense for you to
+use. It tells the SSD drive about all the sectors that are not used
+anymore and allows the SSD drive garbage collector to better know which
+chip to use next.
+
+When mounting a drive, make sure to include the `discard` option. For
+example:
+
+    # <file system> <mount point>   <type>  <options>         <dump>  <pass>
+    /dev/sdc1       /mnt/ssd        ext4    defaults,discard  0       2
+
+
 # License
 
 The project is covered by the

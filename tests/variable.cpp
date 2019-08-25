@@ -187,4 +187,73 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
 
 
 
+CATCH_TEST_CASE("duplicate_factory", "[variable][factory]")
+{
+    CATCH_START_SECTION("attempt dynamically creating a factory which already exists")
+    {
+        class fake_variable_factory final
+            : public snaplogger::variable_factory
+        {
+        public:
+            fake_variable_factory()
+                : variable_factory("version")
+            {
+            }
+
+            virtual snaplogger::variable::pointer_t create_variable() override final
+            {
+                // we can't even register this one so returning an empty
+                // pointer is perfectly safe here
+                //
+                return snaplogger::variable::pointer_t();
+            }
+        };
+
+        CATCH_REQUIRE_THROWS_MATCHES(
+                  snaplogger::register_variable_factory(std::make_shared<fake_variable_factory>())
+                , snaplogger::duplicate_error
+                , Catch::Matchers::ExceptionMessage("trying to add two variable factories of type \"version\"."));
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("attempt creating a variable with a non-existant type")
+    {
+        CATCH_REQUIRE_THROWS_MATCHES(
+                  snaplogger::get_variable("fake")
+                , snaplogger::invalid_variable
+                , Catch::Matchers::ExceptionMessage("You can't create variable with type \"fake\", no such variable type was registered."));
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("attempt creating a function factory with an existing name")
+    {
+        class fake_function final
+            : public snaplogger::function
+        {
+        public:
+            fake_function()
+                : function("padding")
+            {
+            }
+
+            virtual void apply(
+                  ::snaplogger::message const & msg
+                , ::snaplogger::function_data & d
+                , ::snaplogger::param::pointer_t const & p) override
+            {
+                snap::NOTUSED(msg);
+                snap::NOTUSED(d);
+                snap::NOTUSED(p);
+            }
+        };
+
+        CATCH_REQUIRE_THROWS_MATCHES(
+                  snaplogger::register_function(std::make_shared<fake_function>())
+                , snaplogger::duplicate_error
+                , Catch::Matchers::ExceptionMessage("trying to add two functions named \"padding\"."));
+    }
+    CATCH_END_SECTION()
+}
+
+
 // vim: ts=4 sw=4 et

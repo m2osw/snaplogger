@@ -91,12 +91,12 @@ public:
     {
         if(f_pos == 0)
         {
-            throw logger_logic_error("ungetc() called too many times.");
+            throw logger_logic_error("ungetc() called too many times.");                // LCOV_EXCL_LINE
         }
         --f_pos;
         if(f_input[f_pos] != c)
         {
-            throw logger_logic_error("ungetc() called with the wrong character.");
+            throw logger_logic_error("ungetc() called with the wrong character.");      // LCOV_EXCL_LINE
         }
     }
 
@@ -205,7 +205,14 @@ public:
                 }
                 else
                 {
-                    throw invalid_variable("unexpected character in format variable.");
+                    std::stringstream ss;
+
+                    ss << "unexpected character '\\x"
+                       << std::hex
+                       << c
+                       << "' in format variable.";
+
+                    throw invalid_variable(ss.str());
                 }
                 break;
 
@@ -313,7 +320,7 @@ public:
                 else
                 {
                     text += '$';
-                    text += c;
+                    ungetc(c);
                 }
             }
             else

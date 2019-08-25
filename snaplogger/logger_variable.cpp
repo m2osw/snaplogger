@@ -127,7 +127,7 @@ DEFINE_LOGGER_VARIABLE(message)
 DEFINE_LOGGER_VARIABLE(project_name)
 {
     // when the advgetopt is properly connected to the logger, then the
-    // logger will save the program name in its diagnostic map
+    // logger will save the project name in its diagnostic map
     //
     map_diagnostics_t map(get_map_diagnostics(msg));
     auto it(map.find(DIAG_KEY_PROJECT_NAME));
@@ -161,7 +161,7 @@ DEFINE_LOGGER_VARIABLE(progname)
 DEFINE_LOGGER_VARIABLE(version)
 {
     // when the advgetopt is properly connected to the logger, then the
-    // logger will save the program name in its diagnostic map
+    // logger will save the program version in its diagnostic map
     //
     map_diagnostics_t map(get_map_diagnostics(msg));
     auto it(map.find(DIAG_KEY_VERSION));
@@ -177,9 +177,6 @@ DEFINE_LOGGER_VARIABLE(version)
 
 DEFINE_LOGGER_VARIABLE(build_date)
 {
-    // when the advgetopt is properly connected to the logger, then the
-    // logger will save the program name in its diagnostic map
-    //
     map_diagnostics_t map(get_map_diagnostics(msg));
     auto it(map.find(DIAG_KEY_BUILD_DATE));
     if(it != map.end())
@@ -194,9 +191,6 @@ DEFINE_LOGGER_VARIABLE(build_date)
 
 DEFINE_LOGGER_VARIABLE(build_time)
 {
-    // when the advgetopt is properly connected to the logger, then the
-    // logger will save the program name in its diagnostic map
-    //
     map_diagnostics_t map(get_map_diagnostics(msg));
     auto it(map.find(DIAG_KEY_BUILD_TIME));
     if(it != map.end())

@@ -21,7 +21,7 @@
 
 
 ##
-## build the snaploggerchecker tool
+## build the snap logger checker tool
 ##
 project(snaploggerchecker)
 
@@ -32,6 +32,38 @@ include_directories(
 
 add_executable(${PROJECT_NAME}
     snaploggerchecker.cpp
+)
+
+target_link_libraries(${PROJECT_NAME}
+    snaplogger
+    ${ADVGETOPT_LIBRARIES}
+    ${LIBEXCEPT_LIBRARIES}
+)
+
+install(
+    TARGETS
+        ${PROJECT_NAME}
+
+    RUNTIME DESTINATION
+        bin
+
+    COMPONENT
+        runtime
+)
+
+
+##
+## build the shredding tool
+##
+project(shredlog)
+
+include_directories(
+    ${LIBEXCEPT_INCLUDE_DIRS}
+    ${SNAPDEV_INCLUDE_DIRS}
+)
+
+add_executable(${PROJECT_NAME}
+    shredlog.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}

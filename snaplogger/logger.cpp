@@ -372,6 +372,14 @@ severity_t logger::get_lowest_severity() const
 {
     guard g;
 
+    if(f_appenders.empty())
+    {
+        // we do not know the level yet, we do not have the appenders
+        // yet... so accept anything at this point
+        //
+        return severity_t::SEVERITY_ALL;
+    }
+
     return f_lowest_severity;
 }
 

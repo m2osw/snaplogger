@@ -26,6 +26,7 @@
 
 // snaplogger lib
 //
+#include    <snaplogger/buffer_appender.h>
 #include    <snaplogger/logger.h>
 #include    <snaplogger/map_diagnostic.h>
 #include    <snaplogger/message.h>
@@ -41,36 +42,40 @@ CATCH_TEST_CASE("example", "[example]")
 {
     CATCH_START_SECTION("Simple logging")
     {
-        // at this time this test relies on the snaplogger destruction
-        // we need to see whether doing a set_asynchronous(false) will
-        // fix that issue
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "async-unittest");
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_VERSION, "1.0");
+
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
+
+        advgetopt::options_environment opt_env;
+        opt_env.f_project_name = "async-unittest";
+        advgetopt::getopt opts(opt_env);
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${progname}: ${severity}: ${message} (${version})"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+
+        l->set_asynchronous(true);
+
+        //l->add_console_appender()->add_component(snaplogger::g_secure_component);
+        //l->add_component_to_ignore(snaplogger::g_normal_component);
+        //l->add_component_to_include(snaplogger::g_normal_component);
+
+    	SNAP_LOG_WARNING
+            << "Sent through thread..."
+            << SNAP_LOG_SEND;
+
+        // this call blocks until the thread stopped and joined
         //
-        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "unittest");
+        l->set_asynchronous(false);
 
-        snaplogger::logger::pointer_t ptr(snaplogger::logger::get_instance());
-        ptr->add_console_appender()->add_component(snaplogger::g_secure_component);
-        ptr->add_syslog_appender("example");
-        ptr->add_file_appender("./my-file.log")->add_component(snaplogger::g_debug_component);
-        ptr->set_asynchronous(true);
-        //ptr->add_component_to_ignore(snaplogger::g_normal_component);
-        //ptr->add_component_to_include(snaplogger::g_normal_component);
-
-    	SNAP_LOG_ERROR << "Logging this error\n";
-    	SNAP_LOG_WARNING << (isatty(fileno(stdout)) ? "" : "Hello world!");
-    	SNAP_LOG_FATAL << "Saw empty one? " << 123 << std::endl;
-
-        long value(123);
-    	SNAP_LOG_INFORMATION
-                //<< snaplogger::section(snaplogger::g_secure_component)
-                << snaplogger::secure
-                << snaplogger::section(snaplogger::g_debug_component)
-                << "Message secure? "
-                << value
-                << std::endl;
-
-//sleep(10);
-
-        std::cerr << "-------------------------------------------- QUIT\n";
+        // TODO: add the ${tid} as one of the message parameter and a way
+        //       to retrieve the tid of the async. thread
+        //
+        CATCH_REQUIRE(buffer->str() == "async-unittest: warning: Sent through thread... (1.0)\n");
     }
     CATCH_END_SECTION()
 }

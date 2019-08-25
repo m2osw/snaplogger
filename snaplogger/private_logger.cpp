@@ -79,13 +79,13 @@ void getopt_logs(advgetopt::log_level_t l, std::string const & m)
         sev = severity_t::SEVERITY_WARNING;
         break;
 
+    case advgetopt::log_level_t::fatal:
+        sev = severity_t::SEVERITY_FATAL;
+        break;
+
     //case advgetopt::log_level_t::error:
     default:
         // anything else, keep SEVERITY_ERROR
-        break;
-
-    case advgetopt::log_level_t::fatal:
-        sev = severity_t::SEVERITY_FATAL;
         break;
 
     }
@@ -421,9 +421,9 @@ variable::pointer_t private_logger::get_variable(std::string const & type)
 
     if(f_variable_factories.empty())
     {
-        throw invalid_variable("No variable factories were registered yet; you can't create a variable with type \""
-                             + type
-                             + "\" at this point.");
+        throw invalid_variable("No variable factories were registered yet; you can't create a variable with type \""    // LCOV_EXCL_LINE
+                             + type                                     // LCOV_EXCL_LINE
+                             + "\" at this point.");                    // LCOV_EXCL_LINE
     }
 
     auto it(f_variable_factories.find(type));
@@ -488,17 +488,17 @@ void private_logger::create_thread()
         f_thread = std::make_shared<cppthread::thread>("asynchronous logger thread", f_asynchronous_logger.get());
         f_thread->start();
     }
-    catch(...)
+    catch(...)                              // LCOV_EXCL_LINE
     {
-        if(f_fifo != nullptr)
+        if(f_fifo != nullptr)               // LCOV_EXCL_LINE
         {
-            f_fifo->done(false);
+            f_fifo->done(false);            // LCOV_EXCL_LINE
         }
 
-        f_thread.reset();
-        f_asynchronous_logger.reset();
-        f_fifo.reset();
-        throw;
+        f_thread.reset();                   // LCOV_EXCL_LINE
+        f_asynchronous_logger.reset();      // LCOV_EXCL_LINE
+        f_fifo.reset();                     // LCOV_EXCL_LINE
+        throw;                              // LCOV_EXCL_LINE
     }
 }
 

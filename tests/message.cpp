@@ -423,6 +423,19 @@ CATCH_TEST_CASE("message_format", "[message][format]")
                 " Version = 5.32.1024 -- uses \"recursive\" v5.32.1024"
                 "\n");
 
+        buffer->clear();
+
+        snaplogger::unset_diagnostic(snaplogger::DIAG_KEY_VERSION);
+
+        SNAP_LOG_WARNING
+            << "Removed the version: ${message} says: Project Name = ${project_name} and Version = ${version} -- uses \"recursive\""
+            << SNAP_LOG_SEND;
+
+        CATCH_REQUIRE(buffer->str() ==
+                "test-logger Removed the version:  says: Project Name = test-logger and"
+                " Version =  -- uses \"recursive\" v"
+                "\n");
+
         l->reset();
     }
     CATCH_END_SECTION()
