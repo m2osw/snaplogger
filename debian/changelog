@@ -1,6 +1,13 @@
 snaplogger (1.0.4.0~xenial) xenial; urgency=high
 
   * Added the user-defined literal named "_sev".
+  * Added info about shreding files
+  * Added the `shredlog` command.
+  * Fixed a bug with $${varname}, it would not recognize the variable.
+  * Fixed the get_lower_severity(). without appenders return SEVERITY_ALL.
+  * Made the asynchronous test work properly.
+  * Added a diagnostic set of tests.
+  * Enhanced an error and some tests.
 
  -- Alexis Wilke <alexis@m2osw.com>  Wed, 21 Aug 2019 01:20:24 -0800
 
