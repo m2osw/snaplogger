@@ -692,7 +692,7 @@ bool tool::is_hdd(struct stat & s) const
     std::string dev_path("/sys/dev/block/");
     dev_path += std::to_string(major(s.st_dev));
     dev_path += ":";
-    dev_path += std::to_string(major(s.st_dev));
+    dev_path += std::to_string(minor(s.st_dev));
     char device_path[PATH_MAX + 1];
     if(realpath(dev_path.c_str(), device_path) == nullptr)
     {
