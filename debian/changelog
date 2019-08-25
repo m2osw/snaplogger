@@ -8,6 +8,17 @@ snaplogger (1.0.4.0~xenial) xenial; urgency=high
   * Made the asynchronous test work properly.
   * Added a diagnostic set of tests.
   * Enhanced an error and some tests.
+  * Updated the shred talk with `shredlog` details.
+  * Renamed severity.conf as severity.ini so we can install it as is.
+  * Added a shredlog.conf file, by default do --delete.
+  * Install the bin/shredlog file.
+  * Install the shredlog.conf file.
+  * Install the severity.ini file.
+  * Made the --log-config-path command available in configuration files and
+    in variables (it's a bit counter intuitive but that way you can redirect
+    the configuration files loader).
+  * Wrote the shredlog documentation (part of doxygen).
+  * Fixed the usage of --auto + --unlink (it was swapped).
 
  -- Alexis Wilke <alexis@m2osw.com>  Wed, 21 Aug 2019 01:20:24 -0800
 
