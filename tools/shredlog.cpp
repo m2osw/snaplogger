@@ -289,9 +289,10 @@ advgetopt::option const g_options[] =
 
 
 
-char const * g_configuration_directores[] =
+char const * g_configuration_directories[] =
 {
-    "/etc/snaplogger"
+    "/etc/snaplogger",
+    nullptr
 };
 
 
@@ -321,8 +322,8 @@ advgetopt::options_environment const g_options_environment =
     .f_options_files_directory = nullptr,
     .f_environment_variable_name = "SHREDLOG",
     .f_configuration_files = nullptr,
-    .f_configuration_filename = "shredlog",
-    .f_configuration_directories = g_configuration_directores,
+    .f_configuration_filename = "shredlog.conf",
+    .f_configuration_directories = g_configuration_directories,
     .f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_PROCESS_SYSTEM_PARAMETERS,
     .f_help_header = "Usage: %p [--<opt>] <config-name> ...\n"
                      "where --<opt> is one or more of:",

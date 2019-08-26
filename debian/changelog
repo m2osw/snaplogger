@@ -1,6 +1,8 @@
 snaplogger (1.0.5.0~xenial) xenial; urgency=high
 
   * Replaced the '-R' option with '-r' to be compatible with `rm -r ...`.
+  * Fixed the configuration filename, I need the .conf in there.
+  * Fixed the list of directories, it has to end with a nullptr.
 
  -- Alexis Wilke <alexis@m2osw.com>  Sun, 25 Aug 2019 19:00:05 -0800
 
