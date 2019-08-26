@@ -236,7 +236,7 @@ advgetopt::option const g_options[] =
     ),
     advgetopt::define_option(
           advgetopt::Name("recursive")
-        , advgetopt::ShortName('R')
+        , advgetopt::ShortName('r')
         , advgetopt::Flags(advgetopt::standalone_all_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
         , advgetopt::Help("shred/remove directories and their contents recursively.")
