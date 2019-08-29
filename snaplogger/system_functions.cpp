@@ -105,8 +105,8 @@ DECLARE_FUNCTION(padding)
         if(digit < 0 || digit > 9)
         {
             throw invalid_parameter(
-                      "the ${...:padding=' '} when set to a number must be one digit ('0' to '9'), not \""
-                    + p->get_value()
+                      "the ${...:padding=<value>} when set to a number must be one digit ('0' to '9'), not \""
+                    + std::to_string(digit)
                     + "\".");
         }
         pad = libutf8::to_u32string(std::to_string(digit));

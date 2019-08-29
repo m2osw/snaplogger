@@ -148,6 +148,27 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
         //
         msg.reset();
 
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname:padding=99:align=left:min_width=wide} ${message}");
+        buffer->set_format(f);
+
+        msg = std::make_shared<snaplogger::message>
+                        (::snaplogger::severity_t::SEVERITY_ERROR, __FILE__, __func__, __LINE__);
+        *msg << "The padding=... accepts a number between 0 and 9 inclusive";
+        CATCH_REQUIRE_THROWS_MATCHES(
+                  l->log_message(*msg)
+                , snaplogger::invalid_parameter
+                , Catch::Matchers::ExceptionMessage(
+                          "the ${...:padding=<value>} when set to a number must be one digit ('0' to '9'), not \"99\"."));
+
+        // this is important here because we want to make sure that the
+        // `message` destructor works as expected (i.e. it does not call
+        // std::terminate() because of the throw as the align=101 is
+        // invalid)
+        //
+        msg.reset();
+
         l->reset();
     }
     CATCH_END_SECTION()

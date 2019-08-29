@@ -151,6 +151,48 @@ private:
 };
 
 
+template<typename CharT, typename Traits>
+inline std::basic_ostream<CharT, Traits> &
+operator << (std::basic_ostream<CharT, Traits> & os, param::pointer_t p)
+{
+    if(p != nullptr)
+    {
+        os << p->get_name();
+    }
+    else
+    {
+        os << "(nullptr)";
+    }
+    return os;
+}
+
+
+template<typename CharT, typename Traits>
+inline std::basic_ostream<CharT, Traits> &
+operator << (std::basic_ostream<CharT, Traits> & os, param::type_t t)
+{
+    switch(t)
+    {
+    case param::type_t::TYPE_STRING:
+        os << "string";
+        break;
+
+    case param::type_t::TYPE_INTEGER:
+        os << "integer";
+        break;
+
+    default:
+        os << "(unknown)";
+        break;
+
+    }
+    return os;
+}
+
+
+
+
+
 class variable
 {
 public:
