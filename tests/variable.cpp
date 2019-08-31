@@ -94,17 +94,125 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
 
         buffer->clear();
 
-        f = std::make_shared<snaplogger::format>("${hostname:padding=\"t\":align=right:min_width=30} ${message}");
+        f = std::make_shared<snaplogger::format>("${hostname:padding=\"t\":align=center:min_width=30} ${message}");
         buffer->set_format(f);
 
         aligned = host;
-        while(aligned.length() < 30)
+        while(aligned.length() < 17)
         {
             aligned = "t" + aligned;
+        }
+        while(aligned.length() < 30)
+        {
+            aligned = aligned + "t";
         }
 
         SNAP_LOG_ERROR << "Try again with a string" << SNAP_LOG_SEND;
         CATCH_REQUIRE(buffer->str() == aligned + " Try again with a string\n");
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname} ${message:padding=\"t\":align=center:max_width=30}");
+        buffer->set_format(f);
+
+        SNAP_LOG_ERROR << "This message will have a maximum width of 30 chars" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == std::string(host) + " ge will have a maximum width o\n");
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname} ${message:padding=\"t\":align=right:max_width=25}");
+        buffer->set_format(f);
+
+        SNAP_LOG_ERROR << "This message will have a maximum width of 25 chars" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == std::string(host) + " maximum width of 25 chars\n");
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname} ${message:padding=\"t\":align=center:min_width=25}");
+        buffer->set_format(f);
+
+        SNAP_LOG_ERROR << "minimum width 25" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == std::string(host) + " ttttminimum width 25ttttt\n");
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname} ${message:padding=\"t\":align=left:min_width=25}");
+        buffer->set_format(f);
+
+        SNAP_LOG_ERROR << "minimum width 25" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == std::string(host) + " minimum width 25ttttttttt\n");
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname} ${message:padding=\"t\":align=left:exact_width=25}");
+        buffer->set_format(f);
+
+        SNAP_LOG_ERROR << "First we get this message cut to the specified width." << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == std::string(host) + " First we get this message\n");
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname} ${message:padding=\"t\":align=center:exact_width=25}");
+        buffer->set_format(f);
+
+        SNAP_LOG_ERROR << "First we get this message cut to the specified width." << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == std::string(host) + " his message cut to the sp\n");
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname} ${message:padding=\"t\":align=right:exact_width=25}");
+        buffer->set_format(f);
+
+        SNAP_LOG_ERROR << "First we get this message cut to the specified width." << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == std::string(host) + " t to the specified width.\n");
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname} ${message:padding=\"x\":align=left:exact_width=25}");
+        buffer->set_format(f);
+
+        SNAP_LOG_ERROR << "Small Message" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == std::string(host) + " Small Messagexxxxxxxxxxxx\n");
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname} ${message:padding=\"x\":align=center:exact_width=25}");
+        buffer->set_format(f);
+
+        SNAP_LOG_ERROR << "Small Message" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == std::string(host) + " xxxxxxSmall Messagexxxxxx\n");
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname} ${message:padding=\"x\":align=center:exact_width=25}");
+        buffer->set_format(f);
+
+        SNAP_LOG_ERROR << "Small Message (even)" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == std::string(host) + " xxSmall Message (even)xxx\n");
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname} ${message:padding=\"x\":align=right:exact_width=25}");
+        buffer->set_format(f);
+
+        SNAP_LOG_ERROR << "Small Message" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == std::string(host) + " xxxxxxxxxxxxSmall Message\n");
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname} ${message:prepend=\"(P) \":padding=\"z\":align=right:exact_width=25}");
+        buffer->set_format(f);
+
+        SNAP_LOG_ERROR << "Small Message" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == std::string(host) + " zzzzzzzz(P) Small Message\n");
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname} ${message:append=\" (A)\":padding=\"z\":align=right:exact_width=25}");
+        buffer->set_format(f);
+
+        SNAP_LOG_ERROR << "Small Message" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == std::string(host) + " zzzzzzzzSmall Message (A)\n");
 
         buffer->clear();
 
@@ -126,6 +234,20 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
         // invalid)
         //
         msg.reset();
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname:padding=\"t\":align=justify:min_width=30} ${message}");
+        buffer->set_format(f);
+
+        msg = std::make_shared<snaplogger::message>
+                        (::snaplogger::severity_t::SEVERITY_ERROR, __FILE__, __func__, __LINE__);
+        *msg << "Try align=\"justify\" which has to fail.";
+        CATCH_REQUIRE_THROWS_MATCHES(
+                  l->log_message(*msg)
+                , snaplogger::invalid_parameter
+                , Catch::Matchers::ExceptionMessage(
+                          "the ${...:align=left|center|right} was expected, got \"justify\"."));
 
         buffer->clear();
 
@@ -169,7 +291,122 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
         //
         msg.reset();
 
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname:padding='abc':align=left:min_width=wide} ${message}");
+        buffer->set_format(f);
+
+        msg = std::make_shared<snaplogger::message>
+                        (::snaplogger::severity_t::SEVERITY_ERROR, __FILE__, __func__, __LINE__);
+        *msg << "The padding=... accepts one character";
+        CATCH_REQUIRE_THROWS_MATCHES(
+                  l->log_message(*msg)
+                , snaplogger::invalid_parameter
+                , Catch::Matchers::ExceptionMessage(
+                          "the ${...:padding=' '} must be exactly one character, not \"abc\"."));
+
+        // this is important here because we want to make sure that the
+        // `message` destructor works as expected (i.e. it does not call
+        // std::terminate() because of the throw as the align=101 is
+        // invalid)
+        //
+        msg.reset();
+
         l->reset();
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("escape")
+    {
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "escape");
+
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
+
+        advgetopt::options_environment opt_env;
+        opt_env.f_project_name = "test-logger";
+        advgetopt::getopt opts(opt_env);
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${hostname} ${message:escape}"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+
+        char host[HOST_NAME_MAX + 2 + 30];
+        CATCH_REQUIRE(gethostname(host, HOST_NAME_MAX + 1) == 0);
+        host[HOST_NAME_MAX + 1] = '\0';
+
+        SNAP_LOG_ERROR << "Default escape for newline (\n), carriage return (\r), and tab (\t)" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == std::string(host) + " Default escape for newline (\\n), carriage return (\\r), and tab (\\t)\n");
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname} ${message:escape=\"[]\"}");
+        buffer->set_format(f);
+
+        SNAP_LOG_ERROR << "Try again [with a string]" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == std::string(host) + " Try again \\[with a string\\]\n");
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${hostname} ${message:escape=\"\a\b\f\n\r\t\v\x1f\xC2\x88\xC2\x97\"}");
+        buffer->set_format(f);
+
+        SNAP_LOG_ERROR << "Escape all \a\b\f\n\r\t\v\x1f\xC2\x88\xC2\x97 types" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == std::string(host) + " Escape all \\a\\b\\f\\n\\r\\t\\v^_@H@W types\n");
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("caps")
+    {
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "caps");
+
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
+
+        advgetopt::options_environment opt_env;
+        opt_env.f_project_name = "test-logger";
+        advgetopt::getopt opts(opt_env);
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message:caps}"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+
+        SNAP_LOG_ERROR << "this message words will get their FIRST-LETTER capitalized." << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == "This Message Words Will Get Their First-Letter Capitalized.\n");
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("lower/upper")
+    {
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "case");
+
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
+
+        advgetopt::options_environment opt_env;
+        opt_env.f_project_name = "test-logger";
+        advgetopt::getopt opts(opt_env);
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message:lower}"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+
+        SNAP_LOG_ERROR << "This message words will get their FIRST-LETTER capitalized." << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == "this message words will get their first-letter capitalized.\n");
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${message:upper}");
+        buffer->set_format(f);
+
+        SNAP_LOG_ERROR << "This message words will get their FIRST-LETTER capitalized." << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == "THIS MESSAGE WORDS WILL GET THEIR FIRST-LETTER CAPITALIZED.\n");
     }
     CATCH_END_SECTION()
 

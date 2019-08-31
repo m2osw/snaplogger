@@ -143,7 +143,7 @@ DECLARE_FUNCTION(align)
     }
     else
     {
-        throw invalid_parameter("the ${...:align=left|right} was expected, got \""
+        throw invalid_parameter("the ${...:align=left|center|right} was expected, got \""
                               + p->get_value()
                               + "\".");
     }
@@ -395,6 +395,7 @@ DECLARE_FUNCTION(caps)
         || wc == '-')
         {
             first = true;
+            r += wc;
         }
         else
         {

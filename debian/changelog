@@ -1,3 +1,10 @@
+snaplogger (1.0.6.0~xenial) xenial; urgency=high
+
+  * Fixed a bug in the "caps" loop, only letters were copied.
+  * Added tests so the system functions are 100% covered.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sat, 31 Aug 2019 02:25:06 -0800
+
 snaplogger (1.0.5.0~xenial) xenial; urgency=high
 
   * Replaced the '-R' option with '-r' to be compatible with `rm -r ...`.
