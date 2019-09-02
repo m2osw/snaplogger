@@ -179,19 +179,19 @@ advgetopt::option const g_options[] =
     advgetopt::define_option(
           advgetopt::Name("auto")
         , advgetopt::Flags(advgetopt::standalone_all_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+                      advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
         , advgetopt::Help("select shreding on HDD, only unlink on SSD; this is the default.")
     ),
     advgetopt::define_option(
           advgetopt::Name("delete")
         , advgetopt::Flags(advgetopt::standalone_all_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+                      advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
         , advgetopt::Help("force unlink (no shreding unless --shred is also specified).")
     ),
     advgetopt::define_option(
           advgetopt::Name("shred")
         , advgetopt::Flags(advgetopt::standalone_all_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+                      advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
         , advgetopt::Help("force shreding, whatever drive is detected.")
     ),
     advgetopt::define_option(

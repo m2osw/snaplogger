@@ -2,6 +2,7 @@ snaplogger (1.0.6.0~xenial) xenial; urgency=high
 
   * Fixed a bug in the "caps" loop, only letters were copied.
   * Added tests so the system functions are 100% covered.
+  * Changed the shredlog commands with GETOPT_FLAG_GROUP_COMMANDS.
 
  -- Alexis Wilke <alexis@m2osw.com>  Sat, 31 Aug 2019 02:25:06 -0800
 
