@@ -22,8 +22,8 @@
 # Once done this will define
 #
 # SNAPLOGGER_FOUND        - System has SnapLogger
-# SNAPLOGGER_INCLUDE_DIR  - The SnapLogger include directories
-# SNAPLOGGER_LIBRARY      - The libraries needed to use SnapLogger (none)
+# SNAPLOGGER_INCLUDE_DIRS - The SnapLogger include directories
+# SNAPLOGGER_LIBRARIES    - The libraries needed to use SnapLogger (none)
 # SNAPLOGGER_DEFINITIONS  - Compiler switches required for using SnapLogger (none)
 #
 
