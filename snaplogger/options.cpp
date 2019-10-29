@@ -41,7 +41,11 @@
 // advgetopt lib
 //
 #include    <advgetopt/exception.h>
-#include    <advgetopt/log.h>
+
+
+// cppthread lib
+//
+#include    <cppthread/log.h>
 
 
 // last include
@@ -199,7 +203,7 @@ bool process_logger_options(advgetopt::getopt & opts
     if(opts.is_defined("logger-version"))
     {
         std::cout << snaplogger::get_version_string() << std::endl;
-        throw advgetopt::getopt_exception_exit("logger command processed.", 0);
+        throw advgetopt::getopt_exit("logger command processed.", 0);
     }
 
     // LOG CONFIG
@@ -330,9 +334,9 @@ bool process_logger_options(advgetopt::getopt & opts
         break;
 
     default:
-        advgetopt::log << advgetopt::log_level_t::error
+        cppthread::log << cppthread::log_level_t::error
                        << "only one of --no-log, --log-file, --log-config, --syslog, --console can be used on your command line."
-                       << advgetopt::end;
+                       << cppthread::end;
         return false;
 
     }
@@ -351,7 +355,7 @@ bool process_logger_options(advgetopt::getopt & opts
                 out << "No logger application configuration filenames available with the current command line options." << std::endl;
             }
         }
-        throw advgetopt::getopt_exception_exit("logger command processed.", 0);
+        throw advgetopt::getopt_exit("logger command processed.", 0);
     }
 
     // SEVERITY
@@ -387,11 +391,11 @@ bool process_logger_options(advgetopt::getopt & opts
             severity::pointer_t sev(get_severity(severity_name));
             if(sev == nullptr)
             {
-                advgetopt::log << advgetopt::log_level_t::error
+                cppthread::log << cppthread::log_level_t::error
                                << "unknown severity level \""
                                << severity_name
                                << "\"; please check your spelling."
-                               << advgetopt::end;
+                               << cppthread::end;
                 return false;
             }
             logger::get_instance()->reduce_severity(sev->get_severity());
@@ -404,11 +408,11 @@ bool process_logger_options(advgetopt::getopt & opts
             severity::pointer_t sev(get_severity(severity_name));
             if(sev == nullptr)
             {
-                advgetopt::log << advgetopt::log_level_t::error
+                cppthread::log << cppthread::log_level_t::error
                                << "unknown severity level \""
                                << severity_name
                                << "\"; please check your spelling."
-                               << advgetopt::end;
+                               << cppthread::end;
                 return false;
             }
             logger::get_instance()->set_severity(sev->get_severity());
@@ -416,9 +420,9 @@ bool process_logger_options(advgetopt::getopt & opts
         break;
 
     default:
-        advgetopt::log << advgetopt::log_level_t::error
+        cppthread::log << cppthread::log_level_t::error
                        << "only one of --debug, --log-severity, --force-severity can be used on your command line."
-                       << advgetopt::end;
+                       << cppthread::end;
         return false;
 
     }

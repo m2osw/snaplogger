@@ -1,3 +1,10 @@
+snaplogger (1.0.7.0~xenial) xenial; urgency=high
+
+  * Updated the code to work with the new cppthread logger.
+  * Updated the code to work with the new advgetopt exceptions.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Tue, 29 Sep 2019 01:45:58 -0800
+
 snaplogger (1.0.6.0~xenial) xenial; urgency=high
 
   * Fixed a bug in the "caps" loop, only letters were copied.

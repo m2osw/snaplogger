@@ -37,13 +37,9 @@
 #include    "snaplogger/syslog_appender.h"
 
 
-// advgetopt lib
-//
-#include    <advgetopt/log.h>
-
-
 // cppthread lib
 //
+#include    <cppthread/log.h>
 #include    <cppthread/runner.h>
 
 
@@ -62,28 +58,28 @@ namespace
 
 
 
-void getopt_logs(advgetopt::log_level_t l, std::string const & m)
+void getopt_logs(cppthread::log_level_t l, std::string const & m)
 {
     severity_t sev(severity_t::SEVERITY_ERROR);
     switch(l)
     {
-    case advgetopt::log_level_t::debug:
+    case cppthread::log_level_t::debug:
         sev = severity_t::SEVERITY_DEBUG;
         break;
 
-    case advgetopt::log_level_t::info:
+    case cppthread::log_level_t::info:
         sev = severity_t::SEVERITY_INFORMATION;
         break;
 
-    case advgetopt::log_level_t::warning:
+    case cppthread::log_level_t::warning:
         sev = severity_t::SEVERITY_WARNING;
         break;
 
-    case advgetopt::log_level_t::fatal:
+    case cppthread::log_level_t::fatal:
         sev = severity_t::SEVERITY_FATAL;
         break;
 
-    //case advgetopt::log_level_t::error:
+    //case cppthread::log_level_t::error:
     default:
         // anything else, keep SEVERITY_ERROR
         break;
@@ -94,7 +90,7 @@ void getopt_logs(advgetopt::log_level_t l, std::string const & m)
     msg << m;
 
     // this call cannot create a loop, if the creation of the logger
-    // generates an advgetopt log, then the second call will generate
+    // generates an cppthread log, then the second call will generate
     // an exception (see get_instance() in snaplogger/logger.cpp)
     //
     logger::pointer_t lg(logger::get_instance());
@@ -160,7 +156,7 @@ private_logger::private_logger()
 {
     f_normal_component = get_component(COMPONENT_NORMAL);
 
-    advgetopt::set_log_callback(getopt_logs);
+    cppthread::set_log_callback(getopt_logs);
 }
 
 
