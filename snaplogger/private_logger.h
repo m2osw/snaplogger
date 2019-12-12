@@ -40,6 +40,7 @@
 //
 #include    "snaplogger/logger.h"
 #include    "snaplogger/map_diagnostic.h"
+#include    "snaplogger/trace_diagnostic.h"
 
 
 // cppthread lib
@@ -107,6 +108,12 @@ public:
     void                        unset_diagnostic(std::string const & key);
     map_diagnostics_t           get_map_diagnostics();
 
+    void                        set_maximum_trace_diagnostics(size_t max);
+    size_t                      get_maximum_trace_diagnostics() const;
+    void                        add_trace_diagnostic(std::string const & diagnostic);
+    void                        clear_trace_diagnostics();
+    trace_diagnostics_t         get_trace_diagnostics();
+
     void                        push_nested_diagnostic(std::string const & diagnostic);
     void                        pop_nested_diagnostic();
     string_vector_t             get_nested_diagnostics() const;
@@ -135,6 +142,8 @@ private:
     severity_by_severity_t      f_severity_by_severity = severity_by_severity_t();
     severity_by_name_t          f_severity_by_name = severity_by_name_t();
     map_diagnostics_t           f_map_diagnostics = map_diagnostics_t();
+    trace_diagnostics_t         f_trace_diagnostics = trace_diagnostics_t();
+    size_t                      f_maximum_trace_diagnostics = DIAG_TRACE_SIZE;
     string_vector_t             f_nested_diagnostics = string_vector_t();
     function_map_t              f_functions = function_map_t();
     variable_factory_map_t      f_variable_factories = variable_factory_map_t();

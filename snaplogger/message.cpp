@@ -210,14 +210,19 @@ environment::pointer_t message::get_environment() const
 std::string message::get_message() const
 {
     std::string s(str());
-    if(s.back() == '\n')
+
+    if(!s.empty()
+    && s.back() == '\n')
     {
         s.pop_back();
     }
-    if(s.back() == '\r')
+
+    if(!s.empty()
+    && s.back() == '\r')
     {
         s.pop_back();
     }
+
     return s;
 }
 

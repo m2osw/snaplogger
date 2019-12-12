@@ -81,14 +81,23 @@ The following are the main features of this logger:
 
 * Diagnostics
 
-    We support two types of diagnostics: map and nested.
+    We support several types of diagnostics: map, trace, and nested.
 
     Maps are actually used to save various parameters such as the program
     name and the program version. You can use as many parameters as you'd
     like to show in your logs.
 
+    You can emit _trace_ logs to have a better idea of where an error occurs.
+    The trace logs are writte along a log depending on the log severity level.
+    The system keeps the last 10 trace logs (you can adjust the number to
+    your liking).
+    
+    _**WARNING:** The trace logs have nothing to do with the TRACE severity
+    level. The level at which trace logs are output depend on the log which
+    gets emitted when trace logs are present._
+
     The nested diagnostics are used to track your location in a stack like
-    manner.
+    manner. This is at times referred to as log breadcrumbs.
 
 * Component
 

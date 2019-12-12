@@ -50,7 +50,7 @@ CATCH_TEST_CASE("not_a_message", "[message]")
                   snaplogger::send_message(std::cout)
                 , snaplogger::not_a_message
                 , Catch::Matchers::ExceptionMessage(
-                          "the 'out' parameter to the send_message() function is expected to be a snaplogger::message object."));
+                          "logger_error: the 'out' parameter to the send_message() function is expected to be a snaplogger::message object."));
     }
     CATCH_END_SECTION()
 

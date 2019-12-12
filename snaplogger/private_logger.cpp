@@ -370,6 +370,46 @@ map_diagnostics_t private_logger::get_map_diagnostics()
 }
 
 
+void private_logger::set_maximum_trace_diagnostics(size_t max)
+{
+    f_maximum_trace_diagnostics = max;
+}
+
+
+size_t private_logger::get_maximum_trace_diagnostics() const
+{
+    return f_maximum_trace_diagnostics;
+}
+
+
+void private_logger::add_trace_diagnostic(std::string const & diagnostic)
+{
+    guard g;
+
+    f_trace_diagnostics.push_back(diagnostic);
+    if(f_trace_diagnostics.size() > f_maximum_trace_diagnostics)
+    {
+        f_trace_diagnostics.pop_front();
+    }
+}
+
+
+void private_logger::clear_trace_diagnostics()
+{
+    guard g;
+
+    f_trace_diagnostics.clear();
+}
+
+
+trace_diagnostics_t private_logger::get_trace_diagnostics()
+{
+    guard g;
+
+    return f_trace_diagnostics;
+}
+
+
 void private_logger::push_nested_diagnostic(std::string const & diagnostic)
 {
     guard g;

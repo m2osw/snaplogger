@@ -51,6 +51,7 @@ add_library( ${PROJECT_NAME} SHARED
     syslog_appender.cpp
     system_functions.cpp
     system_variable.cpp
+    trace_diagnostic.cpp
     user_variable.cpp
     variable.cpp
     version.cpp
@@ -111,6 +112,7 @@ install(
         options.h
         severity.h
         syslog_appender.h
+        trace_diagnostic.h
         utils.h
         variable.h
         ${CMAKE_CURRENT_BINARY_DIR}/version.h

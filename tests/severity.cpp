@@ -59,7 +59,7 @@ CATCH_TEST_CASE("severity", "[severity]")
                       snaplogger::add_severity(s)
                     , snaplogger::duplicate_error
                     , Catch::Matchers::ExceptionMessage(
-                              "a system severity cannot be replaced."));
+                              "logger_error: a system severity cannot be replaced."));
         }
 
         // system severity by name
@@ -70,7 +70,7 @@ CATCH_TEST_CASE("severity", "[severity]")
                       snaplogger::add_severity(s)
                     , snaplogger::duplicate_error
                     , Catch::Matchers::ExceptionMessage(
-                              "a system severity cannot be replaced."));
+                              "logger_error: a system severity cannot be replaced."));
         }
 
         // user severity by severity
@@ -81,7 +81,7 @@ CATCH_TEST_CASE("severity", "[severity]")
                       snaplogger::add_severity(s)
                     , snaplogger::duplicate_error
                     , Catch::Matchers::ExceptionMessage(
-                              "a system severity cannot be replaced."));
+                              "logger_error: a system severity cannot be replaced."));
         }
 
         // user severity by severity
@@ -92,7 +92,7 @@ CATCH_TEST_CASE("severity", "[severity]")
                       snaplogger::add_severity(s)
                     , snaplogger::duplicate_error
                     , Catch::Matchers::ExceptionMessage(
-                              "a system severity cannot be replaced."));
+                              "logger_error: a system severity cannot be replaced."));
         }
 
         // actually create a valid severity

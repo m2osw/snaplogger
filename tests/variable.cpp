@@ -54,7 +54,7 @@ CATCH_TEST_CASE("variable_param", "[variable][param]")
                   new snaplogger::param(std::string())
                 , snaplogger::invalid_parameter
                 , Catch::Matchers::ExceptionMessage(
-                          "a parameter must have a non-empty name."));
+                          "logger_error: a parameter must have a non-empty name."));
     }
     CATCH_END_SECTION()
 }
@@ -98,7 +98,8 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
         buffer->set_format(f);
 
         aligned = host;
-        while(aligned.length() < 17)
+        std::string::size_type const low((30 - aligned.length()) / 2 + aligned.length());
+        while(aligned.length() < low)
         {
             aligned = "t" + aligned;
         }
@@ -226,7 +227,7 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
                   l->log_message(*msg)
                 , snaplogger::invalid_parameter
                 , Catch::Matchers::ExceptionMessage(
-                          "the ${...:align=<value>} parameter must be a valid string (not an integer)."));
+                          "logger_error: the ${...:align=<value>} parameter must be a valid string (not an integer)."));
 
         // this is important here because we want to make sure that the
         // `message` destructor works as expected (i.e. it does not call
@@ -247,7 +248,7 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
                   l->log_message(*msg)
                 , snaplogger::invalid_parameter
                 , Catch::Matchers::ExceptionMessage(
-                          "the ${...:align=left|center|right} was expected, got \"justify\"."));
+                          "logger_error: the ${...:align=left|center|right} was expected, got \"justify\"."));
 
         buffer->clear();
 
@@ -261,7 +262,7 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
                   l->log_message(*msg)
                 , snaplogger::invalid_parameter
                 , Catch::Matchers::ExceptionMessage(
-                          "the ${...:min_width=<value>} parameter must be a valid integer."));
+                          "logger_error: the ${...:min_width=<value>} parameter must be a valid integer."));
 
         // this is important here because we want to make sure that the
         // `message` destructor works as expected (i.e. it does not call
@@ -282,7 +283,7 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
                   l->log_message(*msg)
                 , snaplogger::invalid_parameter
                 , Catch::Matchers::ExceptionMessage(
-                          "the ${...:padding=<value>} when set to a number must be one digit ('0' to '9'), not \"99\"."));
+                          "logger_error: the ${...:padding=<value>} when set to a number must be one digit ('0' to '9'), not \"99\"."));
 
         // this is important here because we want to make sure that the
         // `message` destructor works as expected (i.e. it does not call
@@ -303,7 +304,7 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
                   l->log_message(*msg)
                 , snaplogger::invalid_parameter
                 , Catch::Matchers::ExceptionMessage(
-                          "the ${...:padding=' '} must be exactly one character, not \"abc\"."));
+                          "logger_error: the ${...:padding=' '} must be exactly one character, not \"abc\"."));
 
         // this is important here because we want to make sure that the
         // `message` destructor works as expected (i.e. it does not call
@@ -470,7 +471,7 @@ CATCH_TEST_CASE("duplicate_factory", "[variable][factory]")
         CATCH_REQUIRE_THROWS_MATCHES(
                   snaplogger::register_variable_factory(std::make_shared<fake_variable_factory>())
                 , snaplogger::duplicate_error
-                , Catch::Matchers::ExceptionMessage("trying to add two variable factories of type \"version\"."));
+                , Catch::Matchers::ExceptionMessage("logger_error: trying to add two variable factories of type \"version\"."));
     }
     CATCH_END_SECTION()
 
@@ -479,7 +480,7 @@ CATCH_TEST_CASE("duplicate_factory", "[variable][factory]")
         CATCH_REQUIRE_THROWS_MATCHES(
                   snaplogger::get_variable("fake")
                 , snaplogger::invalid_variable
-                , Catch::Matchers::ExceptionMessage("You can't create variable with type \"fake\", no such variable type was registered."));
+                , Catch::Matchers::ExceptionMessage("logger_error: You can't create variable with type \"fake\", no such variable type was registered."));
     }
     CATCH_END_SECTION()
 
@@ -508,7 +509,7 @@ CATCH_TEST_CASE("duplicate_factory", "[variable][factory]")
         CATCH_REQUIRE_THROWS_MATCHES(
                   snaplogger::register_function(std::make_shared<fake_function>())
                 , snaplogger::duplicate_error
-                , Catch::Matchers::ExceptionMessage("trying to add two functions named \"padding\"."));
+                , Catch::Matchers::ExceptionMessage("logger_error: trying to add two functions named \"padding\"."));
     }
     CATCH_END_SECTION()
 }
