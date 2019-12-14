@@ -33,6 +33,7 @@
 #include    "snaplogger/format.h"
 #include    "snaplogger/map_diagnostic.h"
 #include    "snaplogger/nested_diagnostic.h"
+#include    "snaplogger/trace_diagnostic.h"
 #include    "snaplogger/variable.h"
 
 
@@ -266,8 +267,10 @@ DEFINE_LOGGER_VARIABLE(diagnostic)
 {
     constexpr int FLAG_NESTED = 0x01;
     constexpr int FLAG_MAP    = 0x02;
+    constexpr int FLAG_TRACE  = 0x04;
 
     std::int64_t nested_depth(-1);
+    std::int64_t trace_depth(-1);
     std::string key;
     int flags(0);
 
@@ -282,6 +285,11 @@ DEFINE_LOGGER_VARIABLE(diagnostic)
         {
             key = p->get_value();
             flags |= FLAG_MAP;
+        }
+        else if(p->get_name() == "trace")
+        {
+            trace_depth = p->get_integer();
+            flags |= FLAG_TRACE;
         }
     }
 
@@ -307,6 +315,34 @@ DEFINE_LOGGER_VARIABLE(diagnostic)
             value += nested[idx];
         }
         value += "}";
+    }
+
+    if(flags == 0
+    || (flags & FLAG_TRACE) != 0)
+    {
+        trace_diagnostics_t trace(get_trace_diagnostics());
+        if(trace.empty())
+        {
+            value += "[<no trace>]";
+        }
+        else
+        {
+            auto it(trace.begin());
+            size_t sz(trace.size());
+            if((flags & FLAG_TRACE) != 0)
+            {
+                for(; static_cast<int64_t>(sz) >  trace_depth && it != trace.end(); ++it, --sz);
+            }
+
+            char sep('[');
+            for(; it != trace.end(); ++it)
+            {
+                value += sep;
+                sep = '/';
+                value += *it;
+            }
+            value += "]";
+        }
     }
 
     if(flags == 0
