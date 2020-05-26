@@ -4,7 +4,7 @@
 #
 # Copyright:    Copyright (c) 2011-2019  Made to Order Software Corp.  All Rights Reserved
 #
-# https://snapwebsites.org/project/advgetopt
+# https://snapwebsites.org/project/snaplogger
 # contact@m2osw.com
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,8 +28,8 @@
 
 $dir = glob("snaplogger*");
 
-echo "<html><head><title>advgetopt coverage</title></head>";
-echo "<body><h1>advgetopt coverage</h1><table border=\"1\" cellpadding=\"10\" cellspacing=\"0\"><tbody><tr><th>Coverage</th></tr>";
+echo "<html><head><title>snaplogger coverage</title></head>";
+echo "<body><h1>snaplogger coverage</h1><table border=\"1\" cellpadding=\"10\" cellspacing=\"0\"><tbody><tr><th>Coverage</th></tr>";
 foreach($dir as $d)
 {
     echo "<tr>";
