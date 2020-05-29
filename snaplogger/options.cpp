@@ -455,6 +455,16 @@ bool process_logger_options(advgetopt::getopt & opts
         }
     }
 
+    SNAP_LOG_INFO
+            << "--------------------------------------------------"
+            << SNAP_LOG_SEND;
+    SNAP_LOG_INFO
+            << opts.get_project_name()
+            << " v"
+            << opts.get_options_environment().f_version
+            << " started."
+            << SNAP_LOG_SEND;
+
     return true;
 }
 
