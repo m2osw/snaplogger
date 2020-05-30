@@ -275,7 +275,7 @@ void logger::add_config(std::string const & config_filename)
         , nullptr
     };
 
-    opt_env.f_project_name = "logger";
+    opt_env.f_project_name = "snaplogger";
     opt_env.f_environment_variable_name = "SNAPLOGGER";
     opt_env.f_configuration_files = configuration_files;
     opt_env.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_DYNAMIC_PARAMETERS;
@@ -294,7 +294,7 @@ appender::pointer_t logger::add_console_appender()
     appender::pointer_t a(std::make_shared<console_appender>("console"));
 
     advgetopt::options_environment opt_env;
-    opt_env.f_project_name = "logger";
+    opt_env.f_project_name = "snaplogger";
     advgetopt::getopt opts(opt_env);
     a->set_config(opts);
 
@@ -320,7 +320,7 @@ appender::pointer_t logger::add_syslog_appender(std::string const & identity)
     };
 
     advgetopt::options_environment opt_env;
-    opt_env.f_project_name = "logger";
+    opt_env.f_project_name = "snaplogger";
     opt_env.f_options = options;
     advgetopt::getopt opts(opt_env);
     if(!identity.empty())
@@ -351,7 +351,7 @@ appender::pointer_t logger::add_file_appender(std::string const & filename)
     };
 
     advgetopt::options_environment opt_env;
-    opt_env.f_project_name = "logger";
+    opt_env.f_project_name = "snaplogger";
     opt_env.f_options = options;
     advgetopt::getopt opts(opt_env);
     if(!filename.empty())

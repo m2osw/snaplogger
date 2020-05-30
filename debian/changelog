@@ -1,3 +1,12 @@
+snaplogger (1.0.11.0~bionic) bionic; urgency=high
+
+  * Fixed the name of the default logger file to "snaplogger" everywhere.
+  * Fixed the name of the program replacing any '_' with '-' before loading
+    configuration files (which are expected to use '-').
+  * Severity may be specified with any case, force search in lowercase.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Fri, 29 May 2020 18:50:57 -0700
+
 snaplogger (1.0.10.0~bionic) bionic; urgency=high
 
   * Added an automatic "<name> v<version> started" line to the log.

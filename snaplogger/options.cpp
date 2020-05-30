@@ -38,6 +38,11 @@
 #include    "snaplogger/version.h"
 
 
+// boost lib
+//
+#include    <boost/algorithm/string/replace.hpp>
+
+
 // advgetopt lib
 //
 #include    <advgetopt/exception.h>
@@ -292,6 +297,7 @@ bool process_logger_options(advgetopt::getopt & opts
                 // to load these configuration files
                 //
                 std::string filename(opts.get_program_name());
+                boost::replace_all(filename, "_", "-");
                 filename += ".conf";
                 opt_env.f_configuration_filename = filename.c_str();
                 advgetopt::getopt config_opts(opt_env);

@@ -318,7 +318,9 @@ severity::pointer_t private_logger::get_severity(std::string const & name) const
 {
     guard g;
 
-    auto it(f_severity_by_name.find(name));
+    std::string n(name);
+    std::transform(n.begin(), n.end(), n.begin(), std::towlower);
+    auto it(f_severity_by_name.find(n));
     if(it == f_severity_by_name.end())
     {
         return severity::pointer_t();
