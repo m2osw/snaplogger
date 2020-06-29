@@ -184,8 +184,7 @@ void logger::set_config(advgetopt::getopt const & params)
         set_asynchronous(params.get_string("asynchronous") == "true");
     }
 
-    std::string const name(advgetopt::CONFIGURATION_SECTIONS);
-    auto const & sections(params.get_option(name));
+    auto const & sections(params.get_option(advgetopt::CONFIGURATION_SECTIONS));
     if(sections != nullptr)
     {
         size_t const max(sections->size());

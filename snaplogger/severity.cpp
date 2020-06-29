@@ -43,6 +43,11 @@
 #include    <advgetopt/options.h>
 
 
+// boost lib
+//
+#include    <boost/algorithm/string/replace.hpp>
+
+
 // C++ lib
 //
 #include    <iostream>
@@ -214,17 +219,22 @@ constexpr system_severity g_system_severity[] =
 };
 
 
+constexpr char const * const g_configuration_directories[] = {
+    "/usr/share/snaplogger",
+    "/etc/snaplogger",
+    nullptr
+};
 
 
 advgetopt::options_environment g_config_option =
 {
     .f_project_name = "logger",
     .f_options = nullptr,
-    .f_options_files_directory = "/etc/snaplogger",
+    .f_options_files_directory = nullptr,
     .f_environment_variable_name = nullptr,
     .f_configuration_files = nullptr,
     .f_configuration_filename = "severity.ini",
-    .f_configuration_directories = nullptr,
+    .f_configuration_directories = g_configuration_directories,
     .f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_DYNAMIC_PARAMETERS
 
     //.f_help_header = nullptr,
@@ -240,6 +250,32 @@ advgetopt::options_environment g_config_option =
 
 
 
+/** \brief Add system severities.
+ *
+ * This function goes through the list of system securities and add them.
+ * Then it loads the severity.ini files it files and updates the system
+ * security levels and adds the user defined security levels.
+ *
+ * The severity.ini file format is as follow:
+ *
+ * * Section name, this is the name of the severity such as `[debug]`
+ * * Section field: `severity`, the severity level of this severity
+ * * Section field: `alias`, a list of other names for this severity (i.e.
+ * the `information` severity is also named `info`)
+ * * Section field: `description`, the description of the severity
+ * * Section field: `styles`, the styles such as the color (red, orange...)
+ *
+ * For example:
+ *
+ * \code
+ *     [information]
+ *     level=50
+ *     aliases=info
+ *     description=info
+ *     default=true
+ *     styles=green
+ * \endcode
+ */
 void auto_add_severities()
 {
     guard g;
@@ -274,50 +310,81 @@ void auto_add_severities()
     //
     advgetopt::getopt::pointer_t config(std::make_shared<advgetopt::getopt>(g_config_option));
     config->parse_configuration_files();
-    advgetopt::option_info::map_by_name_t options(config->get_options());
-    for(auto o : options)
+    advgetopt::option_info::pointer_t const sections(config->get_option(advgetopt::CONFIGURATION_SECTIONS));
+    if(sections != nullptr)
     {
-        std::string const name(o.second->get_name());
-        std::string const basename(o.second->get_basename());
-        if(name == basename)
+        size_t const max(sections->size());
+        for(size_t idx(0); idx < max; ++idx)
         {
+            std::string const section_name(sections->get_value(idx));
+
             // we found a section name, this is the name of a severity,
             // gather the info and create the new severity
             //
-            severity::pointer_t sev(get_severity(name));
+            severity::pointer_t sev(get_severity(section_name));
             if(sev != nullptr)
             {
                 // it already exists...
                 //
-                if(sev->is_system())
-                {
-                    std::string const severity_field(name + "::severity");
-                    if(config->is_defined(severity_field))
-                    {
-                        long const level(o.second->get_long());
-                        if(level < 0 || level > 255)
-                        {
-                            throw invalid_severity("severity level must be between 0 and 255.");
-                        }
-                        if(static_cast<severity_t>(level) != sev->get_severity())
-                        {
-                            throw invalid_severity("severity level of a system entry cannot be changed.");
-                        }
-                    }
-                }
-                else
+                // we allow system severities to get updated in various ways
+                // but user defined severities must be defined just once
+                //
+                if(!sev->is_system())
                 {
                     throw duplicate_error("we found two severity levels named \""
-                                         + name
-                                         + "\" in your severity.ini file.");
+                                        + section_name
+                                        + "\" in your severity.ini file.");
+                }
+
+                // although we allow most parameters to be changed,
+                // we do not want the severity level to be changed
+                //
+                std::string const severity_field(section_name + "::severity");
+                if(config->is_defined(severity_field))
+                {
+                    long const level(config->get_long(severity_field));
+                    if(level < 0 || level > 255)
+                    {
+                        throw invalid_severity("severity level must be between 0 and 255.");
+                    }
+                    if(static_cast<severity_t>(level) != sev->get_severity())
+                    {
+                        throw invalid_severity("severity level of a system entry cannot be changed. \""
+                                             + section_name
+                                             + "\" is trying to do so with "
+                                             + std::to_string(level)
+                                             + " instead of "
+                                             + std::to_string(static_cast<long>(sev->get_severity()))
+                                             + " (but it's best not to define the severity level at all for system severities).");
+                    }
+                }
+
+                std::string const aliases_field(section_name + "::aliases");
+                if(config->is_defined(aliases_field))
+                {
+                    std::string const aliases(config->get_string(aliases_field));
+                    advgetopt::string_list_t names;
+                    advgetopt::split_string(aliases, names, {","});
+                    auto const & existing_names(sev->get_all_names());
+                    for(auto n : names)
+                    {
+                        auto const existing_alias(std::find(existing_names.begin(), existing_names.end(), n));
+                        if(existing_alias == existing_names.end())
+                        {
+                            sev->add_alias(n);
+                            l->add_alias(sev, n);
+                        }
+                    }
                 }
             }
             else
             {
-                std::string const severity_field(name + "::severity");
+                std::string const severity_field(section_name + "::severity");
                 if(!config->is_defined(severity_field))
                 {
-                    throw invalid_severity("severity level must be defined for non-system severity entries.");
+                    throw invalid_severity("severity level must be defined for non-system severity entries. \""
+                                         + section_name
+                                         + "\" was not found.");
                 }
                 long const level(config->get_long(severity_field));
                 if(level < 0 || level > 255)
@@ -335,29 +402,30 @@ void auto_add_severities()
                                          + ", try using aliases=... instead.");
                 }
 
-                sev = std::make_shared<severity>(static_cast<severity_t>(level), name);
+                sev = std::make_shared<severity>(static_cast<severity_t>(level), section_name);
+
+                std::string const aliases_field(section_name + "::aliases");
+                if(config->is_defined(aliases_field))
+                {
+                    std::string const aliases(config->get_string(aliases_field));
+                    advgetopt::string_list_t names;
+                    advgetopt::split_string(aliases, names, {","});
+                    for(auto n : names)
+                    {
+                        sev->add_alias(n);
+                    }
+                }
+
                 l->add_severity(sev);
             }
 
-            std::string const aliases_field(name + "::aliases");
-            if(config->is_defined(aliases_field))
-            {
-                std::string const aliases(config->get_string(aliases_field));
-                advgetopt::string_list_t names;
-                advgetopt::split_string(aliases, names, {","});
-                for(auto n : names)
-                {
-                    sev->add_alias(n);
-                }
-            }
-
-            std::string const description_field(name + "::description");
+            std::string const description_field(section_name + "::description");
             if(config->is_defined(description_field))
             {
                 sev->set_description(config->get_string(description_field));
             }
 
-            std::string const styles_field(name + "::styles");
+            std::string const styles_field(section_name + "::styles");
             if(config->is_defined(styles_field))
             {
                 sev->set_styles(config->get_string(styles_field));
@@ -400,16 +468,18 @@ std::string severity::get_name() const
 }
 
 
+/** \brief All the aliases must be added before registering a severity.
+ *
+ * This function adds another alias to the severity.
+ *
+ * The function must be called before the severity gets registered.
+ */
 void severity::add_alias(std::string const & name)
 {
     f_names.push_back(name);
 
-    private_logger::pointer_t l(get_private_logger());
-    severity::pointer_t s(l->get_severity(f_names[0]));
-    if(s != nullptr)
-    {
-        l->add_severity(s);
-    }
+    // TODO: we may be able to add a test here, but we allow
+    //       adding new aliases to system severity
 }
 
 

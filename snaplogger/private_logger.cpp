@@ -270,13 +270,20 @@ environment::pointer_t private_logger::create_environment()
  * Remember that a severity can be given aliases so this function may
  * add quite a few entries, not just one.
  *
+ * To add an alias after creation, make sure to use the add_alias() instead.
+ * This makes sure you link the same severity to several names.
+ *
  * \warning
  * You should not be calling this function directly. Please see the
  * direct snaplogger::add_severity() function instead.
  *
  * \exception duplicate_error
  * The function verifies that the new severity is not a duplicate of
- * an existing system severity.
+ * an existing system severity. The verification process checks the
+ * severity by severity level and by name. You can, however, have
+ * _duplicates_ of user defined severity levels. However, the last
+ * user defined severity of a given name & level sticks, the others
+ * get deleted.
  *
  * \param[in] sev  The severity object to be added.
  */
@@ -289,7 +296,11 @@ void private_logger::add_severity(severity::pointer_t sev)
     {
         if(it->second->is_system())
         {
-            throw duplicate_error("a system severity cannot be replaced.");
+            throw duplicate_error("a system severity ("
+                                + std::to_string(static_cast<long>(it->first))
+                                + ") cannot be replaced (same severity level: "
+                                + std::to_string(static_cast<long>(sev->get_severity()))
+                                + ").");
         }
     }
 
@@ -300,17 +311,62 @@ void private_logger::add_severity(severity::pointer_t sev)
         {
             if(s->second->is_system())
             {
-                throw duplicate_error("a system severity cannot be replaced.");
+                // note that any severity can be partially edited, just not
+                // added more than once
+                //
+                throw duplicate_error("a system severity ("
+                                    + n
+                                    + ") cannot be replaced (same name).");
             }
         }
     }
 
     f_severity_by_severity[sev->get_severity()] = sev;
 
-    for(auto n : sev->get_all_names())
+    for(auto const n : sev->get_all_names())
     {
         f_severity_by_name[n] = sev;
     }
+}
+
+
+/** \brief Add yet another alias.
+ *
+ * This function is used when the system aliases get assigned additional
+ * aliases. The add_severity() was already called with system definitions,
+ * so this is the only way to add additional aliases to them trhough the .ini
+ * files.
+ *
+ * \param[in] sev  A pointer to the severity to be added.
+ * \param[in] name  The name of the alias.
+ */
+void private_logger::add_alias(severity::pointer_t sev, std::string const & name)
+{
+    guard g;
+
+    auto it(f_severity_by_severity.find(sev->get_severity()));
+    if(it == f_severity_by_severity.end())
+    {
+        throw duplicate_error("to register an alias the corresponding main severity must already be registered. We could not find a severity with level "
+                            + std::to_string(static_cast<long>(sev->get_severity()))
+                            + ".");
+    }
+
+    auto s(f_severity_by_name.find(name));
+    if(s != f_severity_by_name.end())
+    {
+        if(s->second->is_system())
+        {
+            // note that any severity can be partially edited, just not
+            // added more than once
+            //
+            throw duplicate_error("a system severity ("
+                                + name
+                                + ") cannot be replaced (same name).");
+        }
+    }
+
+    f_severity_by_name[name] = sev;
 }
 
 
