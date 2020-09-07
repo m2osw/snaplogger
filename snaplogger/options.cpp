@@ -97,7 +97,7 @@ advgetopt::option const g_options[] =
     advgetopt::define_option(
           advgetopt::Name("console")
         , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
-        , advgetopt::Help("print out the time and date when %p was built and exit.")
+        , advgetopt::Help("print the logs out to the console.")
     ),
 
     // ALTERNATIVE CONFIG FILES
@@ -115,6 +115,11 @@ advgetopt::option const g_options[] =
           advgetopt::Name("debug")
         , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
         , advgetopt::Help("change the severity level of each appender to DEBUG.")
+    ),
+    advgetopt::define_option(
+          advgetopt::Name("trace")
+        , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+        , advgetopt::Help("change the severity level of each appender to TRACE.")
     ),
     advgetopt::define_option(
           advgetopt::Name("log-severity")
@@ -186,15 +191,16 @@ void add_logger_options(advgetopt::getopt & opts)
 }
 
 
-constexpr int const OPTION_NO_LOG           = 0x01;
-constexpr int const OPTION_LOG_FILE         = 0x02;
-constexpr int const OPTION_LOG_CONFIG       = 0x04;
-constexpr int const OPTION_SYSLOG           = 0x08;
-constexpr int const OPTION_CONSOLE          = 0x10;
+constexpr int const OPTION_NO_LOG           = 0x001;
+constexpr int const OPTION_LOG_FILE         = 0x002;
+constexpr int const OPTION_LOG_CONFIG       = 0x004;
+constexpr int const OPTION_SYSLOG           = 0x008;
+constexpr int const OPTION_CONSOLE          = 0x010;
 
-constexpr int const OPTION_DEBUG_SEVERITY   = 0x20;
-constexpr int const OPTION_LOG_SEVERITY     = 0x40;
-constexpr int const OPTION_FORCE_SEVERITY   = 0x80;
+constexpr int const OPTION_TRACE_SEVERITY   = 0x020;
+constexpr int const OPTION_DEBUG_SEVERITY   = 0x040;
+constexpr int const OPTION_LOG_SEVERITY     = 0x080;
+constexpr int const OPTION_FORCE_SEVERITY   = 0x100;
 
 
 bool process_logger_options(advgetopt::getopt & opts
@@ -367,6 +373,10 @@ bool process_logger_options(advgetopt::getopt & opts
     // SEVERITY
     //
     int severity_selection(0);
+    if(opts.is_defined("trace"))
+    {
+        severity_selection |= OPTION_TRACE_SEVERITY;
+    }
     if(opts.is_defined("debug"))
     {
         severity_selection |= OPTION_DEBUG_SEVERITY;
@@ -384,6 +394,11 @@ bool process_logger_options(advgetopt::getopt & opts
     {
     case 0:
         // keep as is
+        break;
+
+    case OPTION_TRACE_SEVERITY:
+        logger::get_instance()->reduce_severity(severity_t::SEVERITY_TRACE);
+        configure_console(true);
         break;
 
     case OPTION_DEBUG_SEVERITY:

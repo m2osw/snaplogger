@@ -1,3 +1,10 @@
+snaplogger (1.0.13.0~bionic) bionic; urgency=high
+
+  * Fixed the help message of --console.
+  * Added a --trace command line option.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sun, 06 Sep 2020 20:02:59 -0700
+
 snaplogger (1.0.12.0~bionic) bionic; urgency=high
 
   * Fixed the code so the `severity.ini` actually loads.
