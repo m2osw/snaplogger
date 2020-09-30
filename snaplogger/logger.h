@@ -36,6 +36,7 @@
 namespace snaplogger
 {
 
+typedef std::vector<std::size_t>        severity_stats_t;
 
 
 class logger
@@ -76,6 +77,7 @@ public:
     void                        process_message(message const & msg);
     void                        set_fatal_error_callback(std::function<void(void)> & f);
     void                        call_fatal_error_callback();
+    severity_stats_t            get_severity_stats() const;
 
 protected:
                                 logger();
@@ -94,6 +96,7 @@ private:
     severity_t                  f_fatal_severity = severity_t::SEVERITY_OFF;
     std::function<void(void)>   f_fatal_error_callback = nullptr;
     bool                        f_asynchronous = false;
+    severity_stats_t            f_severity_stats = severity_stats_t(static_cast<std::size_t>(severity_t::SEVERITY_MAX) - static_cast<std::size_t>(severity_t::SEVERITY_MIN) + 1);
 };
 
 

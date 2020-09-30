@@ -68,8 +68,6 @@ typedef cppthread::fifo<message::pointer_t>                 message_fifo_t;
 typedef std::map<std::string, appender_factory::pointer_t>  appender_factory_t;
 typedef std::map<std::string, component::pointer_t>         component_map_t;
 typedef std::map<pid_t, environment::pointer_t>             environment_map_t;
-typedef std::map<severity_t, severity::pointer_t>           severity_by_severity_t;
-typedef std::map<std::string, severity::pointer_t>          severity_by_name_t;
 typedef std::map<std::string, function::pointer_t>          function_map_t;
 typedef std::map<std::string, variable_factory::pointer_t>  variable_factory_map_t;
 typedef std::shared_ptr<detail::asynchronous_logger>        asynchronous_logger_pointer_t;

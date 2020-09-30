@@ -109,6 +109,8 @@ private:
     std::string         f_styles = std::string();
 };
 
+typedef std::map<severity_t, severity::pointer_t>   severity_by_severity_t;
+typedef std::map<std::string, severity::pointer_t>  severity_by_name_t;
 
 void                    add_severity(severity::pointer_t sev);
 severity::pointer_t     get_severity(std::string const & name);

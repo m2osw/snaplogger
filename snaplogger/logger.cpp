@@ -563,6 +563,8 @@ void logger::process_message(message const & msg)
             }
         }
 
+        ++f_severity_stats[static_cast<std::size_t>(msg.get_severity())];
+
         appenders = f_appenders;
     }
 
@@ -585,6 +587,33 @@ void logger::call_fatal_error_callback()
     {
         f_fatal_error_callback();
     }
+}
+
+
+/** \brief Return statistics about log severities.
+ *
+ * This function returns the statistics counting each message sent per
+ * severity.
+ *
+ * If you enabled the asynchronous functionality of the snaplogger,
+ * then this statistics may not reflect the current state as the
+ * logger thread may still not have processed all the messages.
+ *
+ * \note
+ * The severity_stats_t type is a vector that includes all possible
+ * severity levels (0 to 255), including severity levels that are not
+ * currently declared. It is done that way so the access is as fast
+ * as possible when we want to increment one of the stats. Using a
+ * map would have a much greater impact on the process_message()
+ * function.
+ *
+ * \return a copy of the severity statistics at the time of the call.
+ */
+severity_stats_t logger::get_severity_stats() const
+{
+    guard g;
+
+    return f_severity_stats;
 }
 
 

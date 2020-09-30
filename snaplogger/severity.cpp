@@ -45,7 +45,8 @@
 
 // boost lib
 //
-#include    <boost/algorithm/string/replace.hpp>
+#include    <boost/preprocessor/stringize.hpp>
+
 
 
 // C++ lib
@@ -447,6 +448,16 @@ severity::severity(severity_t sev, std::string const & name, bool system)
     , f_names(string_vector_t({name}))
     , f_system(system)
 {
+    if(sev < severity_t::SEVERITY_MIN || sev > severity_t::SEVERITY_MAX)
+    {
+        throw invalid_severity("the severity level can't be "
+                            + std::to_string(static_cast<int>(sev))
+                            + ". The possible range is ["
+                              BOOST_PP_STRINGIZE(severity_t::SEVERITY_MIN)
+                              ".."
+                              BOOST_PP_STRINGIZE(severity_t::SEVERITY_MAX)
+                              "]");
+    }
 }
 
 
