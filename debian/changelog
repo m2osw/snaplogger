@@ -1,3 +1,13 @@
+snaplogger (1.0.14.0~bionic) bionic; urgency=high
+
+  * Added support to count the number of messages logged per severity.
+  * Updated the `mk` script to use `nproc` instead of just 4.
+  * Verify that severity levels used when creating a severity object are
+    between MIN and MAX.
+  * Made the severity_by_severity_t and severity_by_name_t types public.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Tue, 29 Sep 2020 18:12:32 -0700
+
 snaplogger (1.0.13.0~bionic) bionic; urgency=high
 
   * Fixed the help message of --console.
