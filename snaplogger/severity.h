@@ -143,7 +143,9 @@ operator << (std::basic_ostream<CharT, Traits> & os, severity_t sev)
 
 // outside of namespace so it can be used right up
 //
+#if defined(__GNUC__) && __GNUC__ >= 7 && __GNUC_MINOR__ >= 5 && __GNUC_PATCHLEVEL__ >= 0
 snaplogger::severity::pointer_t     operator ""_sev (char const * name, unsigned long size);
+#endif
 
 
 // vim: ts=4 sw=4 et
