@@ -1,3 +1,11 @@
+snaplogger (1.0.16.0~bionic) bionic; urgency=high
+
+  * Allow for the console to be defined multiple times. The second and
+    further attempts to add it will succeed although it won't be added again.
+    This allow for early errors to safely generate a console add.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Fri, 09 Oct 2020 22:24:06 -0700
+
 snaplogger (1.0.15.0~bionic) bionic; urgency=high
 
   * Applied fix to ignore the ""_sev operator on older compilers.

@@ -251,6 +251,14 @@ void logger::add_appender(appender::pointer_t a)
                 }));
         if(it != f_appenders.end())
         {
+            // the console is a pretty special type because it can't be
+            // added twice but it may get added early because an error
+            // occurs and forces initialization of the logger "too soon"
+            //
+            if(type == "console")
+            {
+                return;
+            }
             throw duplicate_error(
                           "an appender of type \""
                         + type
