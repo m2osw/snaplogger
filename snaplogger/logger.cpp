@@ -179,10 +179,15 @@ appender::pointer_t logger::get_appender(std::string const & name) const
 
 void logger::set_config(advgetopt::getopt const & params)
 {
-    if(params.is_defined("asynchronous"))
-    {
-        set_asynchronous(params.get_string("asynchronous") == "true");
-    }
+    // The asynchronous flag can cause problems unless the programmer
+    // specifically planned for it so we do not allow it in configuration
+    // file at the moment. Later we may have two flags. If both are true
+    // then we will allow asynchronous logging.
+    //
+    //if(params.is_defined("asynchronous"))
+    //{
+    //    set_asynchronous(params.get_string("asynchronous") == "true");
+    //}
 
     auto const & sections(params.get_option(advgetopt::CONFIGURATION_SECTIONS));
     if(sections != nullptr)
