@@ -304,7 +304,7 @@ void auto_add_severities()
             sev->set_styles(ss.f_styles);
         }
 
-        l->add_severity(sev);
+        add_severity(sev);
     }
 
     // load user editable parameters
@@ -373,7 +373,6 @@ void auto_add_severities()
                         if(existing_alias == existing_names.end())
                         {
                             sev->add_alias(n);
-                            l->add_alias(sev, n);
                         }
                     }
                 }
@@ -417,7 +416,7 @@ void auto_add_severities()
                     }
                 }
 
-                l->add_severity(sev);
+                add_severity(sev);
             }
 
             std::string const description_field(section_name + "::description");
@@ -473,6 +472,31 @@ bool severity::is_system() const
 }
 
 
+/** \brief Mark the severity as registered with the logger.
+ *
+ * \internal
+ *
+ * This function is considered internal. It is called by the private logger
+ * implementation at the time the severity is added to the system.
+ *
+ * You should never have to call this function directly. You can use the
+ * is_registered() function to check whether the severity was already
+ * added or not.
+ *
+ * \sa private_logger::add_severity()
+ */
+void severity::mark_as_registered()
+{
+    f_registered = true;
+}
+
+
+bool severity::is_registered() const
+{
+    return f_registered;
+}
+
+
 std::string severity::get_name() const
 {
     return f_names[0];
@@ -483,14 +507,34 @@ std::string severity::get_name() const
  *
  * This function adds another alias to the severity.
  *
- * The function must be called before the severity gets registered.
+ * \exception duplicate_error
+ * The function raises the duplicate error whenever the alias being added
+ * is one that already exists in the list of this severity aliases.
+ * It will not warn about adding the same alias to another severity as
+ * long as that other severity is not a system defined severity.
  */
 void severity::add_alias(std::string const & name)
 {
+    auto it(std::find(f_names.begin(), f_names.end(), name));
+    if(it != f_names.end())
+    {
+        throw duplicate_error("severity \""
+                            + f_names[0]
+                            + "\" already has an alias \""
+                            + name
+                            + "\".");
+    }
+
     f_names.push_back(name);
 
     // TODO: we may be able to add a test here, but we allow
     //       adding new aliases to system severity
+
+    if(is_registered())
+    {
+        private_logger::pointer_t l(get_private_logger());
+        l->add_alias(l->get_severity(f_severity), name);
+    }
 }
 
 

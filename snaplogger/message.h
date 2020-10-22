@@ -81,7 +81,8 @@ class message final
     : public std::basic_stringstream<char>
 {
 public:
-    typedef std::shared_ptr<message>    pointer_t;
+    typedef std::shared_ptr<message>            pointer_t;
+    typedef std::map<std::string, std::string>  field_t;
 
                                 message(
                                           severity_t sev = severity_t::SEVERITY_INFORMATION
@@ -100,6 +101,7 @@ public:
     void                        set_line(int line);
     void                        set_recursive_message(bool state) const;
     void                        add_component(component::pointer_t c);
+    void                        add_field(std::string const & name, std::string const & value);
 
     std::shared_ptr<logger>     get_logger() const;
     severity_t                  get_severity() const;
@@ -111,6 +113,7 @@ public:
     component::set_t const &    get_components() const;
     environment::pointer_t      get_environment() const;
     std::string                 get_message() const;
+    std::string                 get_field(std::string const & name) const;
 
 private:
     std::shared_ptr<logger>     f_logger = std::shared_ptr<logger>(); // make sure it does not go away under our feet
@@ -122,6 +125,7 @@ private:
     mutable bool                f_recursive_message = false;
     environment::pointer_t      f_environment = environment::pointer_t();
     component::set_t            f_components = component::set_t();
+    field_t                     f_fields = field_t();
     null_buffer::pointer_t      f_null = null_buffer::pointer_t();
     std::streambuf *            f_saved_buffer = nullptr;
     bool                        f_copy = false;
@@ -164,6 +168,32 @@ secure(std::basic_ostream<CharT, Traits> & os)
 }
 
 
+
+struct field_t
+{
+    std::string             f_name;
+    std::string             f_value;
+};
+
+inline field_t field(std::string const & name, std::string const & value)
+{
+    return { name, value };
+}
+
+template<typename CharT, typename Traits>
+inline std::basic_ostream<CharT, Traits> &
+operator << (std::basic_ostream<CharT, Traits> & os, field_t const & f)
+{
+    message * m(dynamic_cast<message *>(&os));
+    if(m != nullptr)
+    {
+        m->add_field(f.f_name, f.f_value);
+    }
+    return os;
+}
+
+
+
 void send_message(std::basic_ostream<char> & msg);
 
 
@@ -191,6 +221,8 @@ void send_message(std::basic_ostream<char> & msg);
 #define SNAP_LOG_NOTICE             ::snaplogger::send_message((::snaplogger::message(::snaplogger::severity_t::SEVERITY_NOTICE,            __FILE__, __func__, __LINE__)
 #define SNAP_LOG_DEBUG              ::snaplogger::send_message((::snaplogger::message(::snaplogger::severity_t::SEVERITY_DEBUG,             __FILE__, __func__, __LINE__)
 #define SNAP_LOG_TRACE              ::snaplogger::send_message((::snaplogger::message(::snaplogger::severity_t::SEVERITY_TRACE,             __FILE__, __func__, __LINE__)
+
+#define SNAP_LOG_FIELD(name, value) ::snaplogger::field((name), (value))
 
 // The (( are in the opening macros
 //

@@ -137,8 +137,11 @@ CATCH_TEST_CASE("message_capture", "[message]")
 
         l->add_appender(buffer);
 
-        SNAP_LOG_ERROR << "A JSON error message" << SNAP_LOG_SEND;
-        CATCH_REQUIRE(buffer->str() == "{\"version\":1,\"message\":\"A JSON error message\"}\n");
+        SNAP_LOG_ERROR
+            << SNAP_LOG_FIELD(std::string("format"), std::string("json"))
+            << "A JSON error message (format:${field:name=format})"
+            << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == "{\"version\":1,\"message\":\"A JSON error message (format:json)\"}\n");
         buffer->clear();
 
         // show that the "\n" does not get duplicated

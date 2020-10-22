@@ -90,6 +90,8 @@ public:
 
     severity_t          get_severity() const;
     bool                is_system() const;
+    void                mark_as_registered();
+    bool                is_registered() const;
 
     std::string         get_name() const;
     void                add_alias(std::string const & name);
@@ -105,6 +107,7 @@ private:
     severity_t const    f_severity;
     string_vector_t     f_names = string_vector_t();
     bool const          f_system;
+    bool                f_registered = false;
     std::string         f_description = std::string();
     std::string         f_styles = std::string();
 };

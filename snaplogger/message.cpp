@@ -153,6 +153,15 @@ void message::add_component(component::pointer_t c)
 }
 
 
+void message::add_field(std::string const & name, std::string const & value)
+{
+    if(!name.empty())
+    {
+        f_fields[name] = value;
+    }
+}
+
+
 std::shared_ptr<logger> message::get_logger() const
 {
     return f_logger;
@@ -224,6 +233,17 @@ std::string message::get_message() const
     }
 
     return s;
+}
+
+
+std::string message::get_field(std::string const & name) const
+{
+    auto it(f_fields.find(name));
+    if(it == f_fields.end())
+    {
+        return std::string();
+    }
+    return it->second;
 }
 
 

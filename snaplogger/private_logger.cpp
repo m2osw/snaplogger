@@ -321,6 +321,8 @@ void private_logger::add_severity(severity::pointer_t sev)
         }
     }
 
+    sev->mark_as_registered();
+
     f_severity_by_severity[sev->get_severity()] = sev;
 
     for(auto const n : sev->get_all_names())

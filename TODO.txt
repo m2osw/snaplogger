@@ -1,4 +1,12 @@
 
+* Review the `field` extension
+
+Right now we allow for fields of type string (which value is a string).
+
+The fields should be given a type and be integers, floating points as
+well as strings (maybe some other types too? like a date?)
+
+
 
 * Allow a form of subcribe to the logs
 

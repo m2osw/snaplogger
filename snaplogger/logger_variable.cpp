@@ -125,6 +125,23 @@ DEFINE_LOGGER_VARIABLE(message)
 
 
 
+DEFINE_LOGGER_VARIABLE(field)
+{
+    auto params(get_params());
+    if(!params.empty())
+    {
+        if(params[0]->get_name() == "name")
+        {
+            auto name(params[0]->get_value());
+            value += msg.get_field(name);
+        }
+    }
+
+    variable::process_value(msg, value);
+}
+
+
+
 DEFINE_LOGGER_VARIABLE(project_name)
 {
     // when the advgetopt is properly connected to the logger, then the

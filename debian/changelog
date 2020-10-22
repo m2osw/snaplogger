@@ -1,3 +1,14 @@
+snaplogger (1.0.18.0~bionic) bionic; urgency=high
+
+  * Added support for adding clearly named fields in your errors.
+  * Added support for a corresponding `${field:name=<name>}`.
+  * Updated a test to verify the field feature works.
+  * Fixed the add_alias() so it works even after the severity is registered.
+  * Fixed the descriptions vs alias in the severity.ini file.
+  * Updated the tests so they all pass as expected.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Thu, 22 Oct 2020 13:25:50 -0700
+
 snaplogger (1.0.17.0~bionic) bionic; urgency=high
 
   * Removed support for the asynchronous=true|false in config files.
