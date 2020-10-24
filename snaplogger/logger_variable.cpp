@@ -142,6 +142,136 @@ DEFINE_LOGGER_VARIABLE(field)
 
 
 
+DEFINE_LOGGER_VARIABLE(fields)
+{
+    enum class format_t
+    {
+        FORMAT_JSON,
+        FORMAT_SHELL
+    };
+    enum class json_t
+    {
+        START_COMMA,
+        END_COMMA,
+        OBJECT
+    };
+
+    format_t format(format_t::FORMAT_JSON);
+    json_t json(json_t::OBJECT);
+
+    auto params(get_params());
+    for(auto p : params)
+    {
+        auto const v(p->get_value());
+        if(p->get_name() == "format")
+        {
+            if(v == "json")
+            {
+                format = format_t::FORMAT_JSON;
+            }
+            else if(v == "shell")
+            {
+                format = format_t::FORMAT_SHELL;
+            }
+            else
+            {
+                throw invalid_variable(
+                              "the ${fields:format=json|shell} variable cannot be set to \""
+                            + v
+                            + "\".");
+            }
+        }
+        else if(p->get_name() == "json")
+        {
+            if(v == "start-comma")
+            {
+                json = json_t::START_COMMA;
+            }
+            else if(v == "end-comma")
+            {
+                json = json_t::END_COMMA;
+            }
+            else if(v == "object")
+            {
+                json = json_t::OBJECT;
+            }
+            else
+            {
+                throw invalid_variable(
+                              "the ${fields:json=start-comma|end-comma|object} variable cannot be set to \""
+                            + v
+                            + "\".");
+            }
+        }
+    }
+
+    int start_comma(0);
+    switch(format)
+    {
+    case format_t::FORMAT_JSON:
+        if(json == json_t::OBJECT)
+        {
+            value += "{";
+            start_comma = 1;
+        }
+        break;
+
+    case format_t::FORMAT_SHELL:
+        // nothing for this one
+        break;
+
+    }
+
+    for(auto f : msg.get_fields())
+    {
+        switch(format)
+        {
+        case format_t::FORMAT_JSON:
+            if(json == json_t::START_COMMA || start_comma == 2)
+            {
+                value += ",";
+            }
+            // TODO: need to test for quotes inside "first" or "second"
+            value += "\"" + f.first + "\":" + "\"" + f.second + "\"";
+            if(json == json_t::END_COMMA)
+            {
+                value += ",";
+            }
+            else if(json == json_t::OBJECT)
+            {
+                // if more than one field, make sure to add commas
+                // between each field
+                //
+                start_comma = 2;
+            }
+            break;
+
+        case format_t::FORMAT_SHELL:
+            value += f.first + "=" + f.second + "\n";
+            break;
+
+        }
+    }
+    switch(format)
+    {
+    case format_t::FORMAT_JSON:
+        if(json == json_t::OBJECT)
+        {
+            value += "}";
+        }
+        break;
+
+    case format_t::FORMAT_SHELL:
+        // nothing for this one
+        break;
+
+    }
+
+    variable::process_value(msg, value);
+}
+
+
+
 DEFINE_LOGGER_VARIABLE(project_name)
 {
     // when the advgetopt is properly connected to the logger, then the

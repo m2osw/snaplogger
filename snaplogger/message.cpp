@@ -247,6 +247,12 @@ std::string message::get_field(std::string const & name) const
 }
 
 
+message::field_map_t message::get_fields() const
+{
+    return f_fields;
+}
+
+
 void send_message(std::basic_ostream<char> & out)
 {
     message * msg(dynamic_cast<message *>(&out));

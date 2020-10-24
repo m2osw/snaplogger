@@ -82,7 +82,7 @@ class message final
 {
 public:
     typedef std::shared_ptr<message>            pointer_t;
-    typedef std::map<std::string, std::string>  field_t;
+    typedef std::map<std::string, std::string>  field_map_t;
 
                                 message(
                                           severity_t sev = severity_t::SEVERITY_INFORMATION
@@ -114,6 +114,7 @@ public:
     environment::pointer_t      get_environment() const;
     std::string                 get_message() const;
     std::string                 get_field(std::string const & name) const;
+    field_map_t                 get_fields() const;
 
 private:
     std::shared_ptr<logger>     f_logger = std::shared_ptr<logger>(); // make sure it does not go away under our feet
@@ -125,7 +126,7 @@ private:
     mutable bool                f_recursive_message = false;
     environment::pointer_t      f_environment = environment::pointer_t();
     component::set_t            f_components = component::set_t();
-    field_t                     f_fields = field_t();
+    field_map_t                 f_fields = field_map_t();
     null_buffer::pointer_t      f_null = null_buffer::pointer_t();
     std::streambuf *            f_saved_buffer = nullptr;
     bool                        f_copy = false;

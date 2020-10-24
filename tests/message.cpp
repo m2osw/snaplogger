@@ -146,8 +146,12 @@ CATCH_TEST_CASE("message_capture", "[message]")
 
         // show that the "\n" does not get duplicated
         //
-        SNAP_LOG_ERROR << "See what happens with a \"quoted string\" within the message\n" << SNAP_LOG_SEND;
-        CATCH_REQUIRE(buffer->str() == "{\"version\":1,\"message\":\"See what happens with a \\\"quoted string\\\" within the message\"}\n");
+        SNAP_LOG_ERROR
+            << "See what happens with a \"quoted string\" within the message (${fields})\n"
+            << SNAP_LOG_FIELD(std::string("format"), std::string("json"))
+            << SNAP_LOG_FIELD(std::string("language"), std::string("js"))
+            << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == "{\"version\":1,\"message\":\"See what happens with a \\\"quoted string\\\" within the message ({\\\"format\\\":\\\"json\\\",\\\"language\\\":\\\"js\\\"})\"}\n");
         buffer->clear();
 
         l->reset();
