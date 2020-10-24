@@ -1,3 +1,9 @@
+snaplogger (1.0.19.0~bionic) bionic; urgency=high
+
+  * Fixed the "info" description in severity.ini
+
+ -- Alexis Wilke <alexis@m2osw.com>  Fri, 23 Oct 2020 21:26:55 -0700
+
 snaplogger (1.0.18.0~bionic) bionic; urgency=high
 
   * Added support for adding clearly named fields in your errors.

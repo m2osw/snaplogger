@@ -8,11 +8,11 @@ well as strings (maybe some other types too? like a date?)
 
 
 
-* Allow a form of subcribe to the logs
+* Allow a form of subcription to the logs
 
 This should be a pubsub type of a thing. However, the logger is below the
 eventdispatcher so it has no network abilities at all (to avoid code
-duplication)
+duplication).
 
 However, since we can implement any type of appender, we can have one which
 is a simple callback or have a pubsub appender in the logserver project
