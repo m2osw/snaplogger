@@ -230,6 +230,7 @@ constexpr char const * const g_configuration_directories[] = {
 advgetopt::options_environment g_config_option =
 {
     .f_project_name = "logger",
+    .f_group_name = nullptr,
     .f_options = nullptr,
     .f_options_files_directory = nullptr,
     .f_environment_variable_name = nullptr,

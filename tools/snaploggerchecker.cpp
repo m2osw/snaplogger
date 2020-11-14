@@ -199,6 +199,7 @@ advgetopt::group_description const g_group_descriptions[] =
 advgetopt::options_environment const g_options_environment =
 {
     .f_project_name = "snapwebsites",
+    .f_group_name = nullptr,
     .f_options = g_command_line_options,
     .f_options_files_directory = nullptr,
     .f_environment_variable_name = nullptr,
