@@ -1,3 +1,9 @@
+snaplogger (1.0.21.0~bionic) bionic; urgency=high
+
+  * Make use of the new advgetopt group name when available.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Fri, 20 Nov 2020 08:42:29 -0800
+
 snaplogger (1.0.20.0~bionic) bionic; urgency=high
 
   * Updated the tools to use the new version of advgetopt.

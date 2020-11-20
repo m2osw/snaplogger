@@ -267,6 +267,8 @@ bool process_logger_options(advgetopt::getopt & opts
 
             std::string const keep_project_name(opts.get_project_name());
             opt_env.f_project_name = keep_project_name.c_str();
+            std::string const keep_group_name(opts.get_group_name());
+            opt_env.f_group_name = keep_group_name.c_str();
             opt_env.f_environment_variable_name = "SNAPLOGGER";
             //opt_env.f_configuration_files = nullptr;
             opt_env.f_configuration_filename = "snaplogger.conf";
