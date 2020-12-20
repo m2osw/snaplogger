@@ -20,12 +20,12 @@ The following are the main features of this logger:
 * Messages using `std::stringstream`
 
     Sending log messages uses an `std::stringstream`. When creating a
-    `message` class, it can be used just like any `std::basic_ostream<char>`.
-    
+    `message` object, it can be used just like any `std::basic_ostream<char>`.
+
     This means all the features supported by `std::basic_ostream` are
     available. You can send hexadecimal (`... << std::hex << ...`), format
     strings, and overload the `<<` operator in order to add more automatic
-    transformation of objects to strings just as you do when you want to
+    transformations of objects to strings just as you do when you want to
     print those objects to `std::cout` or `std::cerr`.
 
 * Severity
@@ -44,24 +44,24 @@ The following are the main features of this logger:
 * Appenders
 
     A set of classes used to declare the log sinks.
-    
+
     The library offers the following appenders:
 
     - buffer
     - console
     - file
     - syslog
-    
+
     It is very easy to develop your own appender. In most cases you want
     to override the `set_config()` (optional) and the `process_message()`.
 
     The  project will add a log service. This has several
     advantages over the direct appenders offered by the base library. The
     main two are certainly:
-    
+
     - It can access any files since the service can be running as root
     - It can do work in parallel on a separate computer.
-    
+
     The [#eventdispatcher] makes use of the base snaplogger library which
     is why this server extension is in a separate project.
 
@@ -70,11 +70,11 @@ The following are the main features of this logger:
     Your log messages can be formatted in many different ways. The
     `snaplogger` library supports many variables which support parameters
     and functions. All of this is very easily extensible.
-    
+
     There are many variables supported by default, including displaying
     the timestamp of the message, environment variables, system information
     (i.e. hostname), and all the data from the message being logged.
-    
+
     Our tests verifies a standard one line text message and a JSON message
     to make sure that we support either format. You could also use a CSV
     type of format.
@@ -88,12 +88,12 @@ The following are the main features of this logger:
     like to show in your logs.
 
     You can emit _trace_ logs to have a better idea of where an error occurs.
-    The trace logs are writte along a log depending on the log severity level.
+    The trace logs are written along a log depending on the log severity level.
     The system keeps the last 10 trace logs (you can adjust the number to
     your liking).
-    
+
     _**WARNING:** The trace logs have nothing to do with the TRACE severity
-    level. The level at which trace logs are output depend on the log which
+    level. The level at which trace logs are output depends on the log which
     gets emitted when trace logs are present._
 
     The nested diagnostics are used to track your location in a stack like
@@ -234,7 +234,7 @@ example:
     severity=TRACE
     style=orange
     force_style=true
-    
+
     # In /etc/snaplogger/my-app.conf
     [console]
     severity=OFF
