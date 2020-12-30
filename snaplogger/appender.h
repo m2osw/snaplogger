@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2013-2020  Made to Order Software Corp.  All Rights Reserved
  *
  * https://snapwebsites.org/project/snaplogger
  * contact@m2osw.com
@@ -55,6 +55,7 @@ public:
     virtual                     ~appender();
 
     std::string const &         get_type() const;
+    void                        set_name(std::string const & name);
     std::string const &         get_name() const;
     bool                        is_enabled() const;
     virtual void                set_enabled(bool status);
@@ -79,7 +80,7 @@ protected:
 
 private:
     std::string const           f_type;
-    std::string const           f_name;
+    std::string                 f_name = std::string();
     bool                        f_enabled = true;
     format::pointer_t           f_format = format::pointer_t();
     severity_t                  f_severity = severity_t::SEVERITY_INFORMATION;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2013-2020  Made to Order Software Corp.  All Rights Reserved
  *
  * https://snapwebsites.org/project/snaplogger
  * contact@m2osw.com
@@ -88,6 +88,19 @@ appender::~appender()
 std::string const & appender::get_type() const
 {
     return f_type;
+}
+
+
+void appender::set_name(std::string const & name)
+{
+    if(f_name != "console"
+    && f_name != "syslog")
+    {
+        throw invalid_parameter(
+                  "the appender set_name() can only be used for the console & syslog appenders to rename them to your own appender name (and done internally only).");
+    }
+
+    f_name = name;
 }
 
 

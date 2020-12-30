@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2013-2020  Made to Order Software Corp.  All Rights Reserved
  *
  * https://snapwebsites.org/project/snaplogger
  * contact@m2osw.com
@@ -262,6 +262,20 @@ void logger::add_appender(appender::pointer_t a)
             //
             if(type == "console")
             {
+                if(a->get_name() != "console"
+                && (*it)->get_name() == "console")
+                {
+                    (*it)->set_name(a->get_name());
+                }
+                return;
+            }
+            if(type == "syslog")
+            {
+                if(a->get_name() != "syslog"
+                && (*it)->get_name() == "syslog")
+                {
+                    (*it)->set_name(a->get_name());
+                }
                 return;
             }
             throw duplicate_error(
@@ -431,8 +445,8 @@ void logger::severity_changed(severity_t severity_level)
         // this happens very rarely while running, it's likely to happen
         // up to once per appender on initialization.
         //
-        auto minmax(std::minmax_element(f_appenders.begin(), f_appenders.end()));
-        f_lowest_severity = (*minmax.first)->get_severity();
+        auto const min(std::min_element(f_appenders.begin(), f_appenders.end()));
+        f_lowest_severity = (*min)->get_severity();
     }
 }
 

@@ -1,3 +1,12 @@
+snaplogger (1.0.22.0~bionic) bionic; urgency=high
+
+  * Fixed the possible console or syslog name mismatch when the console or
+    syslog appenders are auto-created.
+  * Changed the minmax_element() to just min_element() since we don't need the
+    max.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Wed, 30 Dec 2020 13:14:50 -0800
+
 snaplogger (1.0.21.0~bionic) bionic; urgency=high
 
   * Make use of the new advgetopt group name when available.
