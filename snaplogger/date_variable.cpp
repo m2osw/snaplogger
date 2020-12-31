@@ -201,6 +201,16 @@ DEFINE_LOGGER_VARIABLE(time)
         {
             time_format = "%S"; // TBD: people may want %V or %W though...
         }
+        else if(p == "millisecond")
+        {
+            value += std::to_string(timestamp.tv_nsec / 1000000LL);
+            time_format.clear();
+        }
+        else if(p == "microsecond")
+        {
+            value += std::to_string(timestamp.tv_nsec / 1000LL);
+            time_format.clear();
+        }
         else if(p == "nanosecond")
         {
             value += std::to_string(timestamp.tv_nsec);

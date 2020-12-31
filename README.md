@@ -446,6 +446,8 @@ versatile. The following are parameters supported internally:
     ${time:hour=24|12}          hour number; (0 to 23 or 1 to 12)
     ${time:minute}              minute number (0 to 59)
     ${time:second}              second number (0 to 60)
+    ${time:millisecond}         millisecond number (0 to 999)
+    ${time:macrosecond}         macrosecond number (0 to 999999)
     ${time:nanosecond}          nanosecond number (0 to 999999999)
     ${time:unix}                seconds since Jan 1, 1970 (Unix timestamp)
     ${time:meridiem}            AM or PM (right now according to locale...)
@@ -468,21 +470,35 @@ variables as in:
 
     ${time}
 
-The variable name can be followed by a colon and a parameter. Many
-parameters can be assigned a value. We offer three types of parameters.
-Direct parameters which transform what the variable returns. For
-example, the `${time:hour}` outputs the hour of the message timestamp.
-Actual parameters, such as the `align` parameter. This one takes a
-value which is one of those three words: "left", "center", or
-"right". That alignment is held in the formatter until we
-are done or another `align=...` happens. Finally, we have
-the parameters that represent functions. Those further format
-the input data. For example, you can write the PID in your logs.
-You may want to pad the PID with zeroes as in:
+The variable name can be followed by a colon and parameters. Many
+parameters can be assigned a value. We offer three types of parameters:
 
-    ${pid:padding='0':align=right:exact-width=5}
+* Direct parameters which transform what the variable returns. For
+  example, the `${time:hour}` outputs the hour of the message timestamp.
+* Actual parameters, such as the `align` parameter. This one takes a
+  value which is one of those three words: "left", "center", or
+  "right". That alignment is held in the formatter until we
+  are done or another `align=...` happens.
+* Finally, we have the parameters that represent functions. Those further
+  format the input data. For example, you can write the PID in your logs.
+  You may want to pad the PID with zeroes as in:
 
-This way the output of the PID will always look like it is 5 digits.
+        ${pid:padding='0':align=right:exact-width=5}
+
+  This way the output of the PID will always look like it is 5 digits.
+
+To format the `${time:nanosecond}` output and only show the milliseconds
+(i.e. first 3 digits), you can use the following:
+
+    ${time}.${time:nanosecond:padding='0':exact_width=9:align=left:max_width=3}
+
+Note that we now offer the `${time:millisecond}` instead, which makes it faster
+and much easier to use. That being said, you probably still want to align with
+padding:
+
+    ${time}.${time:millisecond:padding='0':exact_width=3}
+
+#### Extending Formats
 
 Formats are extensible. We use the following macro for that purpose:
 
@@ -498,9 +514,9 @@ Parameters make use of the following macro:
         ...the apply() function...
     }
 
-Since you may have parameters of your own, we allow for any parameter to
-be defined with a map of strings. Here is how we save the one character
-for the padding feature;
+Since you may need your own parameter values to last between calls, we allow
+for saving them in a map of strings. Here is how we save the one character
+for the padding feature:
 
     d.set_param(std::string("padding"), pad);
 
@@ -512,7 +528,7 @@ prepending still requires a `set_value()` call:
     d.get_value() += " add at the end";
     d.set_value(padding + d.get_value());
 
-So our format is extremely extensible.
+So the snaplogger message format is extremely extensible.
 
 #### Default Format
 
