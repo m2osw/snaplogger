@@ -1,3 +1,9 @@
+snaplogger (1.0.23.3~bionic) bionic; urgency=high
+
+  * Bump version to recompile against new cppthread
+
+ -- Alexis Wilke <alexis@m2osw.com>  Fri, 15 Jan 2021 20:38:09 -0800
+
 snaplogger (1.0.23.2~bionic) bionic; urgency=high
 
   * Bump version to try with the new working snapcatch2.
