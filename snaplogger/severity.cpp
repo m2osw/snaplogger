@@ -127,6 +127,13 @@ constexpr system_severity g_system_severity[] =
         .f_styles       = nullptr
     },
     {
+        .f_severity     = severity_t::SEVERITY_VERBOSE,
+        .f_name         = "verbose",
+        .f_alias        = "verb",
+        .f_description  = "verbose",
+        .f_styles       = nullptr
+    },
+    {
         .f_severity     = severity_t::SEVERITY_INFORMATION,
         .f_name         = "information",
         .f_alias        = "info",
@@ -213,7 +220,7 @@ constexpr system_severity g_system_severity[] =
     {
         .f_severity     = severity_t::SEVERITY_OFF,
         .f_name         = "off",
-        .f_alias        = nullptr,
+        .f_alias        = "nothing",
         .f_description  = "off",
         .f_styles       = nullptr
     }

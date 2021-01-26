@@ -1,3 +1,9 @@
+snaplogger (1.0.24.0~bionic) bionic; urgency=high
+
+  * Added a VERBOSE severity.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Tue, 26 Jan 2021 08:57:28 -0800
+
 snaplogger (1.0.23.3~bionic) bionic; urgency=high
 
   * Bump version to recompile against new cppthread

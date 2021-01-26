@@ -218,6 +218,7 @@ void send_message(std::basic_ostream<char> & msg);
 #define SNAP_LOG_IMPORTANT          ::snaplogger::send_message((::snaplogger::message(::snaplogger::severity_t::SEVERITY_IMPORTANT,         __FILE__, __func__, __LINE__)
 #define SNAP_LOG_INFO               ::snaplogger::send_message((::snaplogger::message(::snaplogger::severity_t::SEVERITY_INFORMATION,       __FILE__, __func__, __LINE__)
 #define SNAP_LOG_INFORMATION        ::snaplogger::send_message((::snaplogger::message(::snaplogger::severity_t::SEVERITY_INFORMATION,       __FILE__, __func__, __LINE__)
+#define SNAP_LOG_VERBOSE            ::snaplogger::send_message((::snaplogger::message(::snaplogger::severity_t::SEVERITY_VERBOSE,           __FILE__, __func__, __LINE__)
 #define SNAP_LOG_UNIMPORTANT        ::snaplogger::send_message((::snaplogger::message(::snaplogger::severity_t::SEVERITY_UNIMPORTANT,       __FILE__, __func__, __LINE__)
 #define SNAP_LOG_NOTICE             ::snaplogger::send_message((::snaplogger::message(::snaplogger::severity_t::SEVERITY_NOTICE,            __FILE__, __func__, __LINE__)
 #define SNAP_LOG_DEBUG              ::snaplogger::send_message((::snaplogger::message(::snaplogger::severity_t::SEVERITY_DEBUG,             __FILE__, __func__, __LINE__)
