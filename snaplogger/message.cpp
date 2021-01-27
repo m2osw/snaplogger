@@ -174,6 +174,12 @@ severity_t message::get_severity() const
 }
 
 
+void message::set_precise_time()
+{
+    clock_gettime(CLOCK_REALTIME, &f_timestamp);
+}
+
+
 timespec const & message::get_timestamp() const
 {
     return f_timestamp;

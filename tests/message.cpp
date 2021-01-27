@@ -88,7 +88,7 @@ CATCH_TEST_CASE("message_capture", "[message]")
 
         l->add_appender(buffer);
 
-        SNAP_LOG_ERROR << "Logging this error" << SNAP_LOG_SEND;
+        SNAP_LOG_ERROR << snaplogger::precise_time << "Logging this error" << SNAP_LOG_SEND;
         CATCH_REQUIRE(buffer->str() == "error: Logging this error\n");
 
         // test the other str() function too

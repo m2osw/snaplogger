@@ -105,6 +105,7 @@ public:
 
     std::shared_ptr<logger>     get_logger() const;
     severity_t                  get_severity() const;
+    void                        set_precise_time();
     timespec const &            get_timestamp() const;
     std::string const &         get_filename() const;
     std::string const &         get_function() const;
@@ -164,6 +165,19 @@ secure(std::basic_ostream<CharT, Traits> & os)
     else
     {
         m->add_component(g_secure_component);
+    }
+    return os;
+}
+
+
+template<typename CharT, typename Traits>
+inline std::basic_ostream<CharT, Traits> &
+precise_time(std::basic_ostream<CharT, Traits> & os)
+{
+    message * m(dynamic_cast<message *>(&os));
+    if(m == nullptr)
+    {
+        m->set_precise_time();
     }
     return os;
 }
