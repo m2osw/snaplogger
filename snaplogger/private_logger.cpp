@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
  *
  * https://snapwebsites.org/project/snaplogger
  * contact@m2osw.com
@@ -399,6 +399,18 @@ severity::pointer_t private_logger::get_severity(severity_t sev) const
     }
 
     return it->second;
+}
+
+
+severity::pointer_t private_logger::get_default_severity() const
+{
+    return f_default_severity;
+}
+
+
+void private_logger::set_default_severity(severity::pointer_t sev)
+{
+    f_default_severity = sev;
 }
 
 

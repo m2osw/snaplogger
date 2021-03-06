@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
  *
  * https://snapwebsites.org/project/snaplogger
  * contact@m2osw.com
@@ -74,7 +74,7 @@ enum class severity_t
     SEVERITY_FATAL              = 250,
     SEVERITY_OFF                = 255,
 
-    SEVERITY_DEFAULT = SEVERITY_INFORMATION,
+    SEVERITY_DEFAULT = SEVERITY_INFORMATION,        // WARNING: can dynamically be changed using the severity.ini file
     SEVERITY_MIN = SEVERITY_ALL,
     SEVERITY_MAX = SEVERITY_OFF
 };

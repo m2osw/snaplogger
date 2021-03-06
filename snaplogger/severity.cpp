@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
  *
  * https://snapwebsites.org/project/snaplogger
  * contact@m2osw.com
@@ -437,6 +437,15 @@ void auto_add_severities()
             if(config->is_defined(styles_field))
             {
                 sev->set_styles(config->get_string(styles_field));
+            }
+
+            std::string const default_field(section_name + "::default");
+            if(config->is_defined(default_field))
+            {
+                if(advgetopt::is_true(config->get_string(default_field)))
+                {
+                    l->set_default_severity(sev);
+                }
             }
         }
     }

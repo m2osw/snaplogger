@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
  *
  * https://snapwebsites.org/project/snaplogger
  * contact@m2osw.com
@@ -102,6 +102,8 @@ public:
     void                        add_alias(severity::pointer_t sev, std::string const & name);
     severity::pointer_t         get_severity(std::string const & name) const;
     severity::pointer_t         get_severity(severity_t sev) const;
+    severity::pointer_t         get_default_severity() const;
+    void                        set_default_severity(severity::pointer_t sev);
 
     void                        set_diagnostic(std::string const & key, std::string const & diagnostic);
     void                        unset_diagnostic(std::string const & key);
@@ -140,6 +142,7 @@ private:
     environment_map_t           f_environment = environment_map_t();
     severity_by_severity_t      f_severity_by_severity = severity_by_severity_t();
     severity_by_name_t          f_severity_by_name = severity_by_name_t();
+    severity::pointer_t         f_default_severity = severity::pointer_t();
     map_diagnostics_t           f_map_diagnostics = map_diagnostics_t();
     trace_diagnostics_t         f_trace_diagnostics = trace_diagnostics_t();
     size_t                      f_maximum_trace_diagnostics = DIAG_TRACE_SIZE;

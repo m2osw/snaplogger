@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
  *
  * https://snapwebsites.org/project/snaplogger
  * contact@m2osw.com
@@ -83,7 +83,7 @@ private:
     std::string                 f_name = std::string();
     bool                        f_enabled = true;
     format::pointer_t           f_format = format::pointer_t();
-    severity_t                  f_severity = severity_t::SEVERITY_INFORMATION;
+    severity_t                  f_severity = severity_t::SEVERITY_DEFAULT;
     component::pointer_t        f_normal_component = component::pointer_t();
     component::set_t            f_components = component::set_t();
     regex_pointer_t             f_filter = regex_pointer_t();

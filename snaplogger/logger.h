@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
  *
  * https://snapwebsites.org/project/snaplogger
  * contact@m2osw.com
@@ -68,6 +68,8 @@ public:
     void                        set_fatal_severity(severity_t severity_level);
     void                        reduce_severity(severity_t severity_level);
     void                        severity_changed(severity_t severity_level);
+    severity_t                  get_default_severity() const;
+    bool                        set_default_severity(severity_t severity_level);
     void                        add_component_to_include(component::pointer_t comp);
     void                        add_component_to_ignore(component::pointer_t comp);
 

@@ -1,3 +1,16 @@
+snaplogger (1.0.26.0~bionic) bionic; urgency=high
+
+  * Implemented the default severity support.
+  * Use the DEFAULT_SEVERITY in two places, instead of a hard coded default.
+  * Fixed the severity.ini, we need to use `severity=...` not `level=...`.
+  * Added the `verbose` severity to the severity.ini.
+  * Fixed the severity levels of those that were pushed by `verbose`.
+  * Added a SEVERITY.md and README.md in the /usr/share/snaplogger/... folders.
+  * Use advgetopt::is_true() instead of `... == "true"`.
+  * Testing without the `O_NOCTTY` when opening the console.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sat, 06 Mar 2021 14:44:03 -0800
+
 snaplogger (1.0.25.0~bionic) bionic; urgency=high
 
   * Added a precise_time() to get the full clock precision.

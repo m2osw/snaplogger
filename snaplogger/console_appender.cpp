@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
  *
  * https://snapwebsites.org/project/snaplogger
  * contact@m2osw.com
@@ -192,7 +192,7 @@ void console_appender::set_config(advgetopt::getopt const & opts)
     std::string const force_style_field(get_name() + "::force_style");
     if(opts.is_defined(force_style_field))
     {
-        f_force_style = opts.get_string(force_style_field) == "true";
+        f_force_style = advgetopt::is_true(opts.get_string(force_style_field));
     }
 
     // LOCK
@@ -200,7 +200,7 @@ void console_appender::set_config(advgetopt::getopt const & opts)
     std::string const lock_field(get_name() + "::lock");
     if(opts.is_defined(lock_field))
     {
-        f_lock = opts.get_string(lock_field) == "true";
+        f_lock = advgetopt::is_true(opts.get_string(lock_field));
     }
 
     // FLUSH
@@ -208,7 +208,7 @@ void console_appender::set_config(advgetopt::getopt const & opts)
     std::string const flush_field(get_name() + "::flush");
     if(opts.is_defined(flush_field))
     {
-        f_flush = opts.get_string(flush_field) == "true";
+        f_flush = advgetopt::is_true(opts.get_string(flush_field));
     }
 
     // OUTPUT
@@ -239,7 +239,7 @@ void console_appender::process_message(message const & msg, std::string const & 
         }
         else if(f_output == "console")
         {
-            f_console.reset(open("/dev/console", O_WRONLY | O_APPEND | O_CLOEXEC | O_NOCTTY));
+            f_console.reset(open("/dev/console", O_WRONLY | O_APPEND | O_CLOEXEC));// | O_NOCTTY));
             f_fd = f_console.get();
         }
 

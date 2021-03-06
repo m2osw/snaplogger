@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
  *
  * https://snapwebsites.org/project/snaplogger
  * contact@m2osw.com
@@ -448,6 +448,35 @@ void logger::severity_changed(severity_t severity_level)
         auto const min(std::min_element(f_appenders.begin(), f_appenders.end()));
         f_lowest_severity = (*min)->get_severity();
     }
+}
+
+
+severity_t logger::get_default_severity() const
+{
+    private_logger const * l(dynamic_cast<private_logger const *>(this));
+    severity::pointer_t sev(l->get_default_severity());
+    return sev == nullptr ? severity_t::SEVERITY_DEFAULT : sev->get_severity();
+}
+
+
+bool logger::set_default_severity(severity_t severity_level)
+{
+    private_logger * l(dynamic_cast<private_logger *>(this));
+    if(severity_level == severity_t::SEVERITY_ALL)
+    {
+        // reset to default
+        l->set_default_severity(severity::pointer_t());
+    }
+    else
+    {
+        severity::pointer_t sev(l->get_severity(severity_level));
+        if(sev == nullptr)
+        {
+            return false;
+        }
+        l->set_default_severity(sev);
+    }
+    return true;
 }
 
 

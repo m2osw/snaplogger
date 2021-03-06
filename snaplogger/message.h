@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019  Made to Order Software Corp.  All Rights Reserved
+ * Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
  *
  * https://snapwebsites.org/project/snaplogger
  * contact@m2osw.com
@@ -85,7 +85,7 @@ public:
     typedef std::map<std::string, std::string>  field_map_t;
 
                                 message(
-                                          severity_t sev = severity_t::SEVERITY_INFORMATION
+                                          severity_t sev = default_severity()
                                         , char const * file = nullptr
                                         , char const * func = nullptr
                                         , int line = -1);
@@ -94,6 +94,8 @@ public:
     virtual                     ~message();
 
     message &                   operator = (message const & rhs) = delete;
+
+    static severity_t           default_severity();
 
     void                        set_severity(severity_t severity);
     void                        set_filename(std::string const & filename);
@@ -237,6 +239,8 @@ void send_message(std::basic_ostream<char> & msg);
 #define SNAP_LOG_NOTICE             ::snaplogger::send_message((::snaplogger::message(::snaplogger::severity_t::SEVERITY_NOTICE,            __FILE__, __func__, __LINE__)
 #define SNAP_LOG_DEBUG              ::snaplogger::send_message((::snaplogger::message(::snaplogger::severity_t::SEVERITY_DEBUG,             __FILE__, __func__, __LINE__)
 #define SNAP_LOG_TRACE              ::snaplogger::send_message((::snaplogger::message(::snaplogger::severity_t::SEVERITY_TRACE,             __FILE__, __func__, __LINE__)
+
+#define SNAP_LOG_DEFAULT            ::snaplogger::send_message((::snaplogger::message(::snaplogger::message::default_severity(),            __FILE__, __func__, __LINE__)
 
 #define SNAP_LOG_FIELD(name, value) ::snaplogger::field((name), (value))
 
