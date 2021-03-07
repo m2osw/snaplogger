@@ -1,3 +1,10 @@
+snaplogger (1.0.27.0~bionic) bionic; urgency=high
+
+  * Fixed the search of the console styles, it was reversed.
+  * Restore the `O_NOCTTY` on the console `open()` call.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sat, 06 Mar 2021 21:10:45 -0800
+
 snaplogger (1.0.26.0~bionic) bionic; urgency=high
 
   * Implemented the default severity support.

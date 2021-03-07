@@ -239,7 +239,7 @@ void console_appender::process_message(message const & msg, std::string const & 
         }
         else if(f_output == "console")
         {
-            f_console.reset(open("/dev/console", O_WRONLY | O_APPEND | O_CLOEXEC));// | O_NOCTTY));
+            f_console.reset(open("/dev/console", O_WRONLY | O_APPEND | O_CLOEXEC | O_NOCTTY));
             f_fd = f_console.get();
         }
 
@@ -286,11 +286,11 @@ void console_appender::process_message(message const & msg, std::string const & 
                         }
                         if(r < 0)
                         {
-                            i = p + 1;
+                            j = p;
                         }
                         else // if(r > 0)
                         {
-                            j = p;
+                            i = p + 1;
                         }
                     }
                 }
@@ -305,7 +305,6 @@ void console_appender::process_message(message const & msg, std::string const & 
             }
         }
     }
-
 
     ssize_t const l1(write(f_fd, style.c_str(), style.length()));
     if(static_cast<size_t>(l1) == style.length())
