@@ -31,6 +31,11 @@
 #include    "snaplogger/format.h"
 
 
+// advgetopt lib
+//
+#include    <advgetopt/advgetopt.h>
+
+
 // C++ lib
 //
 #include    <regex>

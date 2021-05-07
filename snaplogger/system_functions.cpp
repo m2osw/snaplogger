@@ -63,8 +63,14 @@
 #include    <libutf8/libutf8.h>
 
 
+// snapdev lib
+//
+#include    <snapdev/not_used.h>
+
+
 // C++ lib
 //
+#include    <algorithm>
 #include    <iostream>
 #include    <queue>
 

@@ -36,11 +36,6 @@
 #include    "snaplogger/severity.h"
 
 
-// advgetopt lib
-//
-#include    <advgetopt/advgetopt.h>
-
-
 // C++ lib
 //
 #include    <sstream>
