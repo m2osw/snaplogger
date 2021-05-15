@@ -1,3 +1,9 @@
+snaplogger (1.0.28.1~bionic) bionic; urgency=high
+
+  * Bumped version to recompiler against new versions.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sat, 15 May 2021 11:06:30 -0700
+
 snaplogger (1.0.28.0~bionic) bionic; urgency=high
 
   * Removed a #include from a header that did not require it.
