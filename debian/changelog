@@ -1,3 +1,9 @@
+snaplogger (1.0.29.0~bionic) bionic; urgency=high
+
+  * Moved user configuration under "~/.config/<project>/logger".
+
+ -- Alexis Wilke <alexis@m2osw.com>  Mon, 17 May 2021 08:53:09 -0700
+
 snaplogger (1.0.28.1~bionic) bionic; urgency=high
 
   * Bumped version to recompiler against new versions.

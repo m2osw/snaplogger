@@ -252,6 +252,7 @@ bool process_logger_options(advgetopt::getopt & opts
 
             std::string user_config("~/.config/");
             user_config += opts.get_project_name();
+            user_config += "/logger";
             char const * config_dirs[] =
             {
                   "/usr/share/snaplogger/etc"
