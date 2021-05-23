@@ -47,7 +47,7 @@ class file_appender
 public:
     typedef std::shared_ptr<file_appender>      pointer_t;
 
-                        file_appender(std::string const name);
+                        file_appender(std::string const & name);
     virtual             ~file_appender() override;
 
     virtual void        set_config(advgetopt::getopt const & params) override;

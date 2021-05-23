@@ -73,7 +73,7 @@ APPENDER_FACTORY(file);
 
 
 
-file_appender::file_appender(std::string const name)
+file_appender::file_appender(std::string const & name)
     : appender(name, "file")
 {
 }
@@ -86,6 +86,8 @@ file_appender::~file_appender()
 
 void file_appender::set_config(advgetopt::getopt const & opts)
 {
+    guard g;
+
     appender::set_config(opts);
 
     // PATH
@@ -155,6 +157,8 @@ void file_appender::reopen()
 
 void file_appender::set_filename(std::string const & filename)
 {
+    guard g;
+
     if(f_filename != filename)
     {
         f_filename = filename;
