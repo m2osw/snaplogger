@@ -1,3 +1,9 @@
+snaplogger (1.0.31.0~bionic) bionic; urgency=high
+
+  * Fixed the message copy constructor. A field was missing.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sun, 23 May 2021 20:26:27 -0700
+
 snaplogger (1.0.30.0~bionic) bionic; urgency=high
 
   * Changed the file_appeneder() constructor signature to a reference.
