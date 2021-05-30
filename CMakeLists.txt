@@ -1,4 +1,3 @@
-#
 # Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
 #
 # https://snapwebsites.org/project/snaplogger
@@ -14,23 +13,25 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 cmake_minimum_required(VERSION 2.8.4)
 
 project(snaplogger_library)
 
-find_package(SnapCMakeModules REQUIRED)
-find_package(AdvGetOpt        REQUIRED)
-find_package(CppThread        REQUIRED)
-find_package(LibExcept        REQUIRED)
-find_package(LibUtf8          REQUIRED)
-find_package(SnapDev          REQUIRED)
-find_package(SnapDoxygen              )
+message("CMAKE_MODULE_PATH is ${CMAKE_MODULE_PATH}")
+
+find_package(SnapCMakeModules  REQUIRED)
+find_package(AdvGetOpt         REQUIRED)
+find_package(Boost             REQUIRED COMPONENTS locale )
+find_package(CppThread         REQUIRED)
+find_package(LibExcept         REQUIRED)
+find_package(LibUtf8           REQUIRED)
+find_package(SnapDev           REQUIRED)
+find_package(SnapDoxygen       REQUIRED)
 
 SnapGetVersion(SNAPLOGGER ${CMAKE_CURRENT_SOURCE_DIR})
 

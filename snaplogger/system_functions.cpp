@@ -405,6 +405,10 @@ DECLARE_FUNCTION(caps)
         }
         else
         {
+            // TODO: make use of boost::locale::to_upper(d); so we benefit
+            //       from the current locale (or something close--how do
+            //       you handle multi-chars in this case?!?)
+            //
             if(first)
             {
                 r += std::towupper(wc);
@@ -424,6 +428,9 @@ DECLARE_FUNCTION(lower)
     snap::NOTUSED(msg);
     snap::NOTUSED(p);
 
+    // TODO: make use of boost::locale::to_upper(d); so we benefit from the
+    //       current locale
+    //
     std::transform(d.get_value().begin(), d.get_value().end(), d.get_value().begin(), std::towlower);
 }
 
@@ -432,6 +439,9 @@ DECLARE_FUNCTION(upper)
     snap::NOTUSED(msg);
     snap::NOTUSED(p);
 
+    // TODO: make use of boost::locale::to_upper(d); so we benefit from the
+    //       current locale
+    //
     std::transform(d.get_value().begin(), d.get_value().end(), d.get_value().begin(), std::towupper);
 }
 

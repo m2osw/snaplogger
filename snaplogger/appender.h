@@ -34,6 +34,7 @@
 // advgetopt lib
 //
 #include    <advgetopt/advgetopt.h>
+#include    <advgetopt/utils.h>
 
 
 // C++ lib
@@ -92,6 +93,8 @@ private:
     component::pointer_t        f_normal_component = component::pointer_t();
     component::set_t            f_components = component::set_t();
     regex_pointer_t             f_filter = regex_pointer_t();
+    advgetopt::string_list_t    f_last_messages = {};
+    std::size_t                 f_last_message_index = 0;
 };
 
 

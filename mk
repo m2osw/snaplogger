@@ -1,41 +1,134 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Sample script to run make without having to retype the long path each time
 # This will work if you built the environment using our ~/bin/build-snap script
 
+FULL_VERSION=`dpkg-parsechangelog --show-field Version | sed -e 's/~.*//' -e 's/\(^[0-9]\+\.[0-9]\+\.[0-9]\+.[0-9]\+\).*/\1/'`
+DOC_VERSION=`echo ${FULL_VERSION} | sed -e 's/\(^[0-9]\+\.[0-9]\+\).*/\1/'`
+SOURCE=`pwd`
+PROJECT=`basename ${SOURCE}`
 PROCESSORS=`nproc`
-PROJECT_DIR=../../BUILD/Debug/contrib/snaplogger
+PARENTDIR=`dirname ${SOURCE}`
+PARENTNAME=`basename ${PARENDIR}`
+if test "${PARENTNAME}" = "contrib"
+then
+	CONTRIBDIR=""
+	BUILD="../BUILD"
+else
+	CONTRIBDIR="contrib/"
+	BUILD="../../BUILD"
+fi
+TYPE="Debug"
+TARGET=
+LESS=false
+DOCS=false
+TEST=false
 
-case $1 in
-"-l")
-	make -C ${PROJECT_DIR} 2>&1 | less -SR
-	;;
+while test -n "${1}"
+do
+	case ${1} in
+	"-d"|"--documentation")
+		shift
+		DOCS=true
+		;;
 
-"-d")
-	rm -rf ${PROJECT_DIR}/doc/snaplogger-doc-1.0.tar.gz
-	make -C ${PROJECT_DIR}
-	;;
+	"-b"|"--debug")
+		shift
+		TYPE="Debug"
+		;;
+		
+	"-h"|"--help")
+		echo "Usage: ${0} [-opts]"
+		echo "where -opts are:"
+		echo "  -d | --documentation   Delete the documentation so it gets rebuilt."
+		echo "  -b | --debug           Build the Debug version."
+		echo "  -h | --help            Print out this help screen."
+		echo "  -i | --install         Install once built."
+		echo "  -l | --less            Force output through less."
+		echo "  -p | --processors      Change the number of processors."
+		echo "  -r | --release         Build the Release version."
+		echo "  -s | --sanitize        Build the Sanitized version."
+		echo "  -t | --test            Build and then run the tests."
+		;;
 
-"-i")
-	make -j${PROCESSORS} -C ${PROJECT_DIR} install
-	;;
+	"-i"|"--install")
+		shift
+		TARGET=install
+		;;
 
-"-t")
-	(
-		if make -j${PROCESSORS} -C ${PROJECT_DIR}
-		then
+	"-l"|"--less")
+		shift
+		LESS=true
+		;;
+
+	"-p"|"--processors")
+		shift
+		PROCESSORS="${1}"
+		shift
+		;;
+
+	"-r"|"--release")
+		shift
+		TYPE="Release"
+		;;
+
+	"-s"|"--sanitize")
+		shift
+		TYPE="Sanitize"
+		;;
+
+	"-t"|"--test")
+		shift
+		TEST=true
+		while [[ "${1}" != "-"* ]]
+		do
+			TESTS="${TESTS} ${1}"
 			shift
-			${PROJECT_DIR}/tests/unittest --progress $*
+		done
+		;;
+
+	*)
+		echo "error: unknown command line option \"${1}\"."
+		exit 1
+		;;
+
+	esac
+done
+
+
+OUTPUT="${BUILD}/${TYPE}/${CONTRIBDIR}${PROJECT}"
+
+
+if ${DOCS}
+then
+	rm -rf ${OUTPUT}/doc/${PROJECT}-doc-${DOC_VERSION}.tar.gz
+fi
+
+if ${LESS}
+then
+	make -j${PROCESSORS} -C ${OUTPUT} ${TARGET} 2>&1 | less -SR
+	RESULT=${?}
+else
+	make -j${PROCESSORS} -C ${OUTPUT} ${TARGET}
+	RESULT=${?}
+fi
+
+if [[ ${RESULT} = 0 ]]
+then
+	if ${TEST}
+	then
+		if ${LESS}
+		then
+			${OUTPUT}/tests/unittest --progress ${TESTS} 2>&1 | less -SR
+		else
+			${OUTPUT}/tests/unittest --progress ${TESTS}
 		fi
-	) 2>&1 | less -SR
-	;;
+	else
+		echo
+		echo "Success."
+	fi
+else
+	echo
+	echo "Build failed."
+fi
 
-"")
-	make -j${PROCESSORS} -C ${PROJECT_DIR}
-	;;
-
-*)
-	echo "error: unknown command line option \"$1\""
-	;;
-
-esac

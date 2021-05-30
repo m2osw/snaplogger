@@ -151,10 +151,29 @@ void message::set_recursive_message(bool state) const
 }
 
 
+bool message::can_add_component(component::pointer_t c) const
+{
+    if(c != nullptr)
+    {
+        return !c->is_mutually_exclusive(f_components);
+    }
+
+    return false;
+}
+
+
 void message::add_component(component::pointer_t c)
 {
     if(c != nullptr)
     {
+        if(!can_add_component(c))
+        {
+            throw duplicate_error(
+                  "component \""
+                + c->get_name()
+                + "\" cannot be added to this message as it is mutually exclusive with one or more of the other components that were added to this message.");
+        }
+
         f_components.insert(c);
     }
 }
@@ -214,6 +233,12 @@ int message::get_line() const
 bool message::get_recursive_message() const
 {
     return f_recursive_message;
+}
+
+
+bool message::has_component(component::pointer_t c) const
+{
+    return f_components.find(c) != f_components.end();
 }
 
 

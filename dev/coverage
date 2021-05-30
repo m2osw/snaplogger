@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 #
 # Run all the snaplogger tests with coverage
 #
@@ -17,12 +17,10 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
-
-set -e
 
 if test "$1" = "--help" -o "$1" = "-h"
 then
@@ -51,10 +49,12 @@ cd tmp/coverage
 mkdir BUILD
 cd BUILD
 # request coverage in this build
-dist=`cd ../../../../../../; pwd`/BUILD/dist
-modules=$dist/share/cmake-3.5/Modules
+dist=`cd ../../../../../BUILD/Debug/dist; pwd`
+echo "distribition folder is: ${dist}"
+modules=$dist/share/cmake
 cmake -DCMAKE_INSTALL_PREFIX:PATH=$dist \
-    -DCMAKE_MODULE_PATH:PATH=$modules \
+    -DCMAKE_PREFIX_PATH=$dist \
+    -DCMAKE_MODULE_PATH=$modules \
     -DCMAKE_BUILD_TYPE=Debug \
     -Dsnaplogger_library_COVERAGE:BOOL=ON \
     ../../..
@@ -142,6 +142,9 @@ then
 
     # Copy coverage and statistics HTML results
     cp -r html/* ${PUBLISH_DIR}/snaplogger/snaplogger-$VERSION/.
+
+    echo "HTML installed under ${PUBLISH_DIR}/snaplogger/snaplogger-$VERSION/."
+    echo "with URL being http://lcov.snapwebsites.org/snaplogger/snaplogger-$VERSION"
 fi
 
 echo "Process started  on $start_date"

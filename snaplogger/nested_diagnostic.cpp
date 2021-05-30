@@ -53,7 +53,11 @@ nested_diagnostic::nested_diagnostic(std::string const & diagnostic, bool emit_e
 
     if(f_emit_enter_exit_events)
     {
-        SNAP_LOG_UNIMPORTANT << "entering nested diagnostic" << SNAP_LOG_SEND;
+        SNAP_LOG_UNIMPORTANT
+            << section(g_normal_component)
+            << section(g_self_component)
+            << "entering nested diagnostic"
+            << SNAP_LOG_SEND;
     }
 }
 
@@ -62,7 +66,11 @@ nested_diagnostic::~nested_diagnostic()
 {
     if(f_emit_enter_exit_events)
     {
-        SNAP_LOG_UNIMPORTANT << "exiting nested diagnostic" << SNAP_LOG_SEND;
+        SNAP_LOG_UNIMPORTANT
+            << section(g_normal_component)
+            << section(g_self_component)
+            << "exiting nested diagnostic"
+            << SNAP_LOG_SEND;
     }
 
     get_private_logger()->pop_nested_diagnostic();

@@ -45,6 +45,7 @@ if( Catch2_FOUND )
 
         appender.cpp
         asynchronous.cpp
+        component.cpp
         diagnostic.cpp
         message.cpp
         severity.cpp

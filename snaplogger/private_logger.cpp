@@ -1,23 +1,21 @@
-/*
- * Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
- *
- * https://snapwebsites.org/project/snaplogger
- * contact@m2osw.com
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
+// Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
+//
+// https://snapwebsites.org/project/snaplogger
+// contact@m2osw.com
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 /** \file
  * \brief Appenders are used to append data to somewhere.
@@ -87,6 +85,12 @@ void getopt_logs(cppthread::log_level_t l, std::string const & m)
     }
 
     message msg(sev, __FILE__, __func__, __LINE__);
+
+    // we do not use the g_... names in case they were not yet allocated
+    //
+    msg.add_component(get_component(COMPONENT_NORMAL));
+    msg.add_component(get_component(COMPONENT_CPPTHREAD));
+
     msg << m;
 
     // this call cannot create a loop, if the creation of the logger
@@ -154,6 +158,8 @@ private:
 
 private_logger::private_logger()
 {
+    // if a call arrives really early, this is defined in the logger
+    //
     f_normal_component = get_component(COMPONENT_NORMAL);
 
     cppthread::set_log_callback(getopt_logs);
@@ -208,20 +214,89 @@ appender::pointer_t private_logger::create_appender(std::string const & type, st
 }
 
 
+/** \brief Get a component by name.
+ *
+ * All components are stored in the f_components set managed by the
+ * private_logger object instance. This way each component is unique.
+ *
+ * This function searches the list of existing components. If one with
+ * the same name already exists, then that one is picked and returned.
+ * If it doesn't exist yet, then a new component is created and that
+ * new component's pointer is saved in the f_components list and
+ * returned.
+ *
+ * The name of the components must be composed of letters (a-z),
+ * underscores (_), and digits (0-9). Any other character is considered
+ * invalid. The function will force uppercase characters (A-Z) to lowercase
+ * and dashes (-) to underscores (_). Finally, a component name can't start
+ * with a digit (0-9).
+ *
+ * \exception invalid_parameter
+ * This function raises an invalid_parameter exception when it find an
+ * invalid character in the input name.
+ *
+ * \param[in] name  The name of the component to retrieve.
+ *
+ * \return The pointer to the component named \p name.
+ */
 component::pointer_t private_logger::get_component(std::string const & name)
 {
     guard g;
 
-    auto it(f_components.find(name));
+    std::string n;
+    n.reserve(name.length());
+    for(char const * s(name.c_str()); *s != '\0'; ++s)
+    {
+        if(*s >= 'a' && *s <= 'z')
+        {
+            n += *s;
+        }
+        else if(*s >= 'A' && *s <= 'Z')
+        {
+            // force to lowercase
+            //
+            n += *s | 0x20;
+        }
+        else if(*s == '-' || *s == '_')
+        {
+            n += '_';
+        }
+        else if(*s >= '0' && *s <= '9')
+        {
+            if(n.empty())
+            {
+                throw invalid_parameter(
+                          "a component name cannot start with a digits ("
+                        + name
+                        + ")");
+            }
+            n += *s;
+        }
+        else
+        {
+            throw invalid_parameter(
+                      "a component name cannot include a '"
+                    + *s
+                    + ("' character ("
+                    + name
+                    + ")"));
+        }
+    }
+
+    auto it(f_components.find(n));
     if(it != f_components.end())
     {
         return it->second;
     }
 
-    auto comp(std::make_shared<component>(name));
-    f_components[name] = comp;
+    // the component constructor is only accessible to the private_logger
+    // so we can't do a make_shared<>()
+    //
+    //auto comp(std::make_shared<component>(n));
 
-    return comp;
+    f_components[n].reset(new component(n));
+
+    return f_components[n];
 }
 
 

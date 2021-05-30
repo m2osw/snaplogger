@@ -367,6 +367,33 @@ void appender::set_config(advgetopt::getopt const & opts)
             f_filter = std::make_shared<std::regex>(filter, flags | type);
         }
     }
+
+    // REPEAT
+    //
+    {
+        long no_repeat_size(0);
+        std::string const no_repeat(f_name + "::no-repeat");
+        if(opts.is_defined(no_repeat))
+        {
+            no_repeat_size = opts.get_long(no_repeat, 0, 0, 100);
+        }
+        else if(opts.is_defined("no-repeat"))
+        {
+            no_repeat_size = opts.get_long("no-repeat", 0, 0, 100);
+        }
+
+        if(no_repeat_size > 0)
+        {
+            if(no_repeat_size > 100)
+            {
+                // for now the top limit is 100 messages; much more and the
+                // search would start to be slow
+                //
+                no_repeat_size = 100;
+            }
+            f_last_messages.resize(no_repeat_size);
+        }
+    }
 }
 
 
@@ -437,6 +464,28 @@ void appender::send_message(message const & msg)
         // TODO: add support to define line terminator (cr, nl, cr nl)
         //
         formatted_message += '\n';
+    }
+
+    if(!f_last_messages.empty())
+    {
+        if(std::find(f_last_messages.begin(), f_last_messages.end(), formatted_message) != f_last_messages.end())
+        {
+            // completely ignore repeated messages
+            //
+            // TODO: look into a way to count said messages and print out
+            //       the total number or something of the sort...
+            //       (maybe we store those messages in a buffer and once
+            //       we are to replace a message, that's when we forward
+            //       it and that can include the count?)
+            //
+            return;
+        }
+        if(f_last_message_index >= f_last_messages.size())
+        {
+            f_last_message_index = 0;
+        }
+        f_last_messages[f_last_message_index] = formatted_message;
+        ++f_last_message_index;
     }
 
     process_message(msg, formatted_message);

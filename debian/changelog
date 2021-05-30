@@ -1,6 +1,18 @@
 snaplogger (1.0.31.0~bionic) bionic; urgency=high
 
   * Fixed the message copy constructor. A field was missing.
+  * Allow for removal of the components to include & ignore in the logger.
+  * Added support for exclusive components (component A OR B, not A AND B).
+  * Added a filter on repeated messages.
+  * Added Boost as a dependency (including "locale" although we're not yet
+    using that library, but it would be necessary for the upper/lowercase).
+  * Better document the Components feature.
+  * Made the component constructor only accessible to the private_logger.
+  * Added new system components (self, cppthread)
+  * Enforce component name to be lowercase & only include [A-Z0-9_]+.
+  * Added a test to verify various aspects of the components.
+  * Updated the mk script with the modern version.
+  * Fixed the coverage script so it works in the new BUILD environment.
 
  -- Alexis Wilke <alexis@m2osw.com>  Sun, 23 May 2021 20:26:27 -0700
 

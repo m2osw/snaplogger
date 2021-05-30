@@ -1,6 +1,6 @@
 Source: snaplogger
 Priority: extra
-Maintainer: R. Douglas Barbieri <doug@dooglio.net>
+Maintainer: Alexis Wilke <alexis@m2osw.com>
 Build-Depends: cmake,
     cppthread-dev (>= 1.0.0.0~bionic),
     debhelper,
@@ -8,6 +8,7 @@ Build-Depends: cmake,
     graphviz,
     libadvgetopt-dev (>= 2.0.4.0~bionic),
     libboost-dev,
+    libboost-locale-dev,
     libexcept-dev (>= 1.1.4.0~bionic),
     libutf8-dev (>= 1.0.6.0~bionic),
     snapcatch2 (>= 2.9.1.0~bionic),

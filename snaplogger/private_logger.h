@@ -66,7 +66,6 @@ class asynchronous_logger;
 typedef cppthread::fifo<message::pointer_t>                 message_fifo_t;
 
 typedef std::map<std::string, appender_factory::pointer_t>  appender_factory_t;
-typedef std::map<std::string, component::pointer_t>         component_map_t;
 typedef std::map<pid_t, environment::pointer_t>             environment_map_t;
 typedef std::map<std::string, function::pointer_t>          function_map_t;
 typedef std::map<std::string, variable_factory::pointer_t>  variable_factory_map_t;
@@ -137,7 +136,7 @@ private:
     private_logger &            operator = (private_logger const & rhs) = delete;
 
     appender_factory_t          f_appender_factories = appender_factory_t();
-    component_map_t             f_components = component_map_t();
+    component::map_t            f_components = component::map_t();
     format::pointer_t           f_default_format = format::pointer_t();
     environment_map_t           f_environment = environment_map_t();
     severity_by_severity_t      f_severity_by_severity = severity_by_severity_t();

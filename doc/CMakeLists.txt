@@ -28,7 +28,7 @@
 ##
 ## Documentation
 ##
-AddDoxygenTarget( snaplogger
+AddDoxygenTarget(snaplogger
     ${SNAPLOGGER_VERSION_MAJOR}
     ${SNAPLOGGER_VERSION_MINOR}
     ${SNAPLOGGER_VERSION_PATCH}

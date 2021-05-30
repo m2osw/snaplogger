@@ -105,7 +105,7 @@ The following are the main features of this logger:
     section. When you send a log, you can use an expression such as:
 
         SNAP_LOG_INFO
-            << snaplogger::section(snaplogger::secure_component)
+            << snaplogger::section(snaplogger::g_secure_component)
             << "My Message Here"
             << SNAP_LOG_END;
 
@@ -120,13 +120,47 @@ The following are the main features of this logger:
             << "My Secure Message"
             << SNAP_LOG_END_SECURELY;
 
-    Also we have a special modifier you can use like this:
+    Finally, for the "secure" component, we have a special modifier you can
+    use like this:
 
         SNAP_LOG_INFO
             << snaplogger::secure
+            << "This is a secure message"
             << SNAP_LOG_END;
 
-    This gives you examples on how to implement your own flags.
+    This gives you examples on how to implement your own components.
+
+    You can also make components mutually exclusive. For example, we do
+    not allow you to add the "normal" and "secure" components to the same
+    message. The network components (see the eventdispatcher project) also
+    include "local"/"remote" and "tcp"/"udp" pairs, which can't be used
+    simultaneously.
+
+    You can also create your own components using one of the
+    `snaplogger::get_component()` functions.
+
+    **WARNING:** When adding any one component, the default ("normal")
+    component will not automatically be added. If you want that component
+    to be included, you have to do it explicitely:
+
+        SNAP_LOG_INFO
+            << snaplogger::get_component("electric-fence")
+            << "My message here"
+            << SNAP_LOG_END;
+
+    In this case, the only component added to the message is "electric-fence".
+    If you also want to have the "normal" component, make sure to include
+    it in the list:
+
+        SNAP_LOG_INFO
+            << snaplogger::section(snaplogger::get_component("electric-fence"))
+            << snaplogger::section(snaplogged::g_normal_component)
+            << "My message here"
+            << SNAP_LOG_END;
+
+    **Note:** You should allocate your components once and then reuse their
+    pointers for efficiency. Calling the get_component() function each time
+    is slow.
 
 * Regex Filtering
 
@@ -203,9 +237,11 @@ The configuration has some global settings and then a list of appenders.
 An appender is a name and then a set of parameters:
 
 * Type
-* Level
+* Severity
 * Component
+* Filter
 * Format
+* No-Repeat
 
 These are described below.
 
@@ -328,13 +364,25 @@ arguments, etc.)
 Each entry can be segregated in a specific component. This gives your
 application the ability to send the log to a specific component.
 
-In Snap!, we make use of the `NORMAL` and `SECURE` components. The `SECURE`
+    [emergency]
+    components=hardware,heat,vibration,radiation
+
+In Snap!, we make use of the `normal` and `secure` components. The `secure`
 logs are better protected (more constrained `chmod`, sub-folder, etc.)
-than the `NORMAL` component.
+than the logs sent via the `normal` component. These two components are
+already defined in the logger along a third one: `debug`.
 
-Others can be added.
+The eventdispatcher defines a snaplogger network extension (to efficiently
+send the logs over the network) which defines five new components:
+`daemon` (the daemon generated that log), `remote` (that log comes from
+another computer), `local` (that log comes from a local process), `tcp`
+(that log was received via the TCP connection), and `udp` (that log
+was received via the UDP connection).
 
-Technically, when no component is specified in a log, `NORMAL` is assumed.
+Others can be added. Internally, the name is forced to lowercase. So `Normal`
+is the same as `normal`.
+
+Technically, when no component is specified in a log, `normal` is assumed.
 Otherwise, the appender must include that component or it will be ignored.
 (i.e. that log will not make it to that appender if none of its components
 match the ones in the log being processed.)
@@ -548,6 +596,26 @@ To support the JSON format you need to be careful with double quotes.
 They need to be escaped.
 
     {"date":"${date}",
+
+### No Repeat
+
+The library has the ability to avoid sending the last few messages more
+than once. The setting defines the number of messages that are kept by
+the appenders and that will not be repeated.
+
+    [file]
+    no_repeat=5
+
+This parameter is defined in appenders because that way the formatting
+was already applied and we don't compare the string format but really
+the final message before sending it for final processing (i.e. write to
+console or disk).
+
+The parameter is currently limited to 100. So any one of up to the last
+100 messages will be dropped if repeated.
+
+By default the parameter is set to 0 meaning that the "no-repeat" feature
+is not active (all messages can be repeated).
 
 
 ## Diagnostic Features

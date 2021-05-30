@@ -97,6 +97,7 @@ public:
     void                        set_function(std::string const & funcname);
     void                        set_line(int line);
     void                        set_recursive_message(bool state) const;
+    bool                        can_add_component(component::pointer_t c) const;
     void                        add_component(component::pointer_t c);
     void                        add_field(std::string const & name, std::string const & value);
 
@@ -108,6 +109,7 @@ public:
     std::string const &         get_function() const;
     int                         get_line() const;
     bool                        get_recursive_message() const;
+    bool                        has_component(component::pointer_t c) const;
     component::set_t const &    get_components() const;
     environment::pointer_t      get_environment() const;
     std::string                 get_message() const;

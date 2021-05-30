@@ -59,6 +59,7 @@ add_library(${PROJECT_NAME} SHARED
 
 include_directories(
     ${ADVGETOPT_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
     ${CPPTHREAD_INCLUDE_DIRS}
     ${LIBEXCEPT_INCLUDE_DIRS}
     ${LIBUFTF8_INCLUDE_DIRS}
@@ -66,6 +67,7 @@ include_directories(
 
 target_link_libraries(${PROJECT_NAME}
     ${ADVGETOPT_LIBRARIES}
+    ${Boost_LIBRARIES}
     ${CPPTHREAD_LIBRARIES}
     ${LIBEXCEPT_LIBRARIES}
     ${LIBUFTF8_LIBRARIES}
