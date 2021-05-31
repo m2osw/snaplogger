@@ -546,6 +546,49 @@ padding:
 
     ${time}.${time:millisecond:padding='0':exact_width=3}
 
+#### Fields
+
+The messages can be assigned fields which are viewed as user defined
+variables. These can be output in the format with the `${field:...}`
+and `${fields:...}` formatting entries.
+
+Messages are automatically assigned a unique identifier named `"id"`.
+This field can be output like so:
+
+    ${field:name=id}
+
+It is customary to include the identifier either at the beginning or
+the end of your messages. By default, though, it is not output.
+
+To better support JSON formatting, we also offer a way to output
+all the fields in a list like so:
+
+    ${fields:format=json:json=object}
+
+The JSON format supports three objects `json=start-comma`,
+`json=end-comma`, and `json=object`. The `start-comma` option means
+that if any field is output, then a comma is added before the first
+value. `end-comma` means that a comma gets added at the end, no matter
+what. `object` means that the values are defined within `{...}`. This
+gives you the ability to add these fields after or before your own
+fields. Here is an example using the `object` feature:
+
+    {"id":"123","color":"blue"}
+
+We also offer a Shell format:
+
+    ${fields:format=shell}
+
+This option means the fields are about as a list of Shell variables:
+
+    id=123
+    material=cheese
+    ...
+
+**WARNING:** All fields are ignored when comparing two messages to know
+whether they repeat. This makes for a slightly faster test and allows us
+to have the `"id"` field which change each time a message is created.
+
 #### Extending Formats
 
 Formats are extensible. We use the following macro for that purpose:
@@ -609,13 +652,29 @@ the appenders and that will not be repeated.
 This parameter is defined in appenders because that way the formatting
 was already applied and we don't compare the string format but really
 the final message before sending it for final processing (i.e. write to
-console or disk).
+console or disk). That being said, we still ignore all date related
+formats for this test.
 
-The parameter is currently limited to 100. So any one of up to the last
-100 messages will be dropped if repeated.
+The parameter is currently limited to `NO_REPEAT_MAXIMUM` (100 at time
+of writing). So any one of up to the last `NO_REPEAT_MAXIMUM` messages
+will be dropped if repeated. To set the parameter to the maximum whatever
+it currently is, you can use the following:
 
-By default the parameter is set to 0 meaning that the "no-repeat" feature
-is not active (all messages can be repeated).
+    no_repeat=maximum
+      -- or --
+    no_repeat=max
+
+By default the parameter is set to `off` (0) meaning that the `no-repeat`
+feature is not active (all messages can be repeated).
+
+    no_repeat=off
+      -- or --
+    no_repeat=0
+
+There is also a `default` special value which is set to `NO_REPEAT_DEFAULT`
+(10 at time of writing):
+
+    no_repeat=default
 
 
 ## Diagnostic Features

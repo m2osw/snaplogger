@@ -1,23 +1,21 @@
-/*
- * Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
- *
- * https://snapwebsites.org/project/snaplogger
- * contact@m2osw.com
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
+// Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
+//
+// https://snapwebsites.org/project/snaplogger
+// contact@m2osw.com
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 /** \file
  * \brief Appenders are used to append data to somewhere.
@@ -30,6 +28,7 @@
 #include    "snaplogger/message.h"
 
 #include    "snaplogger/exception.h"
+#include    "snaplogger/guard.h"
 #include    "snaplogger/logger.h"
 
 
@@ -51,6 +50,33 @@
 
 namespace snaplogger
 {
+
+
+namespace
+{
+
+int         g_message_id = 0;
+
+
+int get_next_id()
+{
+    guard g;
+
+    ++g_message_id;
+    if(g_message_id == 0)
+    {
+        // never use 0 as the id; of course, it's very unlikely that this happens
+        g_message_id = 1;
+    }
+    return g_message_id;
+}
+
+
+
+}
+// no name namespace
+
+
 
 
 int null_buffer::overflow(int c)
@@ -75,6 +101,8 @@ message::message(
     , f_environment(create_environment())
 {
     clock_gettime(CLOCK_REALTIME_COARSE, &f_timestamp);
+
+    add_field("id", std::to_string(get_next_id()));
 
     if(f_severity < f_logger->get_lowest_severity()
     || f_severity == severity_t::SEVERITY_OFF)

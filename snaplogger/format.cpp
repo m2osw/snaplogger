@@ -1,23 +1,21 @@
-/*
- * Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
- *
- * https://snapwebsites.org/project/snaplogger
- * contact@m2osw.com
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
+// Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
+//
+// https://snapwebsites.org/project/snaplogger
+// contact@m2osw.com
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 /** \file
  * \brief Format a message.
@@ -287,7 +285,7 @@ public:
                 variable::pointer_t var(get_variable("direct"));
                 if(var == nullptr)
                 {
-                    throw logger_logic_error("variable type \"direct\" not registered?.");
+                    throw logger_logic_error("variable type \"direct\" not registered?");
                 }
                 param::pointer_t p(std::make_shared<param>("msg"));
                 var->add_param(p);
@@ -352,14 +350,22 @@ format::format(std::string const & f)
 }
 
 
-std::string format::process_message(message const & msg)
+std::string format::process_message(message const & msg, bool ignore_on_no_repeat)
 {
     return std::accumulate(
               f_variables.begin()
             , f_variables.end()
             , std::string()
-            , [&msg](std::string const & r, variable::pointer_t v)
+            , [&msg, &ignore_on_no_repeat](std::string const & r, variable::pointer_t v)
             {
+                if(ignore_on_no_repeat
+                && v->ignore_on_no_repeat())
+                {
+                    // do not include this variable to generate the "no-repeat"
+                    // message (i.e. probably a time base message)
+                    //
+                    return r;
+                }
                 return r + v->get_value(msg);
             });
 }

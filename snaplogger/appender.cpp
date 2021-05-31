@@ -1,23 +1,21 @@
-/*
- * Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
- *
- * https://snapwebsites.org/project/snaplogger
- * contact@m2osw.com
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
+// Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
+//
+// https://snapwebsites.org/project/snaplogger
+// contact@m2osw.com
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 /** \file
  * \brief Appenders are used to append data to somewhere.
@@ -371,27 +369,37 @@ void appender::set_config(advgetopt::getopt const & opts)
     // REPEAT
     //
     {
-        long no_repeat_size(0);
-        std::string const no_repeat(f_name + "::no-repeat");
-        if(opts.is_defined(no_repeat))
+        std::string no_repeat(f_name + "::no-repeat");
+        if(!opts.is_defined(no_repeat))
         {
-            no_repeat_size = opts.get_long(no_repeat, 0, 0, 100);
-        }
-        else if(opts.is_defined("no-repeat"))
-        {
-            no_repeat_size = opts.get_long("no-repeat", 0, 0, 100);
-        }
-
-        if(no_repeat_size > 0)
-        {
-            if(no_repeat_size > 100)
+            if(opts.is_defined("no-repeat"))
             {
-                // for now the top limit is 100 messages; much more and the
-                // search would start to be slow
-                //
-                no_repeat_size = 100;
+                no_repeat = "no-repeat";
             }
-            f_last_messages.resize(no_repeat_size);
+            else
+            {
+                no_repeat.clear();
+            }
+        }
+        if(!no_repeat.empty())
+        {
+            std::string const value(opts.get_string(no_repeat));
+            if(value != "off")
+            {
+                if(value == "max"
+                || value == "maximum")
+                {
+                    f_no_repeat_size = NO_REPEAT_MAXIMUM;
+                }
+                else if(value == "default")
+                {
+                    f_no_repeat_size = NO_REPEAT_DEFAULT;
+                }
+                else
+                {
+                    f_no_repeat_size = opts.get_long("no-repeat", 0, 0, NO_REPEAT_MAXIMUM);
+                }
+            }
         }
     }
 }
@@ -466,26 +474,26 @@ void appender::send_message(message const & msg)
         formatted_message += '\n';
     }
 
-    if(!f_last_messages.empty())
+    if(f_no_repeat_size > 0)
     {
-        if(std::find(f_last_messages.begin(), f_last_messages.end(), formatted_message) != f_last_messages.end())
+        std::string const non_changing_message(f_format->process_message(msg, true));
+        auto it(std::find(f_last_messages.rbegin(), f_last_messages.rend(), non_changing_message));
+        if(it != f_last_messages.rend())
         {
-            // completely ignore repeated messages
-            //
             // TODO: look into a way to count said messages and print out
             //       the total number or something of the sort...
             //       (maybe we store those messages in a buffer and once
             //       we are to replace a message, that's when we forward
-            //       it and that can include the count?)
+            //       it and that can include the count? also that extra
+            //       write can be based on time and/or count)
             //
-            return;
+            f_last_messages.erase(std::next(it).base());    // erase() expects an iterator, not a reverse iterator
         }
-        if(f_last_message_index >= f_last_messages.size())
+        f_last_messages.push_back(non_changing_message);
+        if(f_last_messages.size() > f_no_repeat_size)
         {
-            f_last_message_index = 0;
+            f_last_messages.pop_front();
         }
-        f_last_messages[f_last_message_index] = formatted_message;
-        ++f_last_message_index;
     }
 
     process_message(msg, formatted_message);

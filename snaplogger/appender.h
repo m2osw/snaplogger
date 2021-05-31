@@ -1,23 +1,21 @@
-/*
- * Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
- *
- * https://snapwebsites.org/project/snaplogger
- * contact@m2osw.com
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
+// Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
+//
+// https://snapwebsites.org/project/snaplogger
+// contact@m2osw.com
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #pragma once
 
 /** \file
@@ -49,6 +47,12 @@ namespace snaplogger
 
 
 typedef std::shared_ptr<std::regex>         regex_pointer_t;
+
+constexpr long const                        NO_REPEAT_MAXIMUM = 100;
+constexpr long const                        NO_REPEAT_DEFAULT = 10;
+
+static_assert(NO_REPEAT_DEFAULT <= NO_REPEAT_MAXIMUM
+            , "the default no-repeat must be lower or equal to the maximum.");
 
 
 class appender
@@ -93,8 +97,8 @@ private:
     component::pointer_t        f_normal_component = component::pointer_t();
     component::set_t            f_components = component::set_t();
     regex_pointer_t             f_filter = regex_pointer_t();
-    advgetopt::string_list_t    f_last_messages = {};
-    std::size_t                 f_last_message_index = 0;
+    std::size_t                 f_no_repeat_size = 0;
+    std::deque<std::string>     f_last_messages = {};
 };
 
 

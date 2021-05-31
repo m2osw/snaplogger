@@ -1,3 +1,13 @@
+snaplogger (1.0.32.0~bionic) bionic; urgency=high
+
+  * Added a unique message identifier as the field named "id".
+  * Documented the ${field[s]:...} formats.
+  * Updated the documentation of the no-repeat (maximum, special values).
+  * Generate a formatted message without varying values (i.e. timestamp
+    and fields) to with in the no-repeat test.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Mon, 31 May 2021 16:15:21 -0700
+
 snaplogger (1.0.31.0~bionic) bionic; urgency=high
 
   * Fixed the message copy constructor. A field was missing.

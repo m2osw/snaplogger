@@ -1,23 +1,21 @@
-/*
- * Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
- *
- * https://snapwebsites.org/project/snaplogger
- * contact@m2osw.com
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
+// Copyright (c) 2013-2021  Made to Order Software Corp.  All Rights Reserved
+//
+// https://snapwebsites.org/project/snaplogger
+// contact@m2osw.com
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #pragma once
 
 /** \file
@@ -201,6 +199,7 @@ public:
 
     virtual             ~variable();
 
+    virtual bool        ignore_on_no_repeat() const = 0;
     void                add_param(param::pointer_t p);
     param::vector_t     get_params() const;
     std::string         get_value(message const & msg) const;
@@ -233,41 +232,47 @@ void                    register_variable_factory(variable_factory::pointer_t fa
 variable::pointer_t     get_variable(std::string const & type);
 
 
-#define DEFINE_LOGGER_VARIABLE(type)                    \
-    class type##_variable                               \
-        : public ::snaplogger::variable                 \
-    {                                                   \
-    protected:                                          \
-        virtual void process_value(                     \
-                  ::snaplogger::message const & msg     \
-                , std::string & value) const override;  \
-    };                                                  \
-    class type##_variable_factory final                 \
-        : public ::snaplogger::variable_factory         \
-    {                                                   \
-    public:                                             \
-        type##_variable_factory()                       \
-            : variable_factory(#type)                   \
-        {}                                              \
-        virtual ::snaplogger::variable::pointer_t       \
-                create_variable() override final        \
-        {                                               \
-            return std::make_shared<type##_variable>(); \
-        }                                               \
-    };                                                  \
-    int __attribute__((unused))                         \
-        g_##type##_variable_factory = []() {            \
-            ::snaplogger::register_variable_factory     \
-                    (std::make_shared<                  \
-                        type##_variable_factory>());    \
-            return 0;                                   \
-        } ();                                           \
-    void type##_variable::process_value(                \
-                  ::snaplogger::message const & msg     \
+#define DEFINE_LOGGER_VARIABLE_IMPL_(type, do_ignore_on_no_repeat)  \
+    class type##_variable                                           \
+        : public ::snaplogger::variable                             \
+    {                                                               \
+    protected:                                                      \
+        virtual bool ignore_on_no_repeat() const override           \
+        { return do_ignore_on_no_repeat; }                          \
+        virtual void process_value(                                 \
+                  ::snaplogger::message const & msg                 \
+                , std::string & value) const override;              \
+    };                                                              \
+    class type##_variable_factory final                             \
+        : public ::snaplogger::variable_factory                     \
+    {                                                               \
+    public:                                                         \
+        type##_variable_factory()                                   \
+            : variable_factory(#type)                               \
+        {}                                                          \
+        virtual ::snaplogger::variable::pointer_t                   \
+                create_variable() override final                    \
+        {                                                           \
+            return std::make_shared<type##_variable>();             \
+        }                                                           \
+    };                                                              \
+    int __attribute__((unused))                                     \
+        g_##type##_variable_factory = []() {                        \
+            ::snaplogger::register_variable_factory                 \
+                    (std::make_shared<                              \
+                        type##_variable_factory>());                \
+            return 0;                                               \
+        } ();                                                       \
+    void type##_variable::process_value(                            \
+                  ::snaplogger::message const & msg                 \
                 , std::string & value) const
 
 
+#define DEFINE_LOGGER_VARIABLE(type) \
+    DEFINE_LOGGER_VARIABLE_IMPL_(type, false)
 
+#define DEFINE_LOGGER_VARIABLE_IGNORED_ON_NO_REPEAT(type) \
+    DEFINE_LOGGER_VARIABLE_IMPL_(type, true)
 
 
 
