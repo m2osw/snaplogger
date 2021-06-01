@@ -1,3 +1,12 @@
+snaplogger (1.0.34.0~bionic) bionic; urgency=high
+
+  * Fixed the test of system variables (needed == not !=).
+  * Fixed parent directory test in mk.
+  * Fixed the -t option in mk.
+  * Fixed one test which now gets the "id" field.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Tue, 01 Jun 2021 14:11:43 -0700
+
 snaplogger (1.0.33.0~bionic) bionic; urgency=high
 
   * Added support for system fields (i.e. "_timestamp", etc.)
