@@ -64,6 +64,21 @@ public:
 };
 
 
+enum class system_field_t
+{
+    SYSTEM_FIELD_UNDEFINED = -1,     // used for still undefined system fields
+
+    SYSTEM_FIELD_MESSAGE,
+    SYSTEM_FIELD_TIMESTAMP,
+    SYSTEM_FIELD_SEVERITY,
+    SYSTEM_FIELD_FILENAME,
+    SYSTEM_FIELD_FUNCTION_NAME,
+    SYSTEM_FIELD_LINE,
+
+    SYSTEM_FIELD_max
+};
+
+
 // the message class is final because the destructor does tricks which
 // would not work right if derived further
 //
@@ -111,6 +126,8 @@ public:
     component::set_t const &    get_components() const;
     environment::pointer_t      get_environment() const;
     std::string                 get_message() const;
+    static char const *         get_system_field_name(system_field_t field);
+    static system_field_t       get_system_field_from_name(std::string const & name);
     std::string                 get_field(std::string const & name) const;
     field_map_t                 get_fields() const;
 

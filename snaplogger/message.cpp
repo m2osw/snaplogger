@@ -55,6 +55,20 @@ namespace snaplogger
 namespace
 {
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+constexpr char const * const g_system_field_names[] =
+{
+    [static_cast<std::size_t>(system_field_t::SYSTEM_FIELD_MESSAGE      )] = "_message",
+    [static_cast<std::size_t>(system_field_t::SYSTEM_FIELD_TIMESTAMP    )] = "_timestamp",
+    [static_cast<std::size_t>(system_field_t::SYSTEM_FIELD_SEVERITY     )] = "_severity",
+    [static_cast<std::size_t>(system_field_t::SYSTEM_FIELD_FILENAME     )] = "_filename",
+    [static_cast<std::size_t>(system_field_t::SYSTEM_FIELD_FUNCTION_NAME)] = "_function_name",
+    [static_cast<std::size_t>(system_field_t::SYSTEM_FIELD_LINE         )] = "_line",
+};
+#pragma GCC diagnostic pop
+
+
 int         g_message_id = 0;
 
 
@@ -211,6 +225,15 @@ void message::add_field(std::string const & name, std::string const & value)
 {
     if(!name.empty())
     {
+        if(name[0] != '_')
+        {
+            throw invalid_parameter(
+                  "field name \""
+                + name
+                + "\" is a system name (whether reserved or already defined) and as such is read-only."
+                  " Do not start your field names with an underscore.");
+        }
+
         f_fields[name] = value;
     }
 }
@@ -302,8 +325,122 @@ std::string message::get_message() const
 }
 
 
+char const * message::get_system_field_name(system_field_t field)
+{
+    std::size_t const idx(static_cast<std::size_t>(field));
+    if(idx >= static_cast<std::size_t>(system_field_t::SYSTEM_FIELD_max))
+    {
+        return "_unknown";
+    }
+    return g_system_field_names[idx];
+}
+
+
+system_field_t message::get_system_field_from_name(std::string const & name)
+{
+    if(name.length() >= 2
+    && name[0] == '_')
+    {
+        switch(name[1])
+        {
+        case 'f':
+            if(name == "_filename")
+            {
+                return system_field_t::SYSTEM_FIELD_FILENAME;
+            }
+            if(name == "_function_name")
+            {
+                return system_field_t::SYSTEM_FIELD_FUNCTION_NAME;
+            }
+            break;
+
+        case 'l':
+            if(name == "_line")
+            {
+                return system_field_t::SYSTEM_FIELD_LINE;
+            }
+            break;
+
+        case 'm':
+            if(name == "_message")
+            {
+                return system_field_t::SYSTEM_FIELD_MESSAGE;
+            }
+            break;
+
+        case 's':
+            if(name == "_severity")
+            {
+                return system_field_t::SYSTEM_FIELD_SEVERITY;
+            }
+            break;
+
+        case 't':
+            if(name == "_timestamp")
+            {
+                return system_field_t::SYSTEM_FIELD_TIMESTAMP;
+            }
+            break;
+
+        }
+    }
+
+    return system_field_t::SYSTEM_FIELD_UNDEFINED;
+}
+
+
 std::string message::get_field(std::string const & name) const
 {
+    if(!name.empty()
+    && name[0] == '_')
+    {
+        switch(get_system_field_from_name(name))
+        {
+        case system_field_t::SYSTEM_FIELD_MESSAGE:
+            return get_message();
+
+        case system_field_t::SYSTEM_FIELD_TIMESTAMP:
+            // TODO: offer ways to get the date & time converted to strings
+            {
+                std::string timestamp(std::to_string(f_timestamp.tv_sec));
+                if(f_timestamp.tv_nsec != 0)
+                {
+                    std::string nsec(std::to_string(f_timestamp.tv_nsec));
+                    while(nsec.length() < 9)
+                    {
+                        nsec = '0' + nsec;
+                    }
+                    while(nsec.back() == '0')
+                    {
+                        nsec.pop_back();
+                    }
+                    timestamp += '.';
+                    timestamp += nsec;
+                }
+                return timestamp;
+            }
+
+        case system_field_t::SYSTEM_FIELD_SEVERITY:
+            {
+                severity::pointer_t sev(snaplogger::get_severity(f_severity));
+                return sev == nullptr ? "<unknown>" : sev->get_name();
+            }
+
+        case system_field_t::SYSTEM_FIELD_FILENAME:
+            return f_filename;
+
+        case system_field_t::SYSTEM_FIELD_FUNCTION_NAME:
+            return f_funcname;
+
+        case system_field_t::SYSTEM_FIELD_LINE:
+            return std::to_string(f_line);
+
+        default:
+            return std::string();
+
+        }
+    }
+
     auto it(f_fields.find(name));
     if(it == f_fields.end())
     {

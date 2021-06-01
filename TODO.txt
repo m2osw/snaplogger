@@ -8,16 +8,10 @@ Right now we allow for fields of type string (which value is a string).
 The fields should be given a type and be integers, floating points as
 well as strings (maybe some other types too? like a date?)
 
-** All Values are Fields
+** ${fields}
 
-All the values added to a message can be viewed as being a field. For
-example, the text message format could be referenced as the "message"
-and the time when the message was created as the "timestamp". I'm
-thinking to add the ability to read _system_ fields by name without
-having to add them to the fields.
-
-This complicates the ${fields} variable, though. Are we supposed to also
-output all the system fields in this case?
+The library allows for system fields such as "_timestamp". But these are
+totally missed by the ${fields} at the moment.
 
 
 

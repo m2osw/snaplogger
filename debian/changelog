@@ -1,3 +1,10 @@
+snaplogger (1.0.33.0~bionic) bionic; urgency=high
+
+  * Added support for system fields (i.e. "_timestamp", etc.)
+  * Forbid user field names that start with '_' (reserved for system names).
+
+ -- Alexis Wilke <alexis@m2osw.com>  Tue, 01 Jun 2021 13:38:26 -0700
+
 snaplogger (1.0.32.0~bionic) bionic; urgency=high
 
   * Added a unique message identifier as the field named "id".
