@@ -1,10 +1,23 @@
 
 * Review the `field` extension
 
+** Type
+
 Right now we allow for fields of type string (which value is a string).
 
 The fields should be given a type and be integers, floating points as
 well as strings (maybe some other types too? like a date?)
+
+** All Values are Fields
+
+All the values added to a message can be viewed as being a field. For
+example, the text message format could be referenced as the "message"
+and the time when the message was created as the "timestamp". I'm
+thinking to add the ability to read _system_ fields by name without
+having to add them to the fields.
+
+This complicates the ${fields} variable, though. Are we supposed to also
+output all the system fields in this case?
 
 
 
@@ -12,7 +25,7 @@ well as strings (maybe some other types too? like a date?)
 
 This should be a pubsub type of a thing. However, the logger is below the
 eventdispatcher so it has no network abilities at all (to avoid code
-duplication).
+duplication--see the snaplogger network extension in eventdispatcher).
 
 However, since we can implement any type of appender, we can have one which
 is a simple callback or have a pubsub appender in the logserver project

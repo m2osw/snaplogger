@@ -162,6 +162,21 @@ The following are the main features of this logger:
     pointers for efficiency. Calling the get_component() function each time
     is slow.
 
+* Fields
+
+    More and more, log systems want to be able to automatically check various
+    values of error messages. This can be tedious if you first have to parse
+    the message with regular expression or similar search techniques.
+
+    Our logger allows you to instead add name and value pairs called fields.
+    You can see those as dynamic structures. We actually offer to output
+    these fields as JSON objects.
+
+    By default the library adds the message unique identifier as the field
+    named `id`. At this time, no other fields are automatically added, but
+    I may add a feature where some system fields can be queried through the
+    field interface even if not defined as an actual field.
+
 * Regex Filtering
 
     You have the ability to add as many file appenders as you'd like. You
