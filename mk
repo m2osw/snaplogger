@@ -9,8 +9,8 @@ SOURCE=`pwd`
 PROJECT=`basename ${SOURCE}`
 PROCESSORS=`nproc`
 PARENTDIR=`dirname ${SOURCE}`
-PARENTNAME=`basename ${PARENDIR}`
-if test "${PARENTNAME}" = "contrib"
+PARENTNAME=`basename ${PARENTDIR}`
+if test "${PARENTNAME}" != "contrib"
 then
 	CONTRIBDIR=""
 	BUILD="../BUILD"
@@ -22,7 +22,7 @@ TYPE="Debug"
 TARGET=
 LESS=false
 DOCS=false
-TEST=false
+TESTS=""
 
 while test -n "${1}"
 do
@@ -79,8 +79,7 @@ do
 
 	"-t"|"--test")
 		shift
-		TEST=true
-		while [[ "${1}" != "-"* ]]
+		while [[ "${1}" != "" && "${1}" != "-"* ]]
 		do
 			TESTS="${TESTS} ${1}"
 			shift
@@ -115,7 +114,7 @@ fi
 
 if [[ ${RESULT} = 0 ]]
 then
-	if ${TEST}
+	if test -n ${TESTS}
 	then
 		if ${LESS}
 		then

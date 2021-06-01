@@ -151,7 +151,8 @@ CATCH_TEST_CASE("message_capture", "[message]")
             << SNAP_LOG_FIELD(std::string("format"), std::string("json"))
             << SNAP_LOG_FIELD(std::string("language"), std::string("js"))
             << SNAP_LOG_SEND;
-        CATCH_REQUIRE(buffer->str() == "{\"version\":1,\"message\":\"See what happens with a \\\"quoted string\\\" within the message ({\\\"format\\\":\\\"json\\\",\\\"language\\\":\\\"js\\\"})\"}\n");
+        std::string const expected(std::regex_replace(buffer->str(), std::regex("\\\\\"id\\\\\":\\\\\"[0-9]+\\\\\","), ""));
+        CATCH_REQUIRE(expected == "{\"version\":1,\"message\":\"See what happens with a \\\"quoted string\\\" within the message ({\\\"format\\\":\\\"json\\\",\\\"language\\\":\\\"js\\\"})\"}\n");
         buffer->clear();
 
         l->reset();

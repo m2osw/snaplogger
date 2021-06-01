@@ -225,7 +225,7 @@ void message::add_field(std::string const & name, std::string const & value)
 {
     if(!name.empty())
     {
-        if(name[0] != '_')
+        if(name[0] == '_')
         {
             throw invalid_parameter(
                   "field name \""
