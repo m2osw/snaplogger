@@ -1,3 +1,10 @@
+snaplogger (1.0.35.0~bionic) bionic; urgency=high
+
+  * Catch an exception when trying to format your message if it has invalid
+    UTF-8 bytes.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Tue, 01 Jun 2021 17:57:14 -0700
+
 snaplogger (1.0.34.0~bionic) bionic; urgency=high
 
   * Fixed the test of system variables (needed == not !=).

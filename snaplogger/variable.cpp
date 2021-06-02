@@ -60,6 +60,7 @@
 
 // libutf8 lib
 //
+#include    <libutf8/exception.h>
 #include    <libutf8/libutf8.h>
 
 
@@ -242,7 +243,21 @@ void variable::process_value(message const & msg, std::string & value) const
     }
 
     function_data d;
-    d.set_value(value);
+    try
+    {
+        d.set_value(value);
+    }
+    catch(libutf8::libutf8_exception_decoding const & e)
+    {
+        // ignore this exception because an invalid byte in a message is
+        // something somewhat common and here it just means the functions
+        // won't be applied, not that this specific log fails 100%
+        //
+        value += " {WARNING: your value has invalid UTF-8 characters; do you use std::int8_t or std::uint8_t? those are often inserted as characters instead of numbers; exception message: \"";
+        value += e.what();
+        value += "\"} ";
+        return;
+    }
 
     for(auto p : f_params)
     {

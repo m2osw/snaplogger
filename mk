@@ -22,6 +22,8 @@ TYPE="Debug"
 TARGET=
 LESS=false
 DOCS=false
+COVERAGE=false
+TEST=false
 TESTS=""
 
 while test -n "${1}"
@@ -36,12 +38,19 @@ do
 		shift
 		TYPE="Debug"
 		;;
-		
+
+	"-c"|"--coverage")
+		shift
+		COVERAGE=true
+		;;
+
 	"-h"|"--help")
 		echo "Usage: ${0} [-opts]"
 		echo "where -opts are:"
-		echo "  -d | --documentation   Delete the documentation so it gets rebuilt."
 		echo "  -b | --debug           Build the Debug version."
+		echo "  -c | --coverage        Run the tests to determine coverage."
+		echo "                         Use -t with -c to only run coverage for those tests."
+		echo "  -d | --documentation   Delete the documentation so it gets rebuilt."
 		echo "  -h | --help            Print out this help screen."
 		echo "  -i | --install         Install once built."
 		echo "  -l | --less            Force output through less."
@@ -79,6 +88,7 @@ do
 
 	"-t"|"--test")
 		shift
+		TEST=true
 		while [[ "${1}" != "" && "${1}" != "-"* ]]
 		do
 			TESTS="${TESTS} ${1}"
@@ -114,18 +124,27 @@ fi
 
 if [[ ${RESULT} = 0 ]]
 then
-	if test -n ${TESTS}
+	if ${COVERAGE}
+	then
+		dev/coverage ${TESTS}
+		RESULT=${?}
+	elif ${TEST}
 	then
 		if ${LESS}
 		then
 			${OUTPUT}/tests/unittest --progress ${TESTS} 2>&1 | less -SR
+			RESULT=${PIPESTATUS[0]}
 		else
 			${OUTPUT}/tests/unittest --progress ${TESTS}
+			RESULT=${?}
 		fi
-	else
-		echo
-		echo "Success."
 	fi
+fi
+
+if [[ ${RESULT} = 0 ]]
+then
+	echo
+	echo "Success."
 else
 	echo
 	echo "Build failed."
