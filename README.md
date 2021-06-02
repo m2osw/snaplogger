@@ -174,8 +174,7 @@ The following are the main features of this logger:
 
     By default the library adds the message unique identifier as the field
     named `id`. At this time, no other fields are automatically added, but
-    I may add a feature where some system fields can be queried through the
-    field interface even if not defined as an actual field.
+    Snap! Logger understands some system names such as "_timestamp".
 
 * Regex Filtering
 
@@ -599,6 +598,19 @@ This option means the fields are about as a list of Shell variables:
     id=123
     material=cheese
     ...
+
+The implementation of the field variable allows for fields that are
+managed by the `message` object. The means some fields are available to
+you even when you don't define them as fields. These are:
+
+* `_message` -- the raw message
+* `_timestamp` -- the time when the `message` object was created
+* `_severity` -- the severity of the message
+* `_filename` -- the file in which the message was created
+* `_function_name` -- the function in which the message was created
+* `_line` -- the line number on which the message was created
+
+These parameters are the same as the ones found in the `message` object.
 
 **WARNING:** All fields are ignored when comparing two messages to know
 whether they repeat. This makes for a slightly faster test and allows us
