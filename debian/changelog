@@ -1,3 +1,18 @@
+snaplogger (1.0.36.0~bionic) bionic; urgency=high
+
+  * Added the `--logger-show-banner` and `--logger-hide-banner` options.
+  * Allow tools to hide the logger banner by default.
+  * Added a "banner" component.
+  * Added the `--list-severities` command.
+  * Changed the process_logger_options() to continue on errors so all the
+    command line options get processed and the caller can decide whether to
+    continue or not by testing the result.
+  * Added a test against process_logger_options() in the tools and stop
+    immediately on errors.
+  * Added some documentation.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Fri, 04 Jun 2021 11:26:37 -0700
+
 snaplogger (1.0.35.0~bionic) bionic; urgency=high
 
   * Catch an exception when trying to format your message if it has invalid

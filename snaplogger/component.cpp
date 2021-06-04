@@ -58,6 +58,7 @@ component::pointer_t        g_debug_component(get_component(COMPONENT_DEBUG));
 component::pointer_t        g_normal_component(get_component(COMPONENT_NORMAL));
 component::pointer_t        g_secure_component(get_component(COMPONENT_SECURE, { g_normal_component }));
 component::pointer_t        g_self_component(get_component(COMPONENT_SELF));
+component::pointer_t        g_banner_component(get_component(COMPONENT_BANNER));
 
 
 /** \brief Create a new component.

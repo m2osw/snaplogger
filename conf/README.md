@@ -105,9 +105,10 @@ The snaplogger options are added to your application by properly
 initializing the application with the option set to just the
 declaration of the environment and then calling the `add_logger_options()`
 before finishing the argument parsing process. Finally, you have to
-call the `process_logger_options()` which, which is the one that finds
+call the `process_logger_options()`, which is the one that finds
 out the use of the `--logger-...` options before you start your own
-application.
+application. Many of these options can also be included in your configuration
+file.
 
 Here is an example of such code snippet:
 
@@ -116,10 +117,18 @@ Here is an example of such code snippet:
     {
         snaplogger::add_logger_options(f_opt);
         f_opt.finish_parsing(argc, argv);
-        snaplogger::process_logger_options(f_opt, "/etc/my-app/logger");
+        if(!snaplogger::process_logger_options(f_opt, "/etc/my-app/logger"))
+        {
+            // exit on any error
+            throw advgetopt::getopt_exit("logger options generated an error.", 0);
+        }
 
         ...
     }
+
+_**Note:** The throw on error is not required. For some daemons, you may
+prefer to start the daemon no matter what. After all, the error will be
+logged so the administrator will eventually see the message one day..._
 
 If you are creating a conglomerate of applications, then you can use a
 common `/etc/<app-name>` directory instead of one specific to your
@@ -129,7 +138,7 @@ application. That name should be the same as the name in your `f_group_name`
     advgetopt::options_environment const g_options_environment =
     {
 	...
-        .f_group_name = "my-app",
+        .f_group_name = "app-name",
 	...
     };
 

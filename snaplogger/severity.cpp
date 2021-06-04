@@ -625,6 +625,18 @@ severity::pointer_t get_severity(message const & msg, severity_t sev)
 }
 
 
+severity_by_name_t get_severities_by_name()
+{
+    return get_private_logger()->get_severities_by_name();
+}
+
+
+severity_by_severity_t get_severities_by_severity()
+{
+    return get_private_logger()->get_severities_by_severity();
+}
+
+
 
 } // snaplogger namespace
 

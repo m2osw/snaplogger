@@ -66,6 +66,31 @@ namespace
 
 
 
+/** \brief The command line options that the logger adds.
+ *
+ * This variable holds the list of options that the logger adds when you
+ * call the add_logger_options() function. These allows us to have the
+ * same command line options in all the tools we develop with the snaplogger.
+ *
+ * The options are:
+ *
+ * * no-log
+ * * log-file
+ * * log-config
+ * * syslog
+ * * console
+ * * logger-show-banner
+ * * logger-hide-banner
+ * * log-config-path
+ * * debug
+ * * trace
+ * * list-severities
+ * * log-severity
+ * * force-severity
+ * * log-component
+ * * logger-version
+ * * logger-configuration-filenames
+ */
 advgetopt::option const g_options[] =
 {
     // DIRECT SELECT
@@ -96,6 +121,16 @@ advgetopt::option const g_options[] =
           advgetopt::Name("console")
         , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
         , advgetopt::Help("print the logs out to the console.")
+    ),
+    advgetopt::define_option(
+          advgetopt::Name("logger-show-banner")
+        , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+        , advgetopt::Help("show a banner on started with the tool name and version.")
+    ),
+    advgetopt::define_option(
+          advgetopt::Name("logger-hide-banner")
+        , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+        , advgetopt::Help("do not show the banner (--show-banner has priority if specified).")
     ),
 
     // ALTERNATIVE CONFIG FILES
@@ -146,6 +181,11 @@ advgetopt::option const g_options[] =
     // COMMANDS
     //
     advgetopt::define_option(
+          advgetopt::Name("list-severities")
+        , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
+        , advgetopt::Help("show the list of available severities.")
+    ),
+    advgetopt::define_option(
           advgetopt::Name("logger-version")
         , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
         , advgetopt::Help("show the version of the logger library.")
@@ -168,6 +208,29 @@ advgetopt::option const g_options[] =
 // no name namespace
 
 
+/** \brief Add the logger command line options.
+ *
+ * This function automatically adds the logger specific command line options
+ * to the \p opts object.
+ *
+ * The options allow for some logger specific tweaking in all your
+ * applications without having to do that on a per application basis.
+ * It also makes use of some command line options which you should not
+ * overload.
+ *
+ * On top of the command line option additions, the function automatically
+ * adds up to four new diagnostics:
+ *
+ * * DIAG_KEY_VERSION -- the version of the tool
+ * * DIAG_KEY_BUILD_DATE -- the build date of the tool
+ * * DIAG_KEY_BUILD_TIME -- the build time of the tool
+ * * DIAG_KEY_PROJECT_NAME -- the name of the project
+ *
+ * The project name is always added. The other parameters are added only
+ * if found in the \p opts environment variables.
+ *
+ * \param[in,out] opts  The options to tweak with the logger options.
+ */
 void add_logger_options(advgetopt::getopt & opts)
 {
     auto env(opts.get_options_environment());
@@ -189,30 +252,120 @@ void add_logger_options(advgetopt::getopt & opts)
 }
 
 
-constexpr int const OPTION_NO_LOG           = 0x001;
-constexpr int const OPTION_LOG_FILE         = 0x002;
-constexpr int const OPTION_LOG_CONFIG       = 0x004;
-constexpr int const OPTION_SYSLOG           = 0x008;
-constexpr int const OPTION_CONSOLE          = 0x010;
-
-constexpr int const OPTION_TRACE_SEVERITY   = 0x020;
-constexpr int const OPTION_DEBUG_SEVERITY   = 0x040;
-constexpr int const OPTION_LOG_SEVERITY     = 0x080;
-constexpr int const OPTION_FORCE_SEVERITY   = 0x100;
 
 
+/** \brief Process the logger options.
+ *
+ * This function is expected to be called before you move forward with
+ * the other work you want to do in your tool. It allows for processing
+ * any and all the logger command line options.
+ *
+ * To use this command, you first want to call the add_logger_options()
+ * function, process the arguments, and finally call this function as
+ * follow:
+ *
+ * \code
+ *     my_app::my_app(int argc, char * argv[])
+ *         : f_opt(g_options_environment)
+ *     {
+ *         snaplogger::add_logger_options(f_opt);
+ *         f_opt.finish_parsing(argc, argv);
+ *         if(!snaplogger::process_logger_options(f_opt, "/etc/my-app/logger"))
+ *         {
+ *             // exit on any error
+ *             throw advgetopt::getopt_exit("logger options generated an error.", 0);
+ *         }
+ *
+ *         ...
+ *     }
+ * \endcode
+ *
+ * \exception advgetopt::getopt_exit
+ * Some commands emit this exception which means that the process is done.
+ * It is expected to quickly and silently exit after catching this
+ * exception.
+ *
+ * \todo
+ * See whether we can change the cppthread::log to a SNAP_LOG_... when
+ * sending errors.
+ *
+ * \param[in] opts  The option definitions and values.
+ * \param[in] config_path  A path where the logger configuration files are
+ * to be searched. The logger also searches under `/usr/share/snaplogger/etc`
+ * prior and `~/.config/<tool-name>/logger` after.
+ * \param[in] out  The output stream to use in case the command is to generate
+ * output to the user. Defaults to `std::cout`.
+ * \param[in] show_banner  Whether to show the banner. For CLI and GUI tools,
+ * you may want to hide this banner. For daemons, it is customary to leave
+ * the banner as it just goes to a log file.
+ *
+ * \return true of success, false when an error occurs. You are expected to
+ * stop your process immediately when this function returns false, but this
+ * is not mandatory.
+ */
 bool process_logger_options(advgetopt::getopt & opts
                           , std::string const & config_path
-                          , std::basic_ostream<char> & out)
+                          , std::basic_ostream<char> & out
+                          , bool show_banner)
 {
+    constexpr int const OPTION_NO_LOG           = 0x001;
+    constexpr int const OPTION_LOG_FILE         = 0x002;
+    constexpr int const OPTION_LOG_CONFIG       = 0x004;
+    constexpr int const OPTION_SYSLOG           = 0x008;
+    constexpr int const OPTION_CONSOLE          = 0x010;
+
+    constexpr int const OPTION_TRACE_SEVERITY   = 0x020;
+    constexpr int const OPTION_DEBUG_SEVERITY   = 0x040;
+    constexpr int const OPTION_LOG_SEVERITY     = 0x080;
+    constexpr int const OPTION_FORCE_SEVERITY   = 0x100;
+
+    bool result(true);
+
     set_diagnostic(DIAG_KEY_PROGNAME, opts.get_program_name());
 
     // COMMANDS
     //
     if(opts.is_defined("logger-version"))
     {
-        std::cout << snaplogger::get_version_string() << std::endl;
-        throw advgetopt::getopt_exit("logger command processed.", 0);
+        out << snaplogger::get_version_string() << std::endl;
+        throw advgetopt::getopt_exit("--logger-version command processed.", 0);
+    }
+    if(opts.is_defined("list-severities"))
+    {
+        out << "List of the snaplogger known severities:\n";
+
+        severity_by_severity_t const list(get_severities_by_severity());
+        for(auto const & it : list)
+        {
+            string_vector_t const names(it.second->get_all_names());
+            char const * sep = " . ";
+            for(auto const & s : names)
+            {
+                out << sep << s;
+                sep = ", ";
+            }
+
+            out << " [" << static_cast<int>(it.first);
+            if(it.second->is_system())
+            {
+                out << "/system";
+            }
+            if(!it.second->get_styles().empty())
+            {
+                out << "/styles";
+            }
+            out << ']';
+
+            //std::string const d(it.second->get_description());
+            //if(!d.empty())
+            //{
+            //    out << " -- " << d;
+            //}
+
+            out << '\n';
+        }
+        out << std::endl;
+        throw advgetopt::getopt_exit("--list-severities command processed.", 0);
     }
 
     // LOG CONFIG
@@ -237,6 +390,14 @@ bool process_logger_options(advgetopt::getopt & opts
     if(opts.is_defined("console"))
     {
         log_config |= OPTION_CONSOLE;
+    }
+    if(opts.is_defined("logger-show-banner"))
+    {
+        show_banner = true;
+    }
+    else if(opts.is_defined("logger-hide-banner"))
+    {
+        show_banner = false;
     }
 
     bool const show_logger_configuration_files(opts.is_defined("logger-configuration-filenames"));
@@ -350,7 +511,8 @@ bool process_logger_options(advgetopt::getopt & opts
         cppthread::log << cppthread::log_level_t::error
                        << "only one of --no-log, --log-file, --log-config, --syslog, --console can be used on your command line."
                        << cppthread::end;
-        return false;
+        result = false;
+        break;
 
     }
 
@@ -368,7 +530,7 @@ bool process_logger_options(advgetopt::getopt & opts
                 out << "No logger application configuration filenames available with the current command line options." << std::endl;
             }
         }
-        throw advgetopt::getopt_exit("logger command processed.", 0);
+        throw advgetopt::getopt_exit("--logger-configuration-filenames command processed.", 0);
     }
 
     // SEVERITY
@@ -418,9 +580,12 @@ bool process_logger_options(advgetopt::getopt & opts
                                << severity_name
                                << "\"; please check your spelling."
                                << cppthread::end;
-                return false;
+                result = false;
             }
-            logger::get_instance()->reduce_severity(sev->get_severity());
+            else
+            {
+                logger::get_instance()->reduce_severity(sev->get_severity());
+            }
         }
         break;
 
@@ -433,11 +598,14 @@ bool process_logger_options(advgetopt::getopt & opts
                 cppthread::log << cppthread::log_level_t::error
                                << "unknown severity level \""
                                << severity_name
-                               << "\"; please check your spelling."
+                               << "\"; please check your spelling against the --list-severities."
                                << cppthread::end;
-                return false;
+                result = false;
             }
-            logger::get_instance()->set_severity(sev->get_severity());
+            else
+            {
+                logger::get_instance()->set_severity(sev->get_severity());
+            }
         }
         break;
 
@@ -477,21 +645,26 @@ bool process_logger_options(advgetopt::getopt & opts
         }
     }
 
-    SNAP_LOG_INFO
-            << section(g_normal_component)
-            << section(g_self_component)
-            << "--------------------------------------------------"
-            << SNAP_LOG_SEND;
-    SNAP_LOG_INFO
-            << section(g_normal_component)
-            << section(g_self_component)
-            << opts.get_project_name()
-            << " v"
-            << opts.get_options_environment().f_version
-            << " started."
-            << SNAP_LOG_SEND;
+    if(show_banner)
+    {
+        SNAP_LOG_INFO
+                << section(g_normal_component)
+                << section(g_self_component)
+                << section(g_banner_component)
+                << "--------------------------------------------------"
+                << SNAP_LOG_SEND;
+        SNAP_LOG_INFO
+                << section(g_normal_component)
+                << section(g_self_component)
+                << section(g_banner_component)
+                << opts.get_project_name()
+                << " v"
+                << opts.get_options_environment().f_version
+                << " started."
+                << SNAP_LOG_SEND;
+    }
 
-    return true;
+    return result;
 }
 
 

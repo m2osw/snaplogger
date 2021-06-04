@@ -101,6 +101,8 @@ public:
     severity::pointer_t         get_severity(severity_t sev) const;
     severity::pointer_t         get_default_severity() const;
     void                        set_default_severity(severity::pointer_t sev);
+    severity_by_name_t          get_severities_by_name() const;
+    severity_by_severity_t      get_severities_by_severity() const;
 
     void                        set_diagnostic(std::string const & key, std::string const & diagnostic);
     void                        unset_diagnostic(std::string const & key);

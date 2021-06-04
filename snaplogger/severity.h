@@ -119,6 +119,8 @@ severity::pointer_t     get_severity(std::string const & name);
 severity::pointer_t     get_severity(message const & msg, std::string const & name);
 severity::pointer_t     get_severity(severity_t sev);
 severity::pointer_t     get_severity(message const & msg, severity_t sev);
+severity_by_name_t      get_severities_by_name();
+severity_by_severity_t  get_severities_by_severity();
 
 template<typename CharT, typename Traits>
 inline std::basic_ostream<CharT, Traits> &

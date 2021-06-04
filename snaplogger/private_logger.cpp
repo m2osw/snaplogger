@@ -489,6 +489,47 @@ void private_logger::set_default_severity(severity::pointer_t sev)
 }
 
 
+/** \brief Get the list of currently defined severities.
+ *
+ * This function gets the list of all the severities sorted by name.
+ *
+ * Note that some severities are given multiple names (i.e. "info" and
+ * "information"). In that case, both names will appear in this list.
+ * If you want to avoid such duplicates, use the get_severities_by_severity().
+ *
+ * \note
+ * The function return the map by copy so that way it works in a
+ * multithreaded environment. However, the pointer is a set of pointers
+ * to severities. Those pointers are not duplicated.
+ *
+ * \return A copy of the current severity list.
+ *
+ * \sa get_severities_by_name()
+ */
+severity_by_name_t private_logger::get_severities_by_name() const
+{
+    // this call is required in case the severities were not yet defined
+    //
+    snap::NOTUSED(snaplogger::get_severity("error"));   // TODO: assuming that "error" won't change
+
+    guard g;
+
+    return f_severity_by_name;
+}
+
+
+severity_by_severity_t private_logger::get_severities_by_severity() const
+{
+    // this call is required in case the severities were not yet defined
+    //
+    snap::NOTUSED(snaplogger::get_severity("error"));   // TODO: assuming that "error" won't change
+
+    guard g;
+
+    return f_severity_by_severity;
+}
+
+
 void private_logger::set_diagnostic(std::string const & key, std::string const & diagnostic)
 {
     guard g;

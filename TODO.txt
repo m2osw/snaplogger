@@ -15,6 +15,14 @@ totally missed by the ${fields} at the moment.
 
 
 
+* Severities have the mark_as_registered() function and the constructor
+  which I think should be private and only the logger_private object
+  would be able to access them. This way it would be much safer. But I
+  have to determine whether this is how the severities are expected to
+  be limited.
+
+
+
 * Allow a form of subcription to the logs
 
 This should be a pubsub type of a thing. However, the logger is below the

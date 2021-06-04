@@ -113,12 +113,14 @@ constexpr char const            COMPONENT_DEBUG[]     = "debug";
 constexpr char const            COMPONENT_NORMAL[]    = "normal";
 constexpr char const            COMPONENT_SECURE[]    = "secure";
 constexpr char const            COMPONENT_SELF[]      = "self"; // for the snaplogger only
+constexpr char const            COMPONENT_BANNER[]    = "banner";
 
 extern component::pointer_t     g_cppthread_component;
 extern component::pointer_t     g_debug_component;
 extern component::pointer_t     g_normal_component;
 extern component::pointer_t     g_secure_component;
 extern component::pointer_t     g_self_component;
+extern component::pointer_t     g_banner_component;
 
 
 struct section_ptr
