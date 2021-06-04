@@ -90,7 +90,7 @@ namespace
 
 DEFINE_LOGGER_VARIABLE(direct)
 {
-    snap::NOTUSED(msg);
+    snap::NOT_USED(msg);
 
     // apply all our parameters as is
     //

@@ -500,9 +500,7 @@ CATCH_TEST_CASE("duplicate_factory", "[variable][factory]")
                 , ::snaplogger::function_data & d
                 , ::snaplogger::param::pointer_t const & p) override
             {
-                snap::NOTUSED(msg);
-                snap::NOTUSED(d);
-                snap::NOTUSED(p);
+                snap::NOT_USED(msg, d, p);
             }
         };
 

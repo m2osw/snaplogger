@@ -503,8 +503,7 @@ void appender::send_message(message const & msg)
 void appender::process_message(message const & msg, std::string const & formatted_message)
 {
     // the default is a "null appender" -- do nothing
-    snap::NOTUSED(msg);
-    snap::NOTUSED(formatted_message);
+    snap::NOT_USED(msg, formatted_message);
 }
 
 
@@ -555,7 +554,7 @@ safe_format::safe_format(appender::pointer_t a, format::pointer_t new_format)
 
 safe_format::~safe_format()
 {
-    snap::NOTUSED(f_appender->set_format(f_old_format));
+    snap::NOT_USED(f_appender->set_format(f_old_format));
 }
 
 

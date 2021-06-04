@@ -167,7 +167,7 @@ void file_appender::set_filename(std::string const & filename)
 
 void file_appender::process_message(message const & msg, std::string const & formatted_message)
 {
-    snap::NOTUSED(msg);
+    snap::NOT_USED(msg);
 
     guard g;
 

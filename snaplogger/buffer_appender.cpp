@@ -87,7 +87,7 @@ buffer_appender::buffer_appender(std::string const name)
 
 void buffer_appender::process_message(message const & msg, std::string const & formatted_message)
 {
-    snap::NOTUSED(msg);
+    snap::NOT_USED(msg);
 
     guard g;
 

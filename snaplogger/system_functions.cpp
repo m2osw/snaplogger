@@ -96,7 +96,7 @@ namespace
 
 DECLARE_FUNCTION(padding)
 {
-    snap::NOTUSED(msg);
+    snap::NOT_USED(msg);
 
     std::u32string pad;
     if(p->get_type() == param::type_t::TYPE_STRING)
@@ -131,7 +131,7 @@ DECLARE_FUNCTION(padding)
 
 DECLARE_FUNCTION(align)
 {
-    snap::NOTUSED(msg);
+    snap::NOT_USED(msg);
 
     if(p->get_value() == "left")
     {
@@ -164,7 +164,7 @@ DECLARE_FUNCTION(align)
 
 DECLARE_FUNCTION(max_width)
 {
-    snap::NOTUSED(msg);
+    snap::NOT_USED(msg);
 
     std::int64_t const max_width(p->get_integer());
     std::int64_t const extra(static_cast<std::int64_t>(d.get_value().length()) - max_width);
@@ -189,7 +189,7 @@ DECLARE_FUNCTION(max_width)
 
 DECLARE_FUNCTION(min_width)
 {
-    snap::NOTUSED(msg);
+    snap::NOT_USED(msg);
 
     std::int64_t const min_width(p->get_integer());
     std::int64_t const pad(min_width - static_cast<std::int64_t>(d.get_value().length()));
@@ -224,7 +224,7 @@ DECLARE_FUNCTION(min_width)
 
 DECLARE_FUNCTION(exact_width)
 {
-    snap::NOTUSED(msg);
+    snap::NOT_USED(msg);
 
     std::int64_t const exact_width(p->get_integer());
 
@@ -280,7 +280,7 @@ DECLARE_FUNCTION(exact_width)
 
 DECLARE_FUNCTION(append)
 {
-    snap::NOTUSED(msg);
+    snap::NOT_USED(msg);
 
     std::string const append_utf8(p->get_value());
     std::u32string const str(libutf8::to_u32string(append_utf8));
@@ -289,7 +289,7 @@ DECLARE_FUNCTION(append)
 
 DECLARE_FUNCTION(prepend)
 {
-    snap::NOTUSED(msg);
+    snap::NOT_USED(msg);
 
     std::string const prepend_utf8(p->get_value());
     std::u32string const prepend(libutf8::to_u32string(prepend_utf8));
@@ -302,7 +302,7 @@ DECLARE_FUNCTION(prepend)
 
 DECLARE_FUNCTION(escape)
 {
-    snap::NOTUSED(msg);
+    snap::NOT_USED(msg);
 
     std::string to_escape(p->get_value());
     if(to_escape.empty())
@@ -385,8 +385,7 @@ DECLARE_FUNCTION(escape)
 
 DECLARE_FUNCTION(caps)
 {
-    snap::NOTUSED(msg);
-    snap::NOTUSED(p);
+    snap::NOT_USED(msg, p);
 
     std::u32string r;
     bool first(true);
@@ -423,8 +422,7 @@ DECLARE_FUNCTION(caps)
 
 DECLARE_FUNCTION(lower)
 {
-    snap::NOTUSED(msg);
-    snap::NOTUSED(p);
+    snap::NOT_USED(msg, p);
 
     // TODO: make use of boost::locale::to_upper(d); so we benefit from the
     //       current locale
@@ -434,8 +432,7 @@ DECLARE_FUNCTION(lower)
 
 DECLARE_FUNCTION(upper)
 {
-    snap::NOTUSED(msg);
-    snap::NOTUSED(p);
+    snap::NOT_USED(msg, p);
 
     // TODO: make use of boost::locale::to_upper(d); so we benefit from the
     //       current locale

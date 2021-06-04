@@ -839,9 +839,8 @@ int main(int argc, char * argv[])
 
         return t.execute();
     }
-    catch(advgetopt::getopt_exit const & e)
+    catch(advgetopt::getopt_exit const &)
     {
-        snap::NOTUSED(e);
         return 0;
     }
     catch(std::exception const & e)
