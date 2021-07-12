@@ -66,6 +66,7 @@ public:
     std::string         get_domainname() const;
     std::string         get_progname() const;
     std::string         get_threadname() const;
+    std::string         get_boot_id() const;
 
 private:
     uid_t               f_uid = -1;
@@ -78,6 +79,7 @@ private:
     std::string         f_domainname = std::string();
     std::string         f_progname = std::string();
     std::string         f_threadname = std::string();
+    std::string         f_boot_id = std::string();
 };
 
 

@@ -133,6 +133,23 @@ DEFINE_LOGGER_VARIABLE(domainname)
 }
 
 
+DEFINE_LOGGER_VARIABLE(boot_id)
+{
+    auto params(get_params());
+    if(params.size() > 0
+    && params[0]->get_name() == "running")
+    {
+        value += cppthread::get_boot_id();
+    }
+    else
+    {
+        value += msg.get_environment()->get_boot_id();
+    }
+
+    variable::process_value(msg, value);
+}
+
+
 DEFINE_LOGGER_VARIABLE(pid)
 {
     auto params(get_params());

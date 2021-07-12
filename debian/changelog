@@ -1,3 +1,9 @@
+snaplogger (1.0.37.0~bionic) bionic; urgency=high
+
+  * Added the boot_id system variable.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sun, 11 Jul 2021 20:46:55 -0700
+
 snaplogger (1.0.36.0~bionic) bionic; urgency=high
 
   * Added the `--logger-show-banner` and `--logger-hide-banner` options.

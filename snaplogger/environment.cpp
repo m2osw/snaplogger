@@ -47,6 +47,11 @@
 #include    "snaplogger/private_logger.h"
 
 
+// cppthread lib
+//
+#include    <cppthread/thread.h>
+
+
 // C lib
 //
 #include    <grp.h>
@@ -119,6 +124,8 @@ environment::environment(pid_t tid)
     {
         f_threadname = thread_it->second;
     }
+
+    f_boot_id = cppthread::get_boot_id();
 }
 
 
@@ -193,6 +200,16 @@ std::string environment::get_threadname() const
 
     return f_threadname;
 }
+
+
+std::string environment::get_boot_id() const
+{
+    guard g;
+
+    return f_boot_id;
+}
+
+
 
 
 
