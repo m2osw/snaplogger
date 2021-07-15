@@ -85,12 +85,17 @@ appender::~appender()
 
 std::string const & appender::get_type() const
 {
+    // we do not need to guard this one because we set it up on creation
+    // and it can't be modified later
+    //
     return f_type;
 }
 
 
 void appender::set_name(std::string const & name)
 {
+    guard g;
+
     if(f_name != "console"
     && f_name != "syslog")
     {
@@ -104,12 +109,16 @@ void appender::set_name(std::string const & name)
 
 std::string const & appender::get_name() const
 {
+    guard g;
+
     return f_name;
 }
 
 
 bool appender::is_enabled() const
 {
+    guard g;
+
     return f_enabled;
 }
 
@@ -158,6 +167,8 @@ void appender::reduce_severity(severity_t severity_level)
 
 bool appender::operator < (appender const & rhs) const
 {
+    guard g;
+
     return f_severity < rhs.f_severity;
 }
 
@@ -412,6 +423,8 @@ void appender::reopen()
 
 void appender::add_component(component::pointer_t comp)
 {
+    guard g;
+
     f_components.insert(comp);
 }
 
@@ -428,6 +441,8 @@ format::pointer_t appender::set_format(format::pointer_t new_format)
 
 void appender::send_message(message const & msg)
 {
+    guard g;
+
     if(!is_enabled()
     || msg.get_severity() < f_severity)
     {
@@ -474,7 +489,7 @@ void appender::send_message(message const & msg)
         formatted_message += '\n';
     }
 
-    if(f_no_repeat_size > 0)
+    if(f_no_repeat_size > NO_REPEAT_OFF)
     {
         std::string const non_changing_message(f_format->process_message(msg, true));
         auto it(std::find(f_last_messages.rbegin(), f_last_messages.rend(), non_changing_message));

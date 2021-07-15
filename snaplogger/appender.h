@@ -48,6 +48,7 @@ namespace snaplogger
 
 typedef std::shared_ptr<std::regex>         regex_pointer_t;
 
+constexpr long const                        NO_REPEAT_OFF     = 0;
 constexpr long const                        NO_REPEAT_MAXIMUM = 100;
 constexpr long const                        NO_REPEAT_DEFAULT = 10;
 
@@ -97,7 +98,7 @@ private:
     component::pointer_t        f_normal_component = component::pointer_t();
     component::set_t            f_components = component::set_t();
     regex_pointer_t             f_filter = regex_pointer_t();
-    std::size_t                 f_no_repeat_size = 0;
+    std::size_t                 f_no_repeat_size = NO_REPEAT_OFF;
     std::deque<std::string>     f_last_messages = {};
 };
 
