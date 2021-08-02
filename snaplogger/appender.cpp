@@ -44,6 +44,11 @@
 #include    <iostream>
 
 
+// C lib
+//
+#include    <math.h>
+
+
 // last include
 //
 #include    <snapdev/poison.h>
@@ -207,6 +212,40 @@ void appender::set_config(advgetopt::getopt const & opts)
         {
             f_format = std::make_shared<format>(opts.get_string("format"));
         }
+    }
+
+    // BITRATE
+    //
+    {
+        // the input is considered to be in mbps
+        //
+        std::string bitrate("0");
+        std::string const specialized_bitrate(f_name + "::bitrate");
+        if(opts.is_defined(specialized_bitrate))
+        {
+            bitrate = opts.get_string(specialized_bitrate);
+        }
+        else if(opts.is_defined("bitrate"))
+        {
+            bitrate = opts.get_string("bitrate");
+        }
+        char * end(nullptr);
+        errno = 0;
+        double rate(strtod(bitrate.c_str(), &end));
+        if(rate < 0.0
+        || end == nullptr
+        || *end != '\0'
+        || errno == ERANGE)
+        {
+            rate = 0.0;
+        }
+        if(rate > 0.0)
+        {
+            // transform the rate to bytes per minute
+            //
+            rate = rate * (60.0 * 1'000'000.0 / 8.0);
+        }
+        f_bytes_per_minute = static_cast<decltype(f_bytes_per_minute)>(floor(rate));
     }
 
     // SEVERITY
@@ -439,6 +478,39 @@ format::pointer_t appender::set_format(format::pointer_t new_format)
 }
 
 
+long appender::get_bytes_per_minute() const
+{
+    return f_bytes_per_minute;
+}
+
+
+/** \brief Return the number of dropped message due to bitrate restrictions.
+ *
+ * It is possible to set the number of bits per second that an appender
+ * will accept. Anything over that amount will be dropped.
+ *
+ * The logger converts the bits per second amount to a bytes per minute.
+ * Each time a message gets sent, the number of bytes in that message
+ * string is added to a counter. If that counter reaches a number of bytes
+ * per minute larger than the allowed bytes per minutes, then the messages
+ * get dropped until 1 minute elapses.
+ *
+ * This function returns any message that was sent and was dropped because
+ * the bytes per minute limit was reached.
+ *
+ * \note
+ * This counter doesn't get reset so reading it always returns a grand
+ * total of all the messages that were dropped so far. This counter is
+ * per appender.
+ *
+ * \return The number of messages that were dropped.
+ */
+std::size_t appender::get_bytes_dropped_messages() const
+{
+    return f_bytes_dropped_messages;
+}
+
+
 void appender::send_message(message const & msg)
 {
     guard g;
@@ -487,6 +559,31 @@ void appender::send_message(message const & msg)
         // TODO: add support to define line terminator (cr, nl, cr nl)
         //
         formatted_message += '\n';
+    }
+
+    // TBD: should we use the time of the message rather than 'now'?
+    //
+    if(f_bytes_per_minute != 0)
+    {
+        time_t const now(time(0));
+        if(f_bytes_minute - now >= 60)
+        {
+            f_bytes_minute = now;
+            f_bytes_received = 0;
+        }
+        else if(f_bytes_received + static_cast<long>(formatted_message.length())
+                                        >= f_bytes_per_minute)
+        {
+            // overflow
+            //
+            // IMPORTANT NOTE: this algorithm may kick out a very long log
+            // message and then accept a smaller one which still fits in the
+            // `f_bytes_per_minute` bitrate
+            //
+            ++f_bytes_dropped_messages;
+            return;
+        }
+        f_bytes_received += formatted_message.length();
     }
 
     if(f_no_repeat_size > NO_REPEAT_OFF)

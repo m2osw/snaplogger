@@ -84,6 +84,9 @@ public:
     format::pointer_t           get_format() const;
     virtual format::pointer_t   set_format(format::pointer_t new_format);
 
+    long                        get_bytes_per_minute() const;
+    std::size_t                 get_bytes_dropped_messages() const;
+
     void                        send_message(message const & msg);
 
 protected:
@@ -100,6 +103,10 @@ private:
     regex_pointer_t             f_filter = regex_pointer_t();
     std::size_t                 f_no_repeat_size = NO_REPEAT_OFF;
     std::deque<std::string>     f_last_messages = {};
+    long                        f_bytes_per_minute = 0;
+    long                        f_bytes_received = 0;
+    time_t                      f_bytes_minute = 0;
+    std::size_t                 f_bytes_dropped_messages = 0;
 };
 
 

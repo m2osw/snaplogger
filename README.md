@@ -176,6 +176,23 @@ The following are the main features of this logger:
     named `id`. At this time, no other fields are automatically added, but
     Snap! Logger understands some system names such as "_timestamp".
 
+* Bitrate Limit
+
+    By default, all log messages are forwarded to the appender processing
+    function (i.e. the function saving the log to a file, sending the log
+    over a network, etc.)
+
+    At times, it can be useful to limit the amount of data sent, especially
+    when sending logs over a network or saving them to a file to limit the
+    amount of I/O used and also limit the amount of disk space used. The
+    appenders have a bitrate parameter that can be set to the maximum amount
+    of data that the logger is allowed to forward per minute (although the
+    amount is defined in "mbps").
+    
+    Note that at the moment this is based on a per appender basis. It is not
+    a system wide limit either (i.e. if you run 20 services, each have its own
+    private set of limits).
+
 * Regex Filtering
 
     You have the ability to add as many file appenders as you'd like. You
@@ -400,6 +417,26 @@ Technically, when no component is specified in a log, `normal` is assumed.
 Otherwise, the appender must include that component or it will be ignored.
 (i.e. that log will not make it to that appender if none of its components
 match the ones in the log being processed.)
+
+### Bitrate
+
+At times, a process may end up sending way too many logs at once. This may be
+fine for a console (the console will force a slow down of the incoming data)
+but for some other appenders, this may be a killer (i.e. you end up filling
+up your drive, you have so much to send over the network that it kills all
+client connections, etc.)
+
+So we offer a speed which is measured in `mbps` (mega bits per second). We
+use that measurement because many  people are familiar with it because
+networks generally use it.
+
+    [file]
+    # Limit to about 122Kb of log per second
+    bitrate=1
+
+1 mbps, as shown in this example, represents 1,000 messages of a little
+over 100 characters (mainly assuming ASCII characters) per second. The
+parameter supports decimal numbers (i.e. 0.1 for one tenth of that number).
 
 ### Filter
 
@@ -875,7 +912,7 @@ a separate partition makes even more sense in that situation.
 
 The shredding mechanism can be used with any file. Obviously, it makes the
 delete _very slow_, so it is recommended to only use this technique against
-files that are likely to require it, such as your logs.
+files that are likely to require it, such as your secure logs.
 
 Two other places where I use the technique:
 
