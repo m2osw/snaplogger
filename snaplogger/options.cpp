@@ -125,12 +125,12 @@ advgetopt::option const g_options[] =
     advgetopt::define_option(
           advgetopt::Name("logger-show-banner")
         , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
-        , advgetopt::Help("show a banner on started with the tool name and version.")
+        , advgetopt::Help("show a banner on startup with the tool name and version.")
     ),
     advgetopt::define_option(
           advgetopt::Name("logger-hide-banner")
         , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
-        , advgetopt::Help("do not show the banner (--show-banner has priority if specified).")
+        , advgetopt::Help("do not show the banner (--logger-show-banner has priority if specified).")
     ),
 
     // ALTERNATIVE CONFIG FILES
@@ -147,12 +147,12 @@ advgetopt::option const g_options[] =
     advgetopt::define_option(
           advgetopt::Name("debug")
         , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
-        , advgetopt::Help("change the severity level of each appender to DEBUG.")
+        , advgetopt::Help("change the logger severity level of each appender to DEBUG.")
     ),
     advgetopt::define_option(
           advgetopt::Name("trace")
         , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
-        , advgetopt::Help("change the severity level of each appender to TRACE.")
+        , advgetopt::Help("change the logger severity level of each appender to TRACE.")
     ),
     advgetopt::define_option(
           advgetopt::Name("log-severity")
@@ -164,7 +164,7 @@ advgetopt::option const g_options[] =
           advgetopt::Name("force-severity")
         , advgetopt::Flags(advgetopt::command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS
                             , advgetopt::GETOPT_FLAG_REQUIRED>())
-        , advgetopt::Help("change the severity level of each appender to the specified level.")
+        , advgetopt::Help("change the logger severity level of each appender to the specified level.")
     ),
 
     // FILTERS
@@ -183,7 +183,7 @@ advgetopt::option const g_options[] =
     advgetopt::define_option(
           advgetopt::Name("list-severities")
         , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
-        , advgetopt::Help("show the list of available severities.")
+        , advgetopt::Help("show the list of available log severities.")
     ),
     advgetopt::define_option(
           advgetopt::Name("logger-version")
