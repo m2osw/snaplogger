@@ -70,50 +70,57 @@ namespace snaplogger
 {
 
 // variables
-//
-#define SNAPLOGGER_VAR_BASENAME     "basename"
-#define SNAPLOGGER_VAR_DATE         "date"
-#define SNAPLOGGER_VAR_DIAGNOSTIC   "diagnostic"
-#define SNAPLOGGER_VAR_DOMAINNAME   "domainname"
-#define SNAPLOGGER_VAR_ENV          "env"
-#define SNAPLOGGER_VAR_FILENAME     "filename"
-#define SNAPLOGGER_VAR_FUNCTION     "function"
-#define SNAPLOGGER_VAR_GID          "gid"
-#define SNAPLOGGER_VAR_GROUPNAME    "groupname"
-#define SNAPLOGGER_VAR_HOSTBYNAME   "hostbyname"
-#define SNAPLOGGER_VAR_HOSTNAME     "hostname"
-#define SNAPLOGGER_VAR_LINE         "line"
-#define SNAPLOGGER_VAR_LOCALE       "locale"
-#define SNAPLOGGER_VAR_MESSAGE      "message"
-#define SNAPLOGGER_VAR_PATH         "path"
-#define SNAPLOGGER_VAR_PID          "pid"
-#define SNAPLOGGER_VAR_PROGNAME     "progname"
-#define SNAPLOGGER_VAR_SEVERITY     "severity"
-#define SNAPLOGGER_VAR_TID          "tid"
-#define SNAPLOGGER_VAR_TIME         "time"
-#define SNAPLOGGER_VAR_THREADNAME   "threadname"
-#define SNAPLOGGER_VAR_UID          "uid"
-#define SNAPLOGGER_VAR_USERNAME     "username"
-#define SNAPLOGGER_VAR_VERSION      "version"
+//                                                                 Variable Type
+#define SNAPLOGGER_VAR_BASENAME         "basename"              // logger_variable.cpp
+#define SNAPLOGGER_VAR_BOOTID           "boot_id"               // system_variable.cpp
+#define SNAPLOGGER_VAR_BUILD_DATE       "build_date"            // logger_variable.cpp
+#define SNAPLOGGER_VAR_BUILD_TIME       "build_time"            // logger_variable.cpp
+#define SNAPLOGGER_VAR_DATE             "date"                  // date_variable.cpp
+#define SNAPLOGGER_VAR_DIAGNOSTIC       "diagnostic"            // logger_variable.cpp
+#define SNAPLOGGER_VAR_DIRECT           "direct"                // variable.cpp
+#define SNAPLOGGER_VAR_DOMAINNAME       "domainname"            // system_variable.cpp
+#define SNAPLOGGER_VAR_ENV              "env"                   // environment_variable.cpp
+#define SNAPLOGGER_VAR_FIELD            "field"                 // logger_variable.cpp
+#define SNAPLOGGER_VAR_FIELDS           "fields"                // logger_variable.cpp
+#define SNAPLOGGER_VAR_FILENAME         "filename"              // logger_variable.cpp
+#define SNAPLOGGER_VAR_FUNCTION         "function"              // logger_variable.cpp
+#define SNAPLOGGER_VAR_GID              "gid"                   // user_variable.cpp
+#define SNAPLOGGER_VAR_GROUPNAME        "groupname"             // user_variable.cpp
+#define SNAPLOGGER_VAR_HOSTBYNAME       "hostbyname"            // system_variable.cpp
+#define SNAPLOGGER_VAR_HOSTNAME         "hostname"              // system_variable.cpp
+#define SNAPLOGGER_VAR_LINE             "line"                  // logger_variable.cpp
+#define SNAPLOGGER_VAR_LOCALE           "locale"                // date_variable.cpp
+#define SNAPLOGGER_VAR_MESSAGE          "message"               // logger_variable.cpp
+#define SNAPLOGGER_VAR_PATH             "path"                  // logger_variable.cpp
+#define SNAPLOGGER_VAR_PID              "pid"                   // system_variable.cpp
+#define SNAPLOGGER_VAR_PROJECT_NAME     "project_name"          // logger_variable.cpp
+#define SNAPLOGGER_VAR_PROGNAME         "progname"              // logger_variable.cpp
+#define SNAPLOGGER_VAR_SEVERITY         "severity"              // logger_variable.cpp
+#define SNAPLOGGER_VAR_TID              "tid"                   // system_variable.cpp
+#define SNAPLOGGER_VAR_TIME             "time"                  // date_variable.cpp
+#define SNAPLOGGER_VAR_THREADNAME       "threadname"            // system_variable.cpp
+#define SNAPLOGGER_VAR_UID              "uid"                   // user_variable.cpp
+#define SNAPLOGGER_VAR_USERNAME         "username"              // user_variable.cpp
+#define SNAPLOGGER_VAR_VERSION          "version"               // logger_variable.cpp
 
 // functions
 //
-#define SNAPLOGGER_VAR_ALIGN        "align"
-#define SNAPLOGGER_VAR_APPEND       "append"
-#define SNAPLOGGER_VAR_CAPS         "caps"
-#define SNAPLOGGER_VAR_ESCAPE       "escape"
-#define SNAPLOGGER_VAR_EXACT_WIDTH  "exact_width"
-#define SNAPLOGGER_VAR_LOWER        "lower"
-#define SNAPLOGGER_VAR_MAX_WIDTH    "max_width"
-#define SNAPLOGGER_VAR_MIN_WIDTH    "min_width"
-#define SNAPLOGGER_VAR_PADDING      "padding"
-#define SNAPLOGGER_VAR_PREPEND      "prepend"
-#define SNAPLOGGER_VAR_UPPER        "upper"
+#define SNAPLOGGER_VAR_ALIGN            "align"
+#define SNAPLOGGER_VAR_APPEND           "append"
+#define SNAPLOGGER_VAR_CAPS             "caps"
+#define SNAPLOGGER_VAR_ESCAPE           "escape"
+#define SNAPLOGGER_VAR_EXACT_WIDTH      "exact_width"
+#define SNAPLOGGER_VAR_LOWER            "lower"
+#define SNAPLOGGER_VAR_MAX_WIDTH        "max_width"
+#define SNAPLOGGER_VAR_MIN_WIDTH        "min_width"
+#define SNAPLOGGER_VAR_PADDING          "padding"
+#define SNAPLOGGER_VAR_PREPEND          "prepend"
+#define SNAPLOGGER_VAR_UPPER            "upper"
 
 // parameters
 //
-#define SNAPLOGGER_VAR_ALIGN_LEFT   "left"
-#define SNAPLOGGER_VAR_ALIGN_RIGHT  "right"
+#define SNAPLOGGER_VAR_ALIGN_LEFT       "left"
+#define SNAPLOGGER_VAR_ALIGN_RIGHT      "right"
 
 
 

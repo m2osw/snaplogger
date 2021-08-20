@@ -28,6 +28,11 @@
 #include    "snaplogger/syslog_appender.h"
 
 
+// snapdev lib
+//
+#include    <snapdev/not_reached.h>
+
+
 // C++ lib
 //
 #include    <iostream>
@@ -173,42 +178,47 @@ void syslog_appender::set_config(advgetopt::getopt const & opts)
 }
 
 
-void syslog_appender::process_message(message const & msg, std::string const & formatted_message)
+int syslog_appender::message_severity_to_syslog_priority(severity_t const sev)
 {
-    int priority(LOG_INFO);
-    severity_t const sev(msg.get_severity());
     if(sev <= severity_t::SEVERITY_DEBUG)
     {
-        priority = LOG_DEBUG;
+        return LOG_DEBUG;
     }
     else if(sev <= severity_t::SEVERITY_INFORMATION)
     {
-        priority = LOG_INFO;
+        return LOG_INFO;
     }
     else if(sev <= severity_t::SEVERITY_MINOR)
     {
-        priority = LOG_NOTICE;
+        return LOG_NOTICE;
     }
     else if(sev <= severity_t::SEVERITY_MAJOR)
     {
-        priority = LOG_WARNING;
+        return LOG_WARNING;
     }
     else if(sev <= severity_t::SEVERITY_ERROR)
     {
-        priority = LOG_ERR;
+        return LOG_ERR;
     }
     else if(sev <= severity_t::SEVERITY_CRITICAL)
     {
-        priority = LOG_CRIT;
+        return LOG_CRIT;
     }
     else if(sev <= severity_t::SEVERITY_ALERT)
     {
-        priority = LOG_ALERT;
+        return LOG_ALERT;
     }
     else
     {
-        priority = LOG_EMERG;
+        return LOG_EMERG;
     }
+    snap::NOT_REACHED();
+}
+
+
+void syslog_appender::process_message(message const & msg, std::string const & formatted_message)
+{
+    int const priority(message_severity_to_syslog_priority(msg.get_severity()));
 
     syslog(priority, "%s", formatted_message.c_str());
 }

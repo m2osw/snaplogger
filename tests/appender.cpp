@@ -58,9 +58,20 @@ CATCH_TEST_CASE("appender", "[appender]")
         snaplogger::appender::pointer_t buffer(snaplogger::create_appender("buffer", "test-buffer"));
         CATCH_REQUIRE(buffer != nullptr);
 
-        advgetopt::options_environment opt_env;
-        opt_env.f_project_name = "test-logger";
-        advgetopt::getopt opts(opt_env);
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
         buffer->set_config(opts);
 
         snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${severity}: ${message}"));

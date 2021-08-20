@@ -31,6 +31,7 @@
 #include    "snaplogger/format.h"
 #include    "snaplogger/map_diagnostic.h"
 #include    "snaplogger/nested_diagnostic.h"
+#include    "snaplogger/syslog_appender.h"
 #include    "snaplogger/trace_diagnostic.h"
 #include    "snaplogger/variable.h"
 
@@ -57,16 +58,14 @@ namespace
 
 DEFINE_LOGGER_VARIABLE(severity)
 {
-    severity_t sev(msg.get_severity());
-    severity::pointer_t severity(get_severity(msg, sev));
-    if(severity == nullptr)
+    enum class format_t
     {
-        // not found, write value directly
-        //
-        value += std::to_string(static_cast<int>(sev));
-        variable::process_value(msg, value);
-        return;
-    }
+        FORMAT_ALPHA,
+        FORMAT_NUMBER,
+        FORMAT_SYSTEMD,
+    };
+
+    format_t format(format_t::FORMAT_ALPHA);
 
     auto params(get_params());
     if(!params.empty())
@@ -74,23 +73,54 @@ DEFINE_LOGGER_VARIABLE(severity)
         if(params[0]->get_name() == "format")
         {
             auto v(params[0]->get_value());
-            if(v != "alpha")
+            if(v == "alpha")
             {
-                if(v == "number")
-                {
-                    value += std::to_string(static_cast<int>(sev));
-                    variable::process_value(msg, value);
-                    return;
-                }
+                format = format_t::FORMAT_ALPHA;
+            }
+            else if(v == "number")
+            {
+                format = format_t::FORMAT_NUMBER;
+            }
+            else if(v == "systemd")
+            {
+                format = format_t::FORMAT_SYSTEMD;
+            }
+            else
+            {
                 throw invalid_variable(
-                              "the ${severity:format=alpha|number} variable cannot be set to \""
+                              "the ${severity:format=alpha|number|systemd} variable cannot be set to \""
                             + v
                             + "\".");
             }
         }
     }
 
-    value += severity->get_description();
+    severity_t sev(msg.get_severity());
+    switch(format)
+    {
+    case format_t::FORMAT_ALPHA:
+        {
+            severity::pointer_t severity(get_severity(msg, sev));
+            if(severity != nullptr)
+            {
+                value += severity->get_description();
+                break;
+            }
+        }
+        [[fallthrough]];
+    case format_t::FORMAT_NUMBER:
+        value += std::to_string(static_cast<int>(sev));
+        break;
+
+    case format_t::FORMAT_SYSTEMD:
+        // see https://www.freedesktop.org/software/systemd/man/sd-daemon.html
+        //
+        value += '<';
+        value += std::to_string(syslog_appender::message_severity_to_syslog_priority(sev));
+        value += '>';
+        break;
+
+    }
 
     variable::process_value(msg, value);
 }

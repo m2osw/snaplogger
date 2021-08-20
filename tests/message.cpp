@@ -78,9 +78,21 @@ CATCH_TEST_CASE("message_capture", "[message]")
 
         CATCH_REQUIRE(buffer->get_type() == "buffer");
 
-        advgetopt::options_environment opt_env;
-        opt_env.f_project_name = "test-logger";
-        advgetopt::getopt opts(opt_env);
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
         buffer->set_config(opts);
 
         snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${severity}: ${message}"));
@@ -125,9 +137,21 @@ CATCH_TEST_CASE("message_capture", "[message]")
 
         CATCH_REQUIRE(buffer->get_type() == "buffer");
 
-        advgetopt::options_environment opt_env;
-        opt_env.f_project_name = "json-logger";
-        advgetopt::getopt opts(opt_env);
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "json-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
         buffer->set_config(opts);
 
         snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>(
@@ -172,9 +196,21 @@ CATCH_TEST_CASE("message_copy", "[message]")
 
         CATCH_REQUIRE(buffer->get_type() == "buffer");
 
-        advgetopt::options_environment opt_env;
-        opt_env.f_project_name = "test-logger";
-        advgetopt::getopt opts(opt_env);
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
         buffer->set_config(opts);
 
         snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message}"));
@@ -250,9 +286,21 @@ CATCH_TEST_CASE("message_severity", "[message][severity]")
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
 
-        advgetopt::options_environment opt_env;
-        opt_env.f_project_name = "test-logger";
-        advgetopt::getopt opts(opt_env);
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
         buffer->set_config(opts);
 
         snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message}"));
@@ -300,9 +348,21 @@ CATCH_TEST_CASE("message_severity", "[message][severity]")
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
 
-        advgetopt::options_environment opt_env;
-        opt_env.f_project_name = "test-logger";
-        advgetopt::getopt opts(opt_env);
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
         buffer->set_config(opts);
 
         snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message}"));
@@ -375,10 +435,22 @@ CATCH_TEST_CASE("message_format", "[message][format]")
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
 
-        advgetopt::options_environment opt_env;
-        opt_env.f_project_name = "test-logger";
-        opt_env.f_version = "5.32.1024";
-        advgetopt::getopt opts(opt_env);
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        environment_options.f_version = "5.32.1024";
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
         buffer->set_config(opts);
 
         snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${project_name} ${message} v${version}"));
@@ -411,10 +483,22 @@ CATCH_TEST_CASE("message_format", "[message][format]")
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
 
-        advgetopt::options_environment opt_env;
-        opt_env.f_project_name = "test-logger";
-        opt_env.f_version = "5.32.1024";
-        advgetopt::getopt opts(opt_env);
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        environment_options.f_version = "5.32.1024";
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
         buffer->set_config(opts);
 
         snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${project_name} ${message} v${version}"));
@@ -455,8 +539,21 @@ CATCH_TEST_CASE("message_format", "[message][format]")
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
 
-        advgetopt::options_environment opt_env;
-        advgetopt::getopt opts(opt_env);
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
         buffer->set_config(opts);
 
         snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message}"));
@@ -486,8 +583,21 @@ CATCH_TEST_CASE("message_format", "[message][format]")
 
         snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
 
-        advgetopt::options_environment opt_env;
-        advgetopt::getopt opts(opt_env);
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
         buffer->set_config(opts);
 
         snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message}"));
@@ -540,11 +650,24 @@ CATCH_TEST_CASE("message_component_filter", "[message][component]")
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
 
-        advgetopt::options_environment opt_env;
-        advgetopt::getopt opts(opt_env);
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
         buffer->set_config(opts);
 
-        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message} (${severity})"));
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message} (${severity:format=number})"));
         buffer->set_format(f);
 
         l->add_appender(buffer);
@@ -573,7 +696,8 @@ CATCH_TEST_CASE("message_component_filter", "[message][component]")
             << "This message is secure and so is the buffer"
             << SNAP_LOG_SEND;
 
-        CATCH_REQUIRE(buffer->str() == "This message is secure and so is the buffer (warning)\n");
+        // TODO: get the WARNING severity level dynamically
+        CATCH_REQUIRE(buffer->str() == "This message is secure and so is the buffer (100)\n");
 
         buffer->clear();
 
@@ -583,7 +707,8 @@ CATCH_TEST_CASE("message_component_filter", "[message][component]")
             << " with secure buffer...\r\n"
             << SNAP_LOG_SEND_SECURELY;  // mark at the end
 
-        CATCH_REQUIRE(buffer->str() == "Test number: 4 with secure buffer... (warning)\n");
+        // TODO: get the WARNING severity level dynamically
+        CATCH_REQUIRE(buffer->str() == "Test number: 4 with secure buffer... (100)\n");
 
         l->reset();
     }

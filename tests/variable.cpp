@@ -46,7 +46,7 @@
 
 
 
-CATCH_TEST_CASE("variable_param", "[variable][param]")
+CATCH_TEST_CASE("variable_param", "[variable][param][error]")
 {
     CATCH_START_SECTION("Param Name is Mandatory")
     {
@@ -70,9 +70,21 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
 
-        advgetopt::options_environment opt_env;
-        opt_env.f_project_name = "test-logger";
-        advgetopt::getopt opts(opt_env);
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
         buffer->set_config(opts);
 
         snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${hostname:padding=3:align=right:min_width=30} ${message}"));
@@ -324,9 +336,21 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
 
-        advgetopt::options_environment opt_env;
-        opt_env.f_project_name = "test-logger";
-        advgetopt::getopt opts(opt_env);
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
         buffer->set_config(opts);
 
         snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${hostname} ${message:escape}"));
@@ -366,9 +390,21 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
 
-        advgetopt::options_environment opt_env;
-        opt_env.f_project_name = "test-logger";
-        advgetopt::getopt opts(opt_env);
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
         buffer->set_config(opts);
 
         snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message:caps}"));
@@ -388,9 +424,21 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
 
-        advgetopt::options_environment opt_env;
-        opt_env.f_project_name = "test-logger";
-        advgetopt::getopt opts(opt_env);
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
         buffer->set_config(opts);
 
         snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message:lower}"));
@@ -418,9 +466,21 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
 
-        advgetopt::options_environment opt_env;
-        opt_env.f_project_name = "test-logger";
-        advgetopt::getopt opts(opt_env);
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
         buffer->set_config(opts);
 
         snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${hostname:max_width=3} ${message}"));
@@ -440,6 +500,106 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
 
         SNAP_LOG_ERROR << "<- first three letters of hostname" << SNAP_LOG_SEND;
         CATCH_REQUIRE(buffer->str() == aligned + " <- first three letters of hostname\n");
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("systemd severity")
+    {
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "message-variable-systemd-severity");
+
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
+
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${severity:format=systemd} ${message} (${severity:format=alpha})"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+
+        SNAP_LOG_EMERGENCY << "<- severity tag for systemd/syslog" << SNAP_LOG_SEND;
+        SNAP_LOG_ALERT << "<- severity tag for systemd/syslog" << SNAP_LOG_SEND;
+        SNAP_LOG_CRIT << "<- severity tag for systemd/syslog" << SNAP_LOG_SEND;
+        SNAP_LOG_ERROR << "<- severity tag for systemd/syslog" << SNAP_LOG_SEND;
+        SNAP_LOG_WARNING << "<- severity tag for systemd/syslog" << SNAP_LOG_SEND;
+        SNAP_LOG_MINOR << "<- severity tag for systemd/syslog" << SNAP_LOG_SEND;        // a.k.a. a NOTICE for syslog
+        SNAP_LOG_INFO << "<- severity tag for systemd/syslog" << SNAP_LOG_SEND;
+        SNAP_LOG_DEBUG << "<- severity tag for systemd/syslog" << SNAP_LOG_SEND;
+
+        CATCH_REQUIRE(buffer->str() == "<0> <- severity tag for systemd/syslog (emergency)\n"
+                                       "<1> <- severity tag for systemd/syslog (alert)\n"
+                                       "<2> <- severity tag for systemd/syslog (critical)\n"
+                                       "<3> <- severity tag for systemd/syslog (error)\n"
+                                       "<4> <- severity tag for systemd/syslog (warning)\n"
+                                       "<5> <- severity tag for systemd/syslog (minor)\n"
+                                       "<6> <- severity tag for systemd/syslog (information)\n");
+
+        l->set_severity(::snaplogger::severity_t::SEVERITY_ALL);
+        SNAP_LOG_DEBUG << "<- severity tag for systemd/syslog" << SNAP_LOG_SEND;
+
+        CATCH_REQUIRE(buffer->str() == "<0> <- severity tag for systemd/syslog (emergency)\n"
+                                       "<1> <- severity tag for systemd/syslog (alert)\n"
+                                       "<2> <- severity tag for systemd/syslog (critical)\n"
+                                       "<3> <- severity tag for systemd/syslog (error)\n"
+                                       "<4> <- severity tag for systemd/syslog (warning)\n"
+                                       "<5> <- severity tag for systemd/syslog (minor)\n"
+                                       "<6> <- severity tag for systemd/syslog (information)\n"
+                                       "<7> <- severity tag for systemd/syslog (debug)\n");
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("systemd severity with an invalid format")
+    {
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "message-variable-systemd-severity-invalid-format");
+
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
+
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${severity:format=invalid} ${message} (${severity:format=alpha})"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+
+        CATCH_REQUIRE_THROWS_MATCHES(
+                  SNAP_LOG_MAJOR << "<- severity tag for systemd/syslog" << SNAP_LOG_SEND
+                , snaplogger::invalid_variable
+                , Catch::Matchers::ExceptionMessage(
+                      "logger_error: the ${severity:format=alpha|number|systemd}"
+                      " variable cannot be set to \"invalid\"."));
+
+        CATCH_REQUIRE(buffer->str() == "");
     }
     CATCH_END_SECTION()
 }

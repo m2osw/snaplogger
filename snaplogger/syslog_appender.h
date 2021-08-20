@@ -45,6 +45,8 @@ public:
     virtual bool        unique() const override;
     virtual void        set_config(advgetopt::getopt const & params) override;
 
+    static int          message_severity_to_syslog_priority(severity_t const sev);
+
 protected:
     virtual void        process_message(message const & msg, std::string const & formatted_message) override;
 

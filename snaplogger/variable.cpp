@@ -92,11 +92,12 @@ DEFINE_LOGGER_VARIABLE(direct)
 {
     snap::NOT_USED(msg);
 
-    // apply all our parameters as is
+    // insert all our parameters as is
     //
     auto const & params(get_params());
     for(auto p : params)
     {
+        // TODO: should we add a space too? or can we have spaces in the params?
         value += p->get_value();
     }
 

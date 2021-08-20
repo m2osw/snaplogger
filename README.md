@@ -31,9 +31,9 @@ The following are the main features of this logger:
 * Severity
 
     The logs use a severity level. Whenever you create a message you assign
-    a severity to it such as DEBUG, INFO, ERROR, etc. We offer 18 severity
+    a severity to it such as DEBUG, INFO, ERROR, etc. We offer 19 severity
     levels by default. You can dynamically add more, either in your software
-    or in the severity.conf file.
+    or in the `severity.conf` file.
 
     Appenders can be assigned a severity. When a message is logged with
     a lower severity than the appender's, then it gets ignored by that
@@ -220,6 +220,13 @@ The following are the main features of this logger:
     the cppthread libraries (both use the `advgetopt` log feature.)
 
 
+# Examples
+
+There is an examples folder in the eventdispatcher project where I have
+simple daemon & client implementations showing how the snaplogger and
+advgetopt libraries are used in a more complete environment.
+
+
 # Reasons Behind Having Our Own Library
 
 We want to be in control of the capabilities of our logger and we want
@@ -370,6 +377,7 @@ We support the following levels:
 * `DEBUG`
 * `NOTICE`
 * `UNIMPORTANT`
+* `VERBOSE`
 * `INFORMATION`
 * `IMPORTANT`
 * `MINOR`
@@ -488,8 +496,9 @@ versatile. The following are parameters supported internally:
     ${...:escape[=characters]}  escape various characters such as quotes
 
     # Logger
-    ${severity[:format=alpha|number]}
+    ${severity[:format=alpha|number|systemd]}
                                 severity level description, in color if allowed
+                                `systemd` outputs a systemd log priority tag
     ${message}                  the log message
     ${project_name}             name of the project
                                 (equivalent to ${diagnostic:map=project_name})
@@ -696,6 +705,35 @@ The default format:
 
 If no format is defined for an appender then this format is used. The "..."
 is just to show it continues on the following line.
+
+#### Systemd Severity Format
+
+The severity variable includes a `systemd` format which allows you to output
+the severity of a log message as a systemd tag priority.
+
+The systemd environment offers a feature to allow the output to std::cout
+or std::cerr to be sent to the journalctl (default) or syslog. In both cases,
+the tag is defined as the syslog level written between angle brackets. For
+example, an error tag looks like this:
+
+    <3>
+
+The tag will be transformed by to a priority before the log is sent to
+log files.
+
+You want to use this feature with your `[console]` entry. You can include
+the snaplogger severity as a name as well:
+
+    ${severity:format=systemd}${message} (${severity})
+
+This will output the tag at the start and the severity exact name at the end.
+
+**NOTE:**
+
+The severity priority in syslog is limited to 8 levels (3 bits).
+
+Our NOTICE severity level is below INFORMATION. To output a NOTICE to syslog,
+you want to use a MINOR severity level instead.
 
 #### JSON Format
 

@@ -146,7 +146,7 @@ CATCH_TEST_CASE("severity", "[severity]")
             CATCH_REQUIRE(snaplogger::get_severity(msg, "big-error") == s);
         }
 
-        // actually create a valid severity
+        // verify that the "<name>"_sev syntax works as expected
         {
             snaplogger::severity_t const level(static_cast<snaplogger::severity_t>(25));
             snaplogger::severity::pointer_t s(std::make_shared<snaplogger::severity>(level, "remark"));
@@ -169,10 +169,40 @@ CATCH_TEST_CASE("severity", "[severity]")
 
     CATCH_START_SECTION("Print Severity")
     {
+        struct level_and_name_t
+        {
+            ::snaplogger::severity_t    f_level = ::snaplogger::severity_t::SEVERITY_ERROR;
+            std::string                 f_name = std::string();
+        };
+
+        std::vector<level_and_name_t> level_and_name =
+        {
+            { ::snaplogger::severity_t::SEVERITY_ALL,               "all" },
+            { ::snaplogger::severity_t::SEVERITY_TRACE,             "trace" },
+            { ::snaplogger::severity_t::SEVERITY_DEBUG,             "debug" },
+            { ::snaplogger::severity_t::SEVERITY_NOTICE,            "notice" },
+            { ::snaplogger::severity_t::SEVERITY_UNIMPORTANT,       "unimportant" },
+            { ::snaplogger::severity_t::SEVERITY_VERBOSE,           "verbose" },
+            { ::snaplogger::severity_t::SEVERITY_INFORMATION,       "information" },
+            { ::snaplogger::severity_t::SEVERITY_IMPORTANT,         "important" },
+            { ::snaplogger::severity_t::SEVERITY_MINOR,             "minor" },
+            { ::snaplogger::severity_t::SEVERITY_DEPRECATED,        "deprecated" },
+            { ::snaplogger::severity_t::SEVERITY_WARNING,           "warning" },
+            { ::snaplogger::severity_t::SEVERITY_MAJOR,             "major" },
+            { ::snaplogger::severity_t::SEVERITY_RECOVERABLE_ERROR, "recoverable-error" },
+            { ::snaplogger::severity_t::SEVERITY_ERROR,             "error" },
+            { ::snaplogger::severity_t::SEVERITY_CRITICAL,          "critical" },
+            { ::snaplogger::severity_t::SEVERITY_ALERT,             "alert" },
+            { ::snaplogger::severity_t::SEVERITY_EMERGENCY,         "emergency" },
+            { ::snaplogger::severity_t::SEVERITY_FATAL,             "fatal" },
+            { ::snaplogger::severity_t::SEVERITY_OFF,               "off" },
+        };
+
+        for(auto const & ln : level_and_name)
         {
             std::stringstream buffer;
-            buffer << ::snaplogger::severity_t::SEVERITY_ERROR;
-            CATCH_REQUIRE(buffer.str() == "error");
+            buffer << ln.f_level;
+            CATCH_REQUIRE(buffer.str() == ln.f_name);
         }
 
         {

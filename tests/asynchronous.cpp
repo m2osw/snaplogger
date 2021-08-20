@@ -46,9 +46,21 @@ CATCH_TEST_CASE("example", "[example]")
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
 
-        advgetopt::options_environment opt_env;
-        opt_env.f_project_name = "async-unittest";
-        advgetopt::getopt opts(opt_env);
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "async-unittest";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
         buffer->set_config(opts);
 
         snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${progname}: ${severity}: ${message} (${version})"));
