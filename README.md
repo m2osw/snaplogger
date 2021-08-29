@@ -252,8 +252,8 @@ In the base library, We offer the following appenders:
 * file
 * syslog
 
-A network appender (service) will be available through [#logserver]. We
-want to have access to [#eventdispatcher] but [#eventdispatcher] depends
+TODO: A network appender (service) will be available through [#logserver].
+We want to have access to [#eventdispatcher] but [#eventdispatcher] depends
 on [#logserver] so we have to have another project to log to a remote
 server.
 
@@ -360,6 +360,26 @@ accepted). This way we are in control of those characters. Especially,
 other parameters define where the files go:
 
     path=/var/log/snapwebsites
+
+#### Additional Appenders
+
+We have additional appenders in other projects. There are in these projects
+because that way they can make use of projects that depend on the snaplogger.
+
+* Network Appenders
+
+    The eventdispatcher project includes the TCP, UDP, and alert appenders.
+
+    The TCP allows for the logs to be sent via TCP to a remote log daemon.
+
+    The UDP allows for the logs to be sent vai UDP to a remote log daemon.
+    This type should use a bitrate parameter to avoid sending too many
+    messages and lose many of them.
+
+    The Alert allows for the logs to be sent via TCP to a remote daemon
+    after being filtered in various ways and only if it happens a given
+    number of time (unless marked as an alert log, in which case, by default,
+    it always gets sent).
 
 ### Severity
 

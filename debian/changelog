@@ -1,3 +1,10 @@
+snaplogger (1.0.38.0~bionic) bionic; urgency=high
+
+  * Updated main test to use new libexcept stack trace setup.
+  * Added documentation about the network feature (found in eventdispatcher).
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sat, 28 Aug 2021 18:37:21 -0700
+
 snaplogger (1.0.37.0~bionic) bionic; urgency=high
 
   * Added the boot_id system variable.
