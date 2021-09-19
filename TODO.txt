@@ -22,6 +22,11 @@ totally missed by the ${fields} at the moment.
   be limited.
 
 
+* Look at RFC5424 to see whether we could also support sending logs to
+  syslog directly (and support many more features than just a level and
+  a message) -- this may be something for the snaplogger/network
+  found in eventdispatcher since it requires UDP and such.
+
 
 * Allow a form of subcription to the logs
 
