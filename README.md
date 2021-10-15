@@ -240,6 +240,12 @@ The following are the main features of this logger:
     The library also is setup to capture logs from the `advgetopt` and
     the cppthread libraries (both use the `advgetopt` log feature.)
 
+* Ordinal Indicator
+
+    The library comes with the `ordinal_number` class which one can use to
+    output numbers followed with the correct ordinal indicator (i.e. as in
+    1st, 2nd, 3rd, 4th, etc.)
+
 
 # Examples
 
