@@ -13,6 +13,15 @@ well as strings (maybe some other types too? like a date & bool?)
 The library allows for system fields such as "_timestamp". But these are
 totally missed by the ${fields} at the moment.
 
+** Dynamic Fields
+
+Whenever a message gets created, we could call a user defined callback
+to generate fields dynamically. For example, you could have a flag that
+you want to report just at the time the log message is created. You could,
+of course, add something such as `... << (flag ? "true" : "false") ...`
+to your `SNAP_LOG_ERROR << ...` statement. But if that flag is general
+enough, it may be much more practical to handle it through a callback.
+
 
 
 * Severities have the mark_as_registered() function and the constructor

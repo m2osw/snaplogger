@@ -41,16 +41,17 @@ if( Catch2_FOUND )
     )
 
     add_executable( ${PROJECT_NAME}
-        main.cpp
+        catch_main.cpp
 
-        appender.cpp
-        asynchronous.cpp
-        component.cpp
-        diagnostic.cpp
-        message.cpp
-        severity.cpp
-        variable.cpp
-        version.cpp
+        catch_appender.cpp
+        catch_asynchronous.cpp
+        catch_component.cpp
+        catch_diagnostic.cpp
+        catch_message.cpp
+        catch_ordinal_indicator.cpp
+        catch_severity.cpp
+        catch_variable.cpp
+        catch_version.cpp
     )
 
     target_link_libraries( ${PROJECT_NAME}

@@ -46,6 +46,7 @@ add_library(${PROJECT_NAME} SHARED
     message.cpp
     nested_diagnostic.cpp
     options.cpp
+    ordinal_indicator.cpp
     private_logger.cpp
     severity.cpp
     syslog_appender.cpp

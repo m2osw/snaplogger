@@ -113,7 +113,7 @@ The following are the main features of this logger:
     appender includes "secure" as one of its components. This allows us
     to very quickly prevent messages from going to the wrong place.
 
-    **Note:** The secure component has special options that allows you
+    **Note:** The secure component has a special macro that allows you
     to quickly use that one. For example:
 
         SNAP_LOG_INFO
@@ -132,9 +132,9 @@ The following are the main features of this logger:
 
     You can also make components mutually exclusive. For example, we do
     not allow you to add the "normal" and "secure" components to the same
-    message. The network components (see the eventdispatcher project) also
-    include "local"/"remote" and "tcp"/"udp" pairs, which can't be used
-    simultaneously.
+    message. The network components (see the snaplogger network extension
+    in the eventdispatcher project) also include "local"/"remote" and
+    "tcp"/"udp" pairs, which can't be used simultaneously.
 
     You can also create your own components using one of the
     `snaplogger::get_component()` functions.
@@ -148,9 +148,9 @@ The following are the main features of this logger:
             << "My message here"
             << SNAP_LOG_END;
 
-    In this case, the only component added to the message is "electric-fence".
-    If you also want to have the "normal" component, make sure to include
-    it in the list:
+    In this last example, the only component added to the message is
+    "electric-fence". If you also want to have the "normal" component,
+    make sure to include it in the list:
 
         SNAP_LOG_INFO
             << snaplogger::section(snaplogger::get_component("electric-fence"))
@@ -160,7 +160,7 @@ The following are the main features of this logger:
 
     **Note:** You should allocate your components once and then reuse their
     pointers for efficiency. Calling the get_component() function each time
-    is slow.
+    is considered slow.
 
 * Fields
 
@@ -173,8 +173,29 @@ The following are the main features of this logger:
     these fields as JSON objects.
 
     By default the library adds the message unique identifier as the field
-    named `id`. At this time, no other fields are automatically added, but
-    Snap! Logger understands some system names such as "_timestamp".
+    named `id`.
+
+    You can add other (non-dynamic at the moment) fields by adding them to
+    the logger instance through the add_default_field() function. It is,
+    for example, a good idea to add the name of your service like so:
+
+        snaplogger::logger::get_instance()->add_default_field(
+                                                    "service", "<name>");
+
+    Then every time you log a message, that field is added to it. This makes
+    it possible to send all your logs from all your services to the same
+    database and later find just the logs of one specific service.
+
+    Internally, the Snap! Logger understands the following system names:
+
+        _message
+        _timestamp
+        _severity
+        _filename
+        _function_name
+        _line
+
+    Any name that starts with an underscore is reserved for the system.
 
 * Bitrate Limit
 

@@ -1,27 +1,25 @@
-/*
- * Copyright (c) 2006-2021  Made to Order Software Corp.  All Rights Reserved
- *
- * https://snapwebsites.org/project/snaplogger
- * contact@m2osw.com
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
+// Copyright (c) 2006-2021  Made to Order Software Corp.  All Rights Reserved
+//
+// https://snapwebsites.org/project/snaplogger
+// contact@m2osw.com
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 // self
 //
-#include    "main.h"
+#include    "catch_main.h"
 
 
 // snaplogger lib
@@ -48,7 +46,7 @@
 
 CATCH_TEST_CASE("variable_param", "[variable][param][error]")
 {
-    CATCH_START_SECTION("Param Name is Mandatory")
+    CATCH_START_SECTION("variable: Param Name is Mandatory")
     {
         CATCH_REQUIRE_THROWS_MATCHES(
                   new snaplogger::param(std::string())
@@ -63,7 +61,7 @@ CATCH_TEST_CASE("variable_param", "[variable][param][error]")
 
 CATCH_TEST_CASE("system_variable", "[variable][param]")
 {
-    CATCH_START_SECTION("get_type() to use padding as integer or string (hostname)")
+    CATCH_START_SECTION("variable: get_type() to use padding as integer or string (hostname)")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "message-logging");
 
@@ -329,7 +327,7 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("escape")
+    CATCH_START_SECTION("variable: escape")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "escape");
 
@@ -383,7 +381,7 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("caps")
+    CATCH_START_SECTION("variable: caps")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "caps");
 
@@ -417,7 +415,7 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("lower/upper")
+    CATCH_START_SECTION("variable: lower/upper")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "case");
 
@@ -459,7 +457,7 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("default align value")
+    CATCH_START_SECTION("variable: default align value")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "message-variable-default-param");
 
@@ -503,7 +501,7 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("systemd severity")
+    CATCH_START_SECTION("variable: systemd severity")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "message-variable-systemd-severity");
 
@@ -563,7 +561,7 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("systemd severity with an invalid format")
+    CATCH_START_SECTION("variable: systemd severity with an invalid format")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "message-variable-systemd-severity-invalid-format");
 
@@ -608,7 +606,7 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
 
 CATCH_TEST_CASE("duplicate_factory", "[variable][factory]")
 {
-    CATCH_START_SECTION("attempt dynamically creating a factory which already exists")
+    CATCH_START_SECTION("variable: attempt dynamically creating a factory which already exists")
     {
         class fake_variable_factory final
             : public snaplogger::variable_factory
@@ -635,7 +633,7 @@ CATCH_TEST_CASE("duplicate_factory", "[variable][factory]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("attempt creating a variable with a non-existant type")
+    CATCH_START_SECTION("variable: attempt creating a variable with a non-existant type")
     {
         CATCH_REQUIRE_THROWS_MATCHES(
                   snaplogger::get_variable("fake")
@@ -644,7 +642,7 @@ CATCH_TEST_CASE("duplicate_factory", "[variable][factory]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("attempt creating a function factory with an existing name")
+    CATCH_START_SECTION("variable: attempt creating a function factory with an existing name")
     {
         class fake_function final
             : public snaplogger::function

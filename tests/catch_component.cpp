@@ -19,7 +19,7 @@
 
 // self
 //
-#include    "main.h"
+#include    "catch_main.h"
 
 
 // snaplogger lib
@@ -33,7 +33,7 @@
 
 CATCH_TEST_CASE("component", "[component]")
 {
-    CATCH_START_SECTION("Make sure creating component generates unique entries")
+    CATCH_START_SECTION("component: Make sure creating component generates unique entries")
     {
         // this worked from the start since the private logger instance
         // uses a map to store the components

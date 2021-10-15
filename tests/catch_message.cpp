@@ -1,27 +1,25 @@
-/*
- * Copyright (c) 2006-2021  Made to Order Software Corp.  All Rights Reserved
- *
- * https://snapwebsites.org/project/snaplogger
- * contact@m2osw.com
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
+// Copyright (c) 2006-2021  Made to Order Software Corp.  All Rights Reserved
+//
+// https://snapwebsites.org/project/snaplogger
+// contact@m2osw.com
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 // self
 //
-#include    "main.h"
+#include    "catch_main.h"
 
 
 // snaplogger lib
@@ -44,7 +42,7 @@
 
 CATCH_TEST_CASE("not_a_message", "[message]")
 {
-    CATCH_START_SECTION("Call send_message() with wrong ostream")
+    CATCH_START_SECTION("message: Call send_message() with wrong ostream")
     {
         CATCH_REQUIRE_THROWS_MATCHES(
                   snaplogger::send_message(std::cout)
@@ -54,7 +52,7 @@ CATCH_TEST_CASE("not_a_message", "[message]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("Print snaplogger::secure to wrong ostream")
+    CATCH_START_SECTION("message: Print snaplogger::secure to wrong ostream")
     {
         std::stringstream buffer;
         std::streambuf * old(std::cout.rdbuf(buffer.rdbuf()));
@@ -69,7 +67,7 @@ CATCH_TEST_CASE("not_a_message", "[message]")
 
 CATCH_TEST_CASE("message_capture", "[message]")
 {
-    CATCH_START_SECTION("Message Buffering")
+    CATCH_START_SECTION("message: Buffering")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "message-logging");
 
@@ -128,7 +126,7 @@ CATCH_TEST_CASE("message_capture", "[message]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("JSON Buffering")
+    CATCH_START_SECTION("message: JSON Buffering")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "json-logging");
 
@@ -187,7 +185,7 @@ CATCH_TEST_CASE("message_capture", "[message]")
 
 CATCH_TEST_CASE("message_copy", "[message]")
 {
-    CATCH_START_SECTION("Copy Message")
+    CATCH_START_SECTION("message: Copy")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "message-copying");
 
@@ -279,7 +277,7 @@ CATCH_TEST_CASE("message_copy", "[message]")
 
 CATCH_TEST_CASE("message_severity", "[message][severity]")
 {
-    CATCH_START_SECTION("Appender vs Message severity")
+    CATCH_START_SECTION("message: Appender vs Message severity")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "message-severity");
 
@@ -341,7 +339,7 @@ CATCH_TEST_CASE("message_severity", "[message][severity]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("Changing message severity (takes about 3.5min)")
+    CATCH_START_SECTION("message: Changing message severity (takes about 3.5min)")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "message-copying");
 
@@ -423,7 +421,7 @@ CATCH_TEST_CASE("message_severity", "[message][severity]")
 
 CATCH_TEST_CASE("message_format", "[message][format]")
 {
-    CATCH_START_SECTION("Message is Recursive")
+    CATCH_START_SECTION("message: Recursivity")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "basic-format");
 
@@ -471,7 +469,7 @@ CATCH_TEST_CASE("message_format", "[message][format]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("${message} itself is not recursive")
+    CATCH_START_SECTION("message: ${message} itself is not recursive")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "prevent-infinite-loop");
 
@@ -532,7 +530,7 @@ CATCH_TEST_CASE("message_format", "[message][format]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("${pid} uses the get_environment() function")
+    CATCH_START_SECTION("message: ${pid} uses the get_environment() function")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "get-environment");
 
@@ -574,7 +572,7 @@ CATCH_TEST_CASE("message_format", "[message][format]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("Verify year")
+    CATCH_START_SECTION("message: Verify year")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "get-environment");
 
@@ -643,7 +641,7 @@ CATCH_TEST_CASE("message_format", "[message][format]")
 
 CATCH_TEST_CASE("message_component_filter", "[message][component]")
 {
-    CATCH_START_SECTION("Filter Message with Component")
+    CATCH_START_SECTION("message: Filter Message with Component")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "component-filter");
 

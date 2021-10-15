@@ -63,15 +63,12 @@ component::pointer_t        g_banner_component(get_component(COMPONENT_BANNER));
 
 /** \brief Create a new component.
  *
- * \warning
- * DO NOT CREATE A COMPONENT DIRECTLY.
- *
  * Please use the get_component() function whenever you want to create
  * a new component. If it already exists, then the existing one will
  * be returned.
  *
  * It is not possible to register the same component more than once.
- * The get_component() function makes sure that won't happen.
+ * The get_component() functions make sure that won't happen.
  *
  * \param[in] name  The name of the new component.
  */

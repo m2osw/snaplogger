@@ -113,6 +113,7 @@ message::message(
     , f_funcname(func == nullptr ? std::string() : std::string(func))
     , f_line(line)
     , f_environment(create_environment())
+    , f_fields(f_logger->get_default_fields())
 {
     clock_gettime(CLOCK_REALTIME_COARSE, &f_timestamp);
 
@@ -210,10 +211,10 @@ void message::add_component(component::pointer_t c)
     {
         if(!can_add_component(c))
         {
-            throw duplicate_error(
+            throw conflict_error(
                   "component \""
                 + c->get_name()
-                + "\" cannot be added to this message as it is mutually exclusive with one or more of the other components that were added to this message.");
+                + "\" cannot be added to this message as it is mutually exclusive with one or more of the other components that were already added to this message.");
         }
 
         f_components.insert(c);
@@ -231,7 +232,7 @@ void message::add_field(std::string const & name, std::string const & value)
                   "field name \""
                 + name
                 + "\" is a system name (whether reserved or already defined) and as such is read-only."
-                  " Do not start your field names with an underscore.");
+                  " Do not start your field names with an underscore (_).");
         }
 
         f_fields[name] = value;
@@ -450,7 +451,7 @@ std::string message::get_field(std::string const & name) const
 }
 
 
-message::field_map_t message::get_fields() const
+field_map_t message::get_fields() const
 {
     return f_fields;
 }

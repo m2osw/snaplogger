@@ -19,32 +19,42 @@
 
 // self
 //
-#include    "main.h"
+#include    "catch_main.h"
 
 
 // snaplogger lib
 //
 #include    <snaplogger/buffer_appender.h>
+#include    <snaplogger/exception.h>
+#include    <snaplogger/format.h>
 #include    <snaplogger/logger.h>
 #include    <snaplogger/map_diagnostic.h>
 #include    <snaplogger/message.h>
+#include    <snaplogger/severity.h>
+#include    <snaplogger/version.h>
 
 
 // C lib
 //
 #include    <unistd.h>
+#include    <netdb.h>
+#include    <sys/param.h>
 
 
 
-CATCH_TEST_CASE("example", "[example]")
+
+
+CATCH_TEST_CASE("appender", "[appender]")
 {
-    CATCH_START_SECTION("Simple logging")
+    CATCH_START_SECTION("appender: Create")
     {
-        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "async-unittest");
-        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_VERSION, "1.0");
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "appender");
 
-        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
-        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
+        snaplogger::appender::pointer_t unknown(snaplogger::create_appender("unknown", "test-buffer"));
+        CATCH_REQUIRE(unknown == nullptr);
+
+        snaplogger::appender::pointer_t buffer(snaplogger::create_appender("buffer", "test-buffer"));
+        CATCH_REQUIRE(buffer != nullptr);
 
         char const * cargv[] =
         {
@@ -55,46 +65,27 @@ CATCH_TEST_CASE("example", "[example]")
         char ** argv = const_cast<char **>(cargv);
 
         advgetopt::options_environment environment_options;
-        environment_options.f_project_name = "async-unittest";
+        environment_options.f_project_name = "test-logger";
         environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
         advgetopt::getopt opts(environment_options);
         opts.parse_program_name(argv);
         opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
-
         buffer->set_config(opts);
 
-        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${progname}: ${severity}: ${message} (${version})"));
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${severity}: ${message}"));
         buffer->set_format(f);
 
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         l->add_appender(buffer);
 
-        l->set_asynchronous(true);
+        SNAP_LOG_FATAL << "Appender created by name" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(std::dynamic_pointer_cast<snaplogger::buffer_appender>(buffer)->str() == "fatal: Appender created by name\n");
 
-        // the cppthread library generates messages "enter" and "exit"
-        // we need to prevent those because we can't easily compare
-        // the results
-        //
-        l->add_component_to_ignore(snaplogger::g_cppthread_component);
-
-        //l->add_console_appender()->add_component(snaplogger::g_secure_component);
-        //l->add_component_to_ignore(snaplogger::g_normal_component);
-        //l->add_component_to_include(snaplogger::g_normal_component);
-
-    	SNAP_LOG_WARNING
-            << "Sent through thread..."
-            << SNAP_LOG_SEND;
-
-        // this call blocks until the thread stopped and joined
-        //
-        l->set_asynchronous(false);
-
-        // TODO: add the ${tid} as one of the message parameter and a way
-        //       to retrieve the tid of the async. thread
-        //
-        CATCH_REQUIRE(buffer->str() == "async-unittest: warning: Sent through thread... (1.0)\n");
+        l->reset();
     }
     CATCH_END_SECTION()
 }
+
 
 
 // vim: ts=4 sw=4 et

@@ -79,6 +79,9 @@ enum class system_field_t
 };
 
 
+typedef std::map<std::string, std::string>      field_map_t;
+
+
 // the message class is final because the destructor does tricks which
 // would not work right if derived further
 //
@@ -90,7 +93,6 @@ class message final
 {
 public:
     typedef std::shared_ptr<message>            pointer_t;
-    typedef std::map<std::string, std::string>  field_map_t;
 
                                 message(
                                           severity_t sev = default_severity()

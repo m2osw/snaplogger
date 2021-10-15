@@ -513,6 +513,65 @@ void logger::remove_component_to_ignore(component::pointer_t comp)
 }
 
 
+void logger::add_default_field(std::string const & name, std::string const & value)
+{
+    if(!name.empty())
+    {
+        if(name[0] == '_')
+        {
+            throw invalid_parameter(
+                  "field name \""
+                + name
+                + "\" is a system name (whether reserved or already defined) and as such is read-only."
+                  " Do not start your field names with an underscore (_).");
+        }
+        if(name == "id")
+        {
+            throw invalid_parameter(
+                  "field name \"id\" is automatically set by the message class,"
+                  " it cannot be set as a default field.");
+        }
+
+        guard g;
+
+        f_default_fields[name] = value;
+    }
+}
+
+
+std::string logger::get_default_field(std::string const & name) const
+{
+    guard g;
+
+    auto it(f_default_fields.find(name));
+    if(it != f_default_fields.end())
+    {
+        return it->second;
+    }
+    return std::string();
+}
+
+
+field_map_t logger::get_default_fields() const
+{
+    guard g;
+
+    return f_default_fields;
+}
+
+
+void logger::remove_default_field(std::string const & name)
+{
+    guard g;
+
+    auto it(f_default_fields.find(name));
+    if(it != f_default_fields.end())
+    {
+        f_default_fields.erase(it);
+    }
+}
+
+
 bool logger::is_asynchronous() const
 {
     guard g;

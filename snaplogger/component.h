@@ -54,9 +54,7 @@
  * You cannot include "normal" and "secure" to the same message (they are
  * mutually exclusive). Trying to do so will generate an exception.
  *
- * \warning
- * Do NOT create a component directly. The only real interface accessible
- * to create a component as far as you're concerned are the get_component()
+ * To create a component, you have to use one of the get_component()
  * functions. One includes a message which means we have a direct access
  * to the private logger object.
  */

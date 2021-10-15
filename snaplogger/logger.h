@@ -68,10 +68,16 @@ public:
     void                        severity_changed(severity_t severity_level);
     severity_t                  get_default_severity() const;
     bool                        set_default_severity(severity_t severity_level);
+
     void                        add_component_to_include(component::pointer_t comp);
     void                        remove_component_to_include(component::pointer_t comp);
     void                        add_component_to_ignore(component::pointer_t comp);
     void                        remove_component_to_ignore(component::pointer_t comp);
+
+    void                        add_default_field(std::string const & name, std::string const & value);
+    std::string                 get_default_field(std::string const & name) const;
+    field_map_t                 get_default_fields() const;
+    void                        remove_default_field(std::string const & name);
 
     bool                        is_asynchronous() const;
     void                        set_asynchronous(bool status);
@@ -94,6 +100,7 @@ private:
     appender::vector_t          f_appenders = appender::vector_t();
     component::set_t            f_components_to_include = component::set_t();
     component::set_t            f_components_to_ignore = component::set_t();
+    field_map_t                 f_default_fields = field_map_t();
     severity_t                  f_lowest_severity = severity_t::SEVERITY_OFF;
     severity_t                  f_fatal_severity = severity_t::SEVERITY_OFF;
     std::function<void(void)>   f_fatal_error_callback = nullptr;
