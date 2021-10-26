@@ -314,7 +314,7 @@ CATCH_TEST_CASE("message_severity", "[message][severity]")
             for(int j(min_severity); j <= max_severity; ++j)
             {
                 snaplogger::send_message(
-                    ::snaplogger::message(
+                    *::snaplogger::create_message(
                               static_cast<::snaplogger::severity_t>(j)
                             , __FILE__
                             , __func__

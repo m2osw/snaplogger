@@ -379,7 +379,7 @@ void private_logger::add_severity(severity::pointer_t sev)
         }
     }
 
-    for(auto n : sev->get_all_names())
+    for(auto const & n : sev->get_all_names())
     {
         auto s(f_severity_by_name.find(n));
         if(s != f_severity_by_name.end())
@@ -400,7 +400,7 @@ void private_logger::add_severity(severity::pointer_t sev)
 
     f_severity_by_severity[sev->get_severity()] = sev;
 
-    for(auto const n : sev->get_all_names())
+    for(auto const & n : sev->get_all_names())
     {
         f_severity_by_name[n] = sev;
     }
