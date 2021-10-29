@@ -457,6 +457,16 @@ field_map_t message::get_fields() const
 }
 
 
+message::pointer_t create_message(
+      severity_t sev
+    , char const * file
+    , char const * func
+    , int line)
+{
+    return std::make_shared<message>(sev, file, func, line);
+}
+
+
 void send_message(std::basic_ostream<char> & out)
 {
     message * msg(dynamic_cast<message *>(&out));
