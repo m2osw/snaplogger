@@ -135,7 +135,7 @@ constexpr system_severity g_system_severity[] =
         .f_severity     = severity_t::SEVERITY_INFORMATION,
         .f_name         = "information",
         .f_alias        = "info",
-        .f_description  = "info",
+        .f_description  = "information",
         .f_styles       = nullptr
     },
     {
