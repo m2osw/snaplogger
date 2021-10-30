@@ -191,7 +191,7 @@ inline std::basic_ostream<CharT, Traits> &
 precise_time(std::basic_ostream<CharT, Traits> & os)
 {
     message * m(dynamic_cast<message *>(&os));
-    if(m == nullptr)
+    if(m != nullptr)
     {
         m->set_precise_time();
     }
