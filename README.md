@@ -322,8 +322,12 @@ These are described below.
     [log-to-file]
     type=file
     severity=INFORMATION
+    path=/var/log/snapwebsites
     filename=firewall
     lock=false
+    fallback_to_console=true
+    fallback_to_syslog=true
+    secure=true
 
 **Note:** An appender defined in the main logger.conf file can be turned
 off by setting its severity to OFF in your other configuration files. For

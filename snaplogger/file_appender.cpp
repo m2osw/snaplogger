@@ -27,6 +27,7 @@
 //
 #include    "snaplogger/file_appender.h"
 
+#include    "snaplogger/syslog_appender.h"
 #include    "snaplogger/guard.h"
 #include    "snaplogger/map_diagnostic.h"
 
@@ -43,9 +44,10 @@
 
 // C lib
 //
-#include    <sys/types.h>
-#include    <sys/stat.h>
 #include    <fcntl.h>
+#include    <syslog.h>
+#include    <sys/stat.h>
+#include    <sys/types.h>
 #include    <unistd.h>
 
 
@@ -140,6 +142,14 @@ void file_appender::set_config(advgetopt::getopt const & opts)
     if(opts.is_defined(fallback_to_console_field))
     {
         f_fallback_to_console = opts.get_string(fallback_to_console_field) == "true";
+    }
+
+    // FALLBACK TO SYSLOG
+    //
+    std::string const fallback_to_syslog_field(get_name() + "::fallback_to_syslog");
+    if(opts.is_defined(fallback_to_syslog_field))
+    {
+        f_fallback_to_syslog = opts.get_string(fallback_to_syslog_field) == "true";
     }
 }
 
@@ -247,6 +257,13 @@ void file_appender::process_message(message const & msg, std::string const & for
         && isatty(fileno(stdout)))
         {
             std::cout << formatted_message.c_str();
+        }
+        else if(f_fallback_to_syslog)
+        {
+            // in this case we skip on the openlog() call...
+            //
+            int const priority(syslog_appender::message_severity_to_syslog_priority(msg.get_severity()));
+            syslog(priority, "%s", formatted_message.c_str());
         }
     }
 }

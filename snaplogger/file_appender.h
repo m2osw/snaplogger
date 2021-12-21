@@ -65,6 +65,7 @@ private:
     bool                f_flush = true;
     bool                f_secure = false;
     bool                f_fallback_to_console = false;
+    bool                f_fallback_to_syslog = false;
 };
 
 

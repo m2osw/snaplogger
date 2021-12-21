@@ -1,3 +1,9 @@
+snaplogger (1.0.39.0~bionic) bionic; urgency=high
+
+  * Added a fallback_to_syslog=... option for file appenders.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Mon, 20 Dec 2021 21:39:25 -0800
+
 snaplogger (1.0.38.0~bionic) bionic; urgency=high
 
   * Updated main test to use new libexcept stack trace setup.
