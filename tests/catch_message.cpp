@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021  Made to Order Software Corp.  All Rights Reserved
+// Copyright (c) 2006-2022  Made to Order Software Corp.  All Rights Reserved
 //
 // https://snapwebsites.org/project/snaplogger
 // contact@m2osw.com
@@ -36,6 +36,7 @@
 
 // C lib
 //
+#include    <math.h>
 #include    <unistd.h>
 
 
