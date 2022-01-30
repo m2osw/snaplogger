@@ -58,7 +58,7 @@ private:
     std::string             f_filename = std::string();
     std::string             f_output = std::string("stderr");
     int                     f_fd = -1;
-    snap::raii_fd_t         f_console = snap::raii_fd_t();
+    snapdev::raii_fd_t      f_console = snapdev::raii_fd_t();
     bool                    f_initialized = false;
     bool                    f_force_style = false;
     bool                    f_lock = true;

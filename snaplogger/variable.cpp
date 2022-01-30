@@ -90,7 +90,7 @@ namespace
 
 DEFINE_LOGGER_VARIABLE(direct)
 {
-    snap::NOT_USED(msg);
+    snapdev::NOT_USED(msg);
 
     // insert all our parameters as is
     //

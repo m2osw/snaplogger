@@ -174,7 +174,7 @@ namespace
 {
 
 
-typedef std::unique_ptr<glob_t, snap::raii_pointer_deleter<glob_t, decltype(&::globfree), &::globfree>> glob_pointer_t;
+typedef std::unique_ptr<glob_t, snapdev::raii_pointer_deleter<glob_t, decltype(&::globfree), &::globfree>> glob_pointer_t;
 
 
 advgetopt::option const g_options[] =

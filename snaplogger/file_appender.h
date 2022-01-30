@@ -59,7 +59,7 @@ protected:
 private:
     std::string         f_path = std::string("/var/log/snaplogger");
     std::string         f_filename = std::string();
-    snap::raii_fd_t     f_fd = snap::raii_fd_t();
+    snapdev::raii_fd_t  f_fd = snapdev::raii_fd_t();
     bool                f_initialized = false;
     bool                f_lock = true;
     bool                f_flush = true;

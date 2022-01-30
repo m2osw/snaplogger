@@ -249,10 +249,10 @@ void console_appender::process_message(message const & msg, std::string const & 
         return;
     }
 
-    std::unique_ptr<snap::lockfd> lock_file;
+    std::unique_ptr<snapdev::lockfd> lock_file;
     if(f_lock)
     {
-        lock_file = std::make_unique<snap::lockfd>(f_fd, snap::lockfd::mode_t::LOCKFILE_EXCLUSIVE);
+        lock_file = std::make_unique<snapdev::lockfd>(f_fd, snapdev::lockfd::mode_t::LOCKFILE_EXCLUSIVE);
     }
 
     std::string style;

@@ -24,6 +24,9 @@ enough, it may be much more practical to handle it through a callback.
 
 
 
+* Actually implement the snaploggerchecker tool.
+
+
 * Severities have the mark_as_registered() function and the constructor
   which I think should be private and only the logger_private object
   would be able to access them. This way it would be much safer. But I

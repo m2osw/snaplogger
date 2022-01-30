@@ -658,7 +658,7 @@ CATCH_TEST_CASE("duplicate_factory", "[variable][factory]")
                 , ::snaplogger::function_data & d
                 , ::snaplogger::param::pointer_t const & p) override
             {
-                snap::NOT_USED(msg, d, p);
+                snapdev::NOT_USED(msg, d, p);
             }
         };
 

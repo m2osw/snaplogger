@@ -177,7 +177,7 @@ void file_appender::set_filename(std::string const & filename)
 
 void file_appender::process_message(message const & msg, std::string const & formatted_message)
 {
-    snap::NOT_USED(msg);
+    snapdev::NOT_USED(msg);
 
     guard g;
 
@@ -243,10 +243,10 @@ void file_appender::process_message(message const & msg, std::string const & for
         return;
     }
 
-    std::unique_ptr<snap::lockfd> lock_file;
+    std::unique_ptr<snapdev::lockfd> lock_file;
     if(f_lock)
     {
-        lock_file = std::make_unique<snap::lockfd>(f_fd.get(), snap::lockfd::mode_t::LOCKFILE_EXCLUSIVE);
+        lock_file = std::make_unique<snapdev::lockfd>(f_fd.get(), snapdev::lockfd::mode_t::LOCKFILE_EXCLUSIVE);
     }
 
     ssize_t const l(write(f_fd.get(), formatted_message.c_str(), formatted_message.length()));

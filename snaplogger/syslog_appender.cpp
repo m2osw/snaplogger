@@ -212,7 +212,7 @@ int syslog_appender::message_severity_to_syslog_priority(severity_t const sev)
     {
         return LOG_EMERG;
     }
-    snap::NOT_REACHED();
+    snapdev::NOT_REACHED();
 }
 
 

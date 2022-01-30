@@ -510,7 +510,7 @@ severity_by_name_t private_logger::get_severities_by_name() const
 {
     // this call is required in case the severities were not yet defined
     //
-    snap::NOT_USED(snaplogger::get_severity("error"));   // TODO: assuming that "error" won't change
+    snapdev::NOT_USED(snaplogger::get_severity("error"));   // TODO: assuming that "error" won't change
 
     guard g;
 
@@ -522,7 +522,7 @@ severity_by_severity_t private_logger::get_severities_by_severity() const
 {
     // this call is required in case the severities were not yet defined
     //
-    snap::NOT_USED(snaplogger::get_severity("error"));   // TODO: assuming that "error" won't change
+    snapdev::NOT_USED(snaplogger::get_severity("error"));   // TODO: assuming that "error" won't change
 
     guard g;
 

@@ -243,7 +243,7 @@ constexpr typename std::enable_if<std::is_same<T, F>::value, std::uint32_t>::typ
 template<typename T, typename F>
 constexpr typename std::enable_if<!std::is_same<T, F>::value, std::uint32_t>::type find_values(F first)
 {
-    snap::NOT_USED(first);
+    snapdev::NOT_USED(first);
     return 0;
 }
 
@@ -263,7 +263,7 @@ constexpr typename std::enable_if<std::is_same<T, F>::value, std::uint32_t>::typ
 template<typename T, typename F, class ...ARGS>
 constexpr typename std::enable_if<!std::is_same<T, F>::value, std::uint32_t>::type find_values(F first, ARGS ...args)
 {
-    snap::NOT_USED(first);
+    snapdev::NOT_USED(first);
     return find_values<T>(args...);
 }
 
@@ -273,7 +273,7 @@ constexpr typename std::enable_if<!std::is_same<T, F>::value, std::uint32_t>::ty
 template<typename T, typename F, class ...ARGS>
 constexpr typename std::enable_if<std::is_same<T, F>::value, typename T::value_t>::type find_option(F first, ARGS ...args)
 {
-    snap::NOT_USED(args...);
+    snapdev::NOT_USED(args...);
     return first.get();
 }
 
@@ -281,7 +281,7 @@ constexpr typename std::enable_if<std::is_same<T, F>::value, typename T::value_t
 template<typename T, typename F, class ...ARGS>
 constexpr typename std::enable_if<!std::is_same<T, F>::value, typename T::value_t>::type find_option(F first, ARGS ...args)
 {
-    snap::NOT_USED(first);
+    snapdev::NOT_USED(first);
     return find_option<T>(args...);
 }
 
