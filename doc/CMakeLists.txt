@@ -28,12 +28,13 @@
 ##
 project(snaplogger-documentation)
 
-find_package(SnapDoxygen)
+find_package(SnapDoxygen QUIET)
 
 AddDoxygenTarget(snaplogger
     ${SNAPLOGGER_VERSION_MAJOR}
     ${SNAPLOGGER_VERSION_MINOR}
     ${SNAPLOGGER_VERSION_PATCH}
+    QUIET
 )
 
 # vim: ts=4 sw=4 et
