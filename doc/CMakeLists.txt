@@ -1,4 +1,3 @@
-#
 # Copyright (c) 2006-2022  Made to Order Software Corp.  All Rights Reserved
 #
 # https://snapwebsites.org/project/snaplogger
@@ -22,12 +21,15 @@
 # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 
 ##
 ## Documentation
 ##
+project(snaplogger-documentation)
+
+find_package(SnapDoxygen)
+
 AddDoxygenTarget(snaplogger
     ${SNAPLOGGER_VERSION_MAJOR}
     ${SNAPLOGGER_VERSION_MINOR}

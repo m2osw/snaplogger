@@ -31,7 +31,6 @@ find_package(CppThread         REQUIRED)
 find_package(LibExcept         REQUIRED)
 find_package(LibUtf8           REQUIRED)
 find_package(SnapDev           REQUIRED)
-find_package(SnapDoxygen       REQUIRED)
 
 SnapGetVersion(SNAPLOGGER ${CMAKE_CURRENT_SOURCE_DIR})
 
