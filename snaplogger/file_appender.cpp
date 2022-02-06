@@ -349,6 +349,16 @@ void file_appender::process_message(message const & msg, std::string const & for
         }
 
         f_fd.reset(open(f_filename.c_str(), flags, mode));
+
+        // verify that the file isn't already too big
+        //
+        struct stat s = {};
+        int const r(fstat(f_fd.get(), &s));
+        if(r != 0
+        || s.st_size >= f_maximum_size)
+        {
+            return;
+        }
     }
 
     output_message(msg, formatted_message, true);

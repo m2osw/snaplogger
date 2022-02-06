@@ -1,3 +1,9 @@
+snaplogger (1.0.41.0~bionic) bionic; urgency=high
+
+  * Added another test of the size, in case the logrotate failed.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sat, 05 Feb 2022 23:24:16 -0800
+
 snaplogger (1.0.40.0~bionic) bionic; urgency=high
 
   * Added the maximum_size=... to avoid breaking disk drives.
