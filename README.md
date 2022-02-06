@@ -324,6 +324,8 @@ These are described below.
     severity=INFORMATION
     path=/var/log/snapwebsites
     filename=firewall
+    maximum_size=10Mb
+    on_overflow=rotate
     lock=false
     fallback_to_console=true
     fallback_to_syslog=true
@@ -386,11 +388,55 @@ override of another section of the same name which already has a filename.
 
     filename=database
 
-The filename must not include any slashes or extension (periods are not
-accepted). This way we are in control of those characters. Especially,
-other parameters define where the files go:
+The filename must can be a full path with an extension:
 
-    path=/var/log/snapwebsites
+    filename=/var/log/my-app/strange-errors.txt
+
+If no slashes are found, then the `path` parameter is prepended, so the
+following has the same effect:
+
+    filename=strange-errors.txt
+    path=/var/log/my-app
+
+Similarly, if `filename` does not include an extension, the default ".log"
+is appended. In the following case, the file wil be in the same location,
+but it will use the ".log" extension:
+
+    filename=strange-errors
+    path=/var/log/my-app
+
+When using files for the output, the files can grow very quickly if the
+process derails (i.e. there is an issue and it tries again and again
+generating many log messages non-stop). For this reason, we have a
+size limiter set at 10Mb by default. You can change this parameter
+as follow:
+
+    maximum_size=25Mb
+
+If you set the `maximum_size` parameter to zero, then the limit is
+removed and no checks are performed. If the maximum size is
+reached before logrotate has time to rotate a file, the snaplogger
+will applied the specified action:
+
+    on_overflow=rotate
+
+The supported actions are:
+
+* skip -- simply ignore the file appender until logrotate does its job
+* fatal -- throw the `snaplogger::fatal_error`
+* rotate -- do a _simple rotation_ of the current file with the next
+* logrotate -- not yet (properly) implemented
+* `<other>` -- anything else is taken as the "skip", although it may be
+               an error in this version it allows multiple versions of
+               the snaplogger to run on a system
+
+The simple _simple rotateion_ is equivalent to:
+
+    mv -f my-app.log my-app.log.1
+    echo "message" > my-app.log
+
+A form of logrotate without the compression or more than one backup.
+Note that the existing `my-app.log.1` is overwritten (somewhat on purpose).
 
 #### Additional Appenders
 
@@ -789,7 +835,7 @@ you want to use a MINOR severity level instead.
 #### JSON Format
 
 To support the JSON format you need to be careful with double quotes.
-They need to be escaped.
+They need to be escaped. (TODO: finish example below)
 
     {"date":"${date}",
 

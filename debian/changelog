@@ -1,3 +1,11 @@
+snaplogger (1.0.40.0~bionic) bionic; urgency=high
+
+  * Added the maximum_size=... to avoid breaking disk drives.
+  * Added the on_overflow=... to define an action in case the maximum-size
+    is reached.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sat, 05 Feb 2022 22:59:52 -0800
+
 snaplogger (1.0.39.0~bionic) bionic; urgency=high
 
   * Added a fallback_to_syslog=... option for file appenders.
