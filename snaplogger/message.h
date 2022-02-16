@@ -225,6 +225,16 @@ operator << (std::basic_ostream<CharT, Traits> & os, field_t const & f)
 
 
 
+template<typename CharT, typename Traits>
+inline std::basic_ostream<CharT, Traits> &
+operator << (std::basic_ostream<CharT, Traits> & os, std::stringstream const & ss)
+{
+    return os << ss.str();
+}
+
+
+
+
 message::pointer_t create_message(
               severity_t sev = ::snaplogger::message::default_severity()
             , char const * file = nullptr

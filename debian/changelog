@@ -1,3 +1,9 @@
+snaplogger (1.0.42.0~bionic) bionic; urgency=high
+
+  * Added function to allow stringstream's to be logged as is.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Wed, 16 Feb 2022 10:57:02 -0800
+
 snaplogger (1.0.41.1~bionic) bionic; urgency=high
 
   * Bumped build version to rebuild on Launchpad.
