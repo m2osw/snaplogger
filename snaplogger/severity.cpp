@@ -239,6 +239,7 @@ advgetopt::options_environment g_config_option =
     .f_options = nullptr,
     .f_options_files_directory = nullptr,
     .f_environment_variable_name = nullptr,
+    .f_environment_variable_intro = nullptr,
     .f_section_variables_name = nullptr,
     .f_configuration_files = nullptr,
     .f_configuration_filename = "severity.ini",
