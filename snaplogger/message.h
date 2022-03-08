@@ -112,13 +112,14 @@ public:
     void                        set_function(std::string const & funcname);
     void                        set_line(int line);
     void                        set_recursive_message(bool state) const;
+    void                        set_precise_time();
+    void                        set_timestamp(timespec const & timestamp);
     bool                        can_add_component(component::pointer_t c) const;
     void                        add_component(component::pointer_t c);
     void                        add_field(std::string const & name, std::string const & value);
 
     std::shared_ptr<logger>     get_logger() const;
     severity_t                  get_severity() const;
-    void                        set_precise_time();
     timespec const &            get_timestamp() const;
     std::string const &         get_filename() const;
     std::string const &         get_function() const;

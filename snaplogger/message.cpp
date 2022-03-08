@@ -194,6 +194,18 @@ void message::set_recursive_message(bool state) const
 }
 
 
+void message::set_precise_time()
+{
+    clock_gettime(CLOCK_REALTIME, &f_timestamp);
+}
+
+
+void message::set_timestamp(timespec const & timestamp)
+{
+    f_timestamp = timestamp;
+}
+
+
 bool message::can_add_component(component::pointer_t c) const
 {
     if(c != nullptr)
@@ -249,12 +261,6 @@ std::shared_ptr<logger> message::get_logger() const
 severity_t message::get_severity() const
 {
     return f_severity;
-}
-
-
-void message::set_precise_time()
-{
-    clock_gettime(CLOCK_REALTIME, &f_timestamp);
 }
 
 
