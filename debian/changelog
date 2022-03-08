@@ -5,6 +5,7 @@ snaplogger (1.0.44.0~bionic) bionic; urgency=high
   * Added variable APPENDER_FACTORY_DEBUG to see when appenders get loaded.
   * Added the `--list-appenders` command.
   * Added a function to change the timestamp.
+  * Fixed the "no-repeat" name, had to use the `no_repeat` variable.
   * Added some documentation.
   * Various cleanups.
 

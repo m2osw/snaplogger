@@ -416,7 +416,7 @@ void appender::set_config(advgetopt::getopt const & opts)
         }
     }
 
-    // REPEAT
+    // NO REPEAT
     //
     {
         std::string no_repeat(f_name + "::no-repeat");
@@ -447,7 +447,7 @@ void appender::set_config(advgetopt::getopt const & opts)
                 }
                 else
                 {
-                    f_no_repeat_size = opts.get_long("no-repeat", 0, 0, NO_REPEAT_MAXIMUM);
+                    f_no_repeat_size = opts.get_long(no_repeat, 0, 0, NO_REPEAT_MAXIMUM);
                 }
             }
         }
