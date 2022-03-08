@@ -87,6 +87,7 @@ public:
     virtual void                shutdown() override;
 
     void                        register_appender_factory(appender_factory::pointer_t factory);
+    appender_factory_t          appender_factory_list() const;
     appender::pointer_t         create_appender(std::string const & type, std::string const & name);
 
     component::pointer_t        get_component(std::string const & name);

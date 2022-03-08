@@ -200,6 +200,12 @@ void private_logger::register_appender_factory(appender_factory::pointer_t facto
 }
 
 
+appender_factory_t private_logger::appender_factory_list() const
+{
+    return f_appender_factories;
+}
+
+
 appender::pointer_t private_logger::create_appender(std::string const & type, std::string const & name)
 {
     guard g;

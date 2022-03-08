@@ -30,6 +30,11 @@
 #include    "snaplogger/message.h"
 
 
+// cppthread
+//
+#include    <cppthread/plugins.h>
+
+
 
 namespace snaplogger
 {
@@ -49,9 +54,12 @@ public:
 
     void                        reset();
     virtual void                shutdown();
+    static std::string const &  default_plugin_paths();
+    void                        load_plugins(std::string const & plugin_paths = default_plugin_paths());
     bool                        is_configured() const;
     bool                        has_appender(std::string const & type) const;
     appender::pointer_t         get_appender(std::string const & name) const;
+    appender::vector_t          get_appenders() const;
     void                        set_config(advgetopt::getopt const & params);
     void                        reopen();
 
@@ -106,6 +114,8 @@ private:
     std::function<void(void)>   f_fatal_error_callback = nullptr;
     bool                        f_asynchronous = false;
     severity_stats_t            f_severity_stats = severity_stats_t(static_cast<std::size_t>(severity_t::SEVERITY_MAX) - static_cast<std::size_t>(severity_t::SEVERITY_MIN) + 1);
+    cppthread::plugin_collection::pointer_t
+                                f_plugins = cppthread::plugin_collection::pointer_t();
 };
 
 

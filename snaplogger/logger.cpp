@@ -52,6 +52,7 @@ namespace
 
 bool                        g_first_instance = true;
 logger::pointer_t *         g_instance = nullptr;
+std::string                 g_default_plugin_paths = std::string("/usr/local/lib/snaplogger/plugins:/usr/lib/snaplogger/plugins");
 
 
 struct auto_delete_logger
@@ -137,6 +138,27 @@ void logger::shutdown()
 }
 
 
+std::string const & logger::default_plugin_paths()
+{
+    return g_default_plugin_paths;
+}
+
+
+void logger::load_plugins(std::string const & plugin_paths)
+{
+    guard g;
+
+    cppthread::plugin_paths paths;
+    paths.add(plugin_paths);
+
+    cppthread::plugin_names names(paths);
+    names.find_plugins("snaplogger_");
+
+    f_plugins = std::make_shared<cppthread::plugin_collection>(names);
+    f_plugins->load_plugins();
+}
+
+
 bool logger::is_configured() const
 {
     guard g;
@@ -172,6 +194,12 @@ appender::pointer_t logger::get_appender(std::string const & name) const
     }
 
     return *it;
+}
+
+
+appender::vector_t logger::get_appenders() const
+{
+    return f_appenders;
 }
 
 

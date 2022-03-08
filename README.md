@@ -942,6 +942,15 @@ to only print certain keys. For example:
 only outputs `"normal"` or `"this happened!"`.
 
 
+# Debugging Factories
+
+The library checks the `APPENDER_FACTORY_DEBUG` flag. If set, it will display
+the name of each appender being registered. This is particularly helpful when
+you are trying to use plugins.
+
+You may also want to test with the `--list-appenders` command.
+
+
 # Properly Deleting Log Files
 
 Whenever you create a packge for your project and the purge function is used

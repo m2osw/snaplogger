@@ -29,13 +29,13 @@
 #include    "snaplogger/format.h"
 
 
-// advgetopt lib
+// advgetopt
 //
 #include    <advgetopt/advgetopt.h>
 #include    <advgetopt/utils.h>
 
 
-// C++ lib
+// C++
 //
 #include    <regex>
 #include    <vector>

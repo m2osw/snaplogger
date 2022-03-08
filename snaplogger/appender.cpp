@@ -33,13 +33,13 @@
 #include    "snaplogger/private_logger.h"
 
 
-// snapdev lib
+// snapdev
 //
 #include    <snapdev/empty_set_intersection.h>
 #include    <snapdev/not_used.h>
 
 
-// C++ lib
+// C++
 //
 #include    <iostream>
 
@@ -625,6 +625,12 @@ void appender::process_message(message const & msg, std::string const & formatte
 appender_factory::appender_factory(std::string const & type)
     : f_type(type)
 {
+    char const * appender_factory_debug(getenv("APPENDER_FACTORY_DEBUG"));
+    if(appender_factory_debug != nullptr
+    && *appender_factory_debug != '\0')
+    {
+        std::cerr << "appender_factor:debug: adding appender factory \"" << type << "\".\n";
+    }
 }
 
 
