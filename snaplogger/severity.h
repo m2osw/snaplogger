@@ -78,6 +78,9 @@ enum class severity_t
 };
 
 
+typedef std::vector<severity_t>     severity_array_t;
+
+
 
 
 class severity

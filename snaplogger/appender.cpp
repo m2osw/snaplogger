@@ -170,6 +170,17 @@ void appender::reduce_severity(severity_t severity_level)
 }
 
 
+void appender::increase_severity(severity_t severity_level)
+{
+    guard g;
+
+    if(severity_level > f_severity)
+    {
+        set_severity(severity_level);
+    }
+}
+
+
 bool appender::operator < (appender const & rhs) const
 {
     guard g;
@@ -592,14 +603,28 @@ void appender::send_message(message const & msg)
         auto it(std::find(f_last_messages.rbegin(), f_last_messages.rend(), non_changing_message));
         if(it != f_last_messages.rend())
         {
-            // TODO: look into a way to count said messages and print out
-            //       the total number or something of the sort...
-            //       (maybe we store those messages in a buffer and once
-            //       we are to replace a message, that's when we forward
-            //       it and that can include the count? also that extra
-            //       write can be based on time and/or count)
+            // TODO: count the number of times this message occurred and
+            //       at a certain number, show it again -- add an option to
+            //       defined that certain number
             //
-            f_last_messages.erase(std::next(it).base());    // erase() expects an iterator, not a reverse iterator
+            //       check the timestamp and if the message happened more
+            //       than X seconds prior, repeat it anyway (this can be
+            //       a timeout of our cache as far as implementation is
+            //       concerned) -- add option to define time and this check
+            //       could go "the other way around" where we cumulate messages
+            //       and if not repeat within X seconds, then send them out
+            //       so here we would just push messages on a "stack" and
+            //       the thread would take care of send messages and if
+            //       repeated then we can show a "count" in the message
+            //       (i.e. something like "(message repeated N times in
+            //       the last X seconds)") -- I think syslog sends the
+            //       first message and then records the repeats for
+            //       X seconds and finally sends the results to the screen
+            //
+            //       the current implementation helps, but it's weak in
+            //       its results... (the results look weird)
+            //
+            return;
         }
         f_last_messages.push_back(non_changing_message);
         if(f_last_messages.size() > f_no_repeat_size)

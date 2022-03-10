@@ -70,6 +70,8 @@ public:
     appender::pointer_t         add_file_appender(std::string const & filename);
 
     severity_t                  get_lowest_severity() const;
+    void                        override_lowest_severity(severity_t severity_level);
+    void                        restore_lowest_severity();
     void                        set_severity(severity_t severity_level);
     void                        set_fatal_severity(severity_t severity_level);
     void                        reduce_severity(severity_t severity_level);
@@ -110,6 +112,7 @@ private:
     component::set_t            f_components_to_ignore = component::set_t();
     field_map_t                 f_default_fields = field_map_t();
     severity_t                  f_lowest_severity = severity_t::SEVERITY_OFF;
+    severity_array_t            f_lowest_replacements = severity_array_t();
     severity_t                  f_fatal_severity = severity_t::SEVERITY_OFF;
     std::function<void(void)>   f_fatal_error_callback = nullptr;
     bool                        f_asynchronous = false;
@@ -127,6 +130,21 @@ bool                configure_console(bool force = false);
 bool                configure_syslog(std::string const & identity);
 bool                configure_file(std::string const & filename);
 bool                configure_config(std::string const & config_filename);
+
+
+class override_lowest_severity_level
+{
+public:
+    override_lowest_severity_level(severity_t severity_level)
+    {
+        logger::get_instance()->override_lowest_severity(severity_level);
+    }
+
+    ~override_lowest_severity_level()
+    {
+        logger::get_instance()->restore_lowest_severity();
+    }
+};
 
 
 } // snaplogger namespace

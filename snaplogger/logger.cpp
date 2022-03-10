@@ -435,7 +435,55 @@ severity_t logger::get_lowest_severity() const
         return severity_t::SEVERITY_ALL;
     }
 
-    return f_lowest_severity;
+    if(f_lowest_replacements.empty())
+    {
+        return f_lowest_severity;
+    }
+
+    // there is not need to build messages that no appenders is going
+    // to handle, so return the max. between the lowest of all appenders
+    // and the lowest from the replacements
+    //
+    return std::max(f_lowest_severity, f_lowest_replacements.back());
+}
+
+
+/** \brief Override the lowest severity.
+ *
+ * After this call, and until you call the restore_lowest_severity() function,
+ * the get_lowest_severity() function will return \p severity_level. This
+ * new security level may be lower or higher than the expected level, although
+ *
+ * Setting this level to a level lower than the current lowest level is
+ * not useful. The get_lowest_severity() will still return the
+ * f_lowest_severiry value in that case. Since it can change dynamically,
+ * this lowest replacement is still saved as is.
+ *
+ * \param[in] severity_level  The severity level to use in
+ * get_lowest_severity() until restore_lower_severity().
+ */
+void logger::override_lowest_severity(severity_t severity_level)
+{
+    f_lowest_replacements.push_back(severity_level);
+}
+
+
+/** \brief Cancel one call to the override_lowest_severity().
+ *
+ * Each time you call the override_lowest_severity() function, you are
+ * expected to call restore_lowest_severity() once to cancel the effect.
+ *
+ * Call the restore_lowest_severity() too many times is safe. However,
+ * to make it safe, you are expected to use the override_lowest_severity_level
+ * class. Create an object of that type. When the object is detroyed, the
+ * lowest level added gets removed.
+ */
+void logger::restore_lowest_severity()
+{
+    if(!f_lowest_replacements.empty())
+    {
+        f_lowest_replacements.pop_back();
+    }
 }
 
 
@@ -475,7 +523,18 @@ void logger::severity_changed(severity_t severity_level)
         // up to once per appender on initialization.
         //
         auto const min(std::min_element(f_appenders.begin(), f_appenders.end()));
-        f_lowest_severity = (*min)->get_severity();
+        if(min == f_appenders.end())
+        {
+            // I don't think this is possible because if there are no appenders
+            // then we should not even get called; also the new level should
+            // not be higher if the list is empty
+            //
+            f_lowest_severity = severity_t::SEVERITY_ALL;
+        }
+        else
+        {
+            f_lowest_severity = (*min)->get_severity();
+        }
     }
 }
 
