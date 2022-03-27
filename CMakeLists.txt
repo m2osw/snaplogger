@@ -30,6 +30,7 @@ find_package(Boost             REQUIRED COMPONENTS locale )
 find_package(CppThread         REQUIRED)
 find_package(LibExcept         REQUIRED)
 find_package(LibUtf8           REQUIRED)
+find_package(ServerPlugins     REQUIRED)
 find_package(SnapDev           REQUIRED)
 
 SnapGetVersion(SNAPLOGGER ${CMAKE_CURRENT_SOURCE_DIR})

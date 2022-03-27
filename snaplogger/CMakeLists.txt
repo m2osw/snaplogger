@@ -58,12 +58,14 @@ add_library(${PROJECT_NAME} SHARED
     version.cpp
 )
 
-include_directories(
-    ${ADVGETOPT_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-    ${CPPTHREAD_INCLUDE_DIRS}
-    ${LIBEXCEPT_INCLUDE_DIRS}
-    ${LIBUFTF8_INCLUDE_DIRS}
+target_include_directories(${PROJECT_NAME}
+    PUBLIC
+        ${ADVGETOPT_INCLUDE_DIRS}
+        ${Boost_INCLUDE_DIRS}
+        ${CPPTHREAD_INCLUDE_DIRS}
+        ${LIBEXCEPT_INCLUDE_DIRS}
+        ${LIBUFTF8_INCLUDE_DIRS}
+        ${SERVERPLUGINS_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -73,6 +75,7 @@ target_link_libraries(${PROJECT_NAME}
     ${LIBEXCEPT_LIBRARIES}
     ${LIBUFTF8_LIBRARIES}
     ${LOG4CPLUS_LIBRARIES}
+    ${SERVERPLUGINS_LIBRARIES}
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

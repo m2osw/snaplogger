@@ -30,9 +30,9 @@
 #include    "snaplogger/message.h"
 
 
-// cppthread
+// serverplugins
 //
-#include    <cppthread/plugins.h>
+#include    <serverplugins/collection.h>
 
 
 
@@ -42,7 +42,11 @@ namespace snaplogger
 typedef std::vector<std::size_t>        severity_stats_t;
 
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
 class logger
+    : public std::enable_shared_from_this<logger>
+    , public serverplugins::server
 {
 public:
     typedef std::shared_ptr<logger>     pointer_t;
@@ -117,9 +121,11 @@ private:
     std::function<void(void)>   f_fatal_error_callback = nullptr;
     bool                        f_asynchronous = false;
     severity_stats_t            f_severity_stats = severity_stats_t(static_cast<std::size_t>(severity_t::SEVERITY_MAX) - static_cast<std::size_t>(severity_t::SEVERITY_MIN) + 1);
-    cppthread::plugin_collection::pointer_t
-                                f_plugins = cppthread::plugin_collection::pointer_t();
+    serverplugins::collection::pointer_t
+                                f_plugins = serverplugins::collection::pointer_t();
 };
+#pragma GCC diagnostic pop
+
 
 
 bool                is_configured();

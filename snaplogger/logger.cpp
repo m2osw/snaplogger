@@ -35,6 +35,11 @@
 #include    "snaplogger/syslog_appender.h"
 
 
+// serverplugins
+//
+#include    <serverplugins/paths.h>
+
+
 // last include
 //
 #include    <snapdev/poison.h>
@@ -148,14 +153,14 @@ void logger::load_plugins(std::string const & plugin_paths)
 {
     guard g;
 
-    cppthread::plugin_paths paths;
+    serverplugins::paths paths;
     paths.add(plugin_paths);
 
-    cppthread::plugin_names names(paths);
+    serverplugins::names names(paths);
     names.find_plugins("snaplogger_");
 
-    f_plugins = std::make_shared<cppthread::plugin_collection>(names);
-    f_plugins->load_plugins();
+    f_plugins = std::make_shared<serverplugins::collection>(names);
+    f_plugins->load_plugins(shared_from_this());
 }
 
 
