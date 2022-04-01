@@ -17,33 +17,33 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-// snaplogger lib
+// snaplogger
 //
-#include <snaplogger/exception.h>
-#include <snaplogger/logger.h>
-#include <snaplogger/options.h>
-#include <snaplogger/version.h>
+#include    <snaplogger/exception.h>
+#include    <snaplogger/logger.h>
+#include    <snaplogger/options.h>
+#include    <snaplogger/version.h>
 
 
-// advgetopt lib
+// advgetopt
 //
-#include <advgetopt/exception.h>
+#include    <advgetopt/exception.h>
 
 
-// snapdev lib
+// snapdev
 //
-#include <snapdev/not_reached.h>
-#include <snapdev/not_used.h>
+#include    <snapdev/not_reached.h>
+#include    <snapdev/not_used.h>
 
 
-// boost lib
+// boost
 //
-#include <boost/preprocessor/stringize.hpp>
+#include    <boost/preprocessor/stringize.hpp>
 
 
 // last include
 //
-#include <snapdev/poison.h>
+#include    <snapdev/poison.h>
 
 
 

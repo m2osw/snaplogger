@@ -22,22 +22,22 @@
 
 // self
 //
-#include "catch_main.h"
+#include    "catch_main.h"
 
 
-// snaplogger lib
+// snaplogger
 //
-#include <snaplogger/version.h>
+#include    <snaplogger/version.h>
 
 
-// libexcept lib
+// libexcept
 //
-#include <libexcept/exception.h>
+#include    <libexcept/exception.h>
 
 
-// C++ lib
+// C++
 //
-#include <sstream>
+#include    <sstream>
 
 
 
