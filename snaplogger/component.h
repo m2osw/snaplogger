@@ -35,8 +35,8 @@
  *
  * \code
  *     SNAP_LOG_SEND
- *         << snaplogger::section(g_normal_component)
- *         << snaplogger::section(g_self_component)
+ *         << snaplogger::section(snaplogger::g_normal_component)
+ *         << snaplogger::section(snaplogger::g_self_component)
  *         << "Message..."
  *         << SNAP_LOG_SEND;
  * \endcode
@@ -46,7 +46,7 @@
  *
  * \code
  *     SNAP_LOG_SEND
- *         << snaplogger::section(g_debug_component)
+ *         << snaplogger::section(snaplogger::g_debug_component)
  *         << "Message..."
  *         << SNAP_LOG_SEND_SECURELY;
  * \endcode
@@ -106,12 +106,13 @@ component::pointer_t            get_component(std::string const & name, componen
 component::pointer_t            get_component(message const & msg, std::string const & name);
 
 
-constexpr char const            COMPONENT_CPPTHREAD[] = "cppthread";
-constexpr char const            COMPONENT_DEBUG[]     = "debug";
-constexpr char const            COMPONENT_NORMAL[]    = "normal";
-constexpr char const            COMPONENT_SECURE[]    = "secure";
-constexpr char const            COMPONENT_SELF[]      = "self"; // for the snaplogger only
-constexpr char const            COMPONENT_BANNER[]    = "banner";
+constexpr char const            COMPONENT_CPPTHREAD[]       = "cppthread";
+constexpr char const            COMPONENT_DEBUG[]           = "debug";
+constexpr char const            COMPONENT_NORMAL[]          = "normal";
+constexpr char const            COMPONENT_SECURE[]          = "secure";
+constexpr char const            COMPONENT_SELF[]            = "self"; // for the snaplogger only
+constexpr char const            COMPONENT_BANNER[]          = "banner";
+constexpr char const            COMPONENT_NOT_IMPLEMENTED[] = "not_implemented";
 
 extern component::pointer_t     g_cppthread_component;
 extern component::pointer_t     g_debug_component;
@@ -119,6 +120,7 @@ extern component::pointer_t     g_normal_component;
 extern component::pointer_t     g_secure_component;
 extern component::pointer_t     g_self_component;
 extern component::pointer_t     g_banner_component;
+extern component::pointer_t     g_not_implemented_component;
 
 
 struct section_ptr

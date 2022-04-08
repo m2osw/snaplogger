@@ -59,6 +59,7 @@ component::pointer_t        g_normal_component(get_component(COMPONENT_NORMAL));
 component::pointer_t        g_secure_component(get_component(COMPONENT_SECURE, { g_normal_component }));
 component::pointer_t        g_self_component(get_component(COMPONENT_SELF));
 component::pointer_t        g_banner_component(get_component(COMPONENT_BANNER));
+component::pointer_t        g_not_implemented_component(get_component(COMPONENT_NOT_IMPLEMENTED));
 
 
 /** \brief Create a new component.
