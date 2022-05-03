@@ -457,7 +457,7 @@ severity_t logger::get_lowest_severity() const
  *
  * After this call, and until you call the restore_lowest_severity() function,
  * the get_lowest_severity() function will return \p severity_level. This
- * new security level may be lower or higher than the expected level, although
+ * new security level may be lower or higher than the expected level.
  *
  * Setting this level to a level lower than the current lowest level is
  * not useful. The get_lowest_severity() will still return the
@@ -481,7 +481,7 @@ void logger::override_lowest_severity(severity_t severity_level)
  * Call the restore_lowest_severity() too many times is safe. However,
  * to make it safe, you are expected to use the override_lowest_severity_level
  * class. Create an object of that type. When the object is detroyed, the
- * lowest level added gets removed.
+ * lowest level added gets removed automatically.
  */
 void logger::restore_lowest_severity()
 {

@@ -104,6 +104,13 @@ constexpr system_severity g_system_severity[] =
         .f_styles       = nullptr
     },
     {
+        .f_severity     = severity_t::SEVERITY_NOISY,
+        .f_name         = "noisy",
+        .f_alias        = "noise",
+        .f_description  = "noisy",
+        .f_styles       = nullptr
+    },
+    {
         .f_severity     = severity_t::SEVERITY_DEBUG,
         .f_name         = "debug",
         .f_alias        = "dbg",
@@ -151,6 +158,13 @@ constexpr system_severity g_system_severity[] =
         .f_alias        = nullptr,
         .f_description  = "minor",
         .f_styles       = "green"
+    },
+    {
+        .f_severity     = severity_t::SEVERITY_TODO,
+        .f_name         = "todo",
+        .f_alias        = nullptr,
+        .f_description  = "uncomplete task",
+        .f_styles       = nullptr
     },
     {
         .f_severity     = severity_t::SEVERITY_DEPRECATED,

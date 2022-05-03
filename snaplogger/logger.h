@@ -52,7 +52,7 @@ public:
     typedef std::shared_ptr<logger>     pointer_t;
     typedef std::weak_ptr<logger>       weak_pointer_t;
 
-    virtual                     ~logger();
+    virtual                     ~logger() override;
 
     static logger::pointer_t    get_instance();
 
