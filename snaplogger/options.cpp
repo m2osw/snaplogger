@@ -208,6 +208,7 @@ advgetopt::option const g_options[] =
         , advgetopt::Flags(advgetopt::command_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS
                     , advgetopt::GETOPT_FLAG_REQUIRED>())
+        , advgetopt::DefaultValue("yes")
         , advgetopt::Help("what to collect from the stack on an exception: no, yes or simple, complete.")
     ),
 
@@ -709,7 +710,6 @@ bool process_logger_options(advgetopt::getopt & opts
 
     // LIBEXCEPT EXTENSION
     //
-    if(opts.is_defined("except-stack-collect"))
     {
         // used in conjunction with SNAP_LOG_SEND_WITH_STACK_TRACE(e)
         // the default is "yes" (see libexcept/exception.cpp)
