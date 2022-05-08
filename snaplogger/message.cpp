@@ -485,6 +485,16 @@ void send_message(std::basic_ostream<char> & out)
 }
 
 
+void send_stack_trace(libexcept::exception_base_t const & e)
+{
+    libexcept::stack_trace_t const & stack(e.get_stack_trace());
+    for(auto const & s : stack)
+    {
+        SNAP_LOG_EXCEPTION
+            << s
+            << SNAP_LOG_SEND;
+    }
+}
 
 
 } // snaplogger namespace

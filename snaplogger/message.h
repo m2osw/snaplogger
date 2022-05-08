@@ -34,13 +34,18 @@
 #include    "snaplogger/severity.h"
 
 
-// C++ lib
+// libexcept
+//
+#include    <libexcept/exception.h>
+
+
+// C++
 //
 #include    <sstream>
 #include    <streambuf>
 
 
-// C lib
+// C
 //
 #include    <sys/time.h>
 
@@ -244,6 +249,8 @@ message::pointer_t create_message(
 
 void send_message(std::basic_ostream<char> & msg);
 
+void send_stack_trace(libexcept::exception_base_t const & e);
+
 
 // TODO: with C++20, change the __FILE__, __LINE__, __func__ with
 //       std::location::current()
@@ -254,6 +261,7 @@ void send_message(std::basic_ostream<char> & msg);
 #define SNAP_LOG_ALERT              ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_ALERT,             __FILE__, __func__, __LINE__))
 #define SNAP_LOG_CRIT               ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_CRITICAL,          __FILE__, __func__, __LINE__))
 #define SNAP_LOG_CRITICAL           ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_CRITICAL,          __FILE__, __func__, __LINE__))
+#define SNAP_LOG_EXCEPTION          ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_EXCEPTION,         __FILE__, __func__, __LINE__))
 #define SNAP_LOG_SEVERE             ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_SEVERE,            __FILE__, __func__, __LINE__))
 #define SNAP_LOG_ERR                ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_ERROR,             __FILE__, __func__, __LINE__))
 #define SNAP_LOG_ERROR              ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_ERROR,             __FILE__, __func__, __LINE__))
@@ -284,6 +292,8 @@ void send_message(std::basic_ostream<char> & msg);
 //
 #define SNAP_LOG_SEND               ""))
 #define SNAP_LOG_SEND_SECURELY      ::snaplogger::secure))
+#define SNAP_LOG_SEND_WITH_STACK_TRACE(e) \
+                                    "")); ::snaplogger::send_stack_trace(e)
 
 
 

@@ -201,6 +201,16 @@ advgetopt::option const g_options[] =
         , advgetopt::Help("filter logs by component, use ! in front of a name to prevent those logs.")
     ),
 
+    // LIBEXCEPT EXTENSION
+    //
+    advgetopt::define_option(
+          advgetopt::Name("except-stack-collect")
+        , advgetopt::Flags(advgetopt::command_flags<
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS
+                    , advgetopt::GETOPT_FLAG_REQUIRED>())
+        , advgetopt::Help("what to collect from the stack on an exception: no, yes or simple, complete.")
+    ),
+
     // COMMANDS
     //
     advgetopt::define_option(
@@ -694,6 +704,43 @@ bool process_logger_options(advgetopt::getopt & opts
                     logger::get_instance()->add_component_to_include(comp);
                 }
             }
+        }
+    }
+
+    // LIBEXCEPT EXTENSION
+    //
+    if(opts.is_defined("except-stack-collect"))
+    {
+        // used in conjunction with SNAP_LOG_SEND_WITH_STACK_TRACE(e)
+        // the default is "yes" (see libexcept/exception.cpp)
+        //
+        std::string const & collect(opts.get_string("except-stack-collect"));
+        if(collect == "no")
+        {
+            // stack trace will be empty
+            //
+            libexcept::set_collect_stack(libexcept::collect_stack_t::COLLECT_STACK_NO);
+        }
+        else if(collect == "yes" || collect == "simple")
+        {
+            // names are not demangled and line numbers are not searched
+            //
+            libexcept::set_collect_stack(libexcept::collect_stack_t::COLLECT_STACK_YES);
+        }
+        else if(collect == "complete")
+        {
+            // frames include demangled names with line numbers
+            //
+            libexcept::set_collect_stack(libexcept::collect_stack_t::COLLECT_STACK_COMPLETE);
+        }
+        else
+        {
+            cppthread::log << cppthread::log_level_t::error
+                           << "unknown type of stack collection \""
+                           << collect
+                           << "\"; try one of: \"no\", \"yes\", \"simple\", or \"complete\"."
+                           << cppthread::end;
+            return false;
         }
     }
 

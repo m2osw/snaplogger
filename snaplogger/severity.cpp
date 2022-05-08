@@ -139,6 +139,13 @@ constexpr system_severity g_system_severity[] =
         .f_styles       = nullptr
     },
     {
+        .f_severity     = severity_t::SEVERITY_CONFIGURATION,
+        .f_name         = "configuration",
+        .f_alias        = "config",
+        .f_description  = "configuration",
+        .f_styles       = nullptr
+    },
+    {
         .f_severity     = severity_t::SEVERITY_INFORMATION,
         .f_name         = "information",
         .f_alias        = "info",
@@ -199,6 +206,20 @@ constexpr system_severity g_system_severity[] =
         .f_name         = "error",
         .f_alias        = "err",
         .f_description  = "error",
+        .f_styles       = "red"
+    },
+    {
+        .f_severity     = severity_t::SEVERITY_SEVERE,
+        .f_name         = "severe",
+        .f_alias        = nullptr,
+        .f_description  = "severe error",
+        .f_styles       = "red"
+    },
+    {
+        .f_severity     = severity_t::SEVERITY_EXCEPTION,
+        .f_name         = "exception",
+        .f_alias        = nullptr,
+        .f_description  = "exception",
         .f_styles       = "red"
     },
     {
