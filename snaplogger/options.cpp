@@ -218,7 +218,7 @@ advgetopt::option const g_options[] =
           advgetopt::Name("list-appenders")
         , advgetopt::Flags(advgetopt::standalone_command_flags<
                       advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
-        , advgetopt::Help("show the list of available appenders.")
+        , advgetopt::Help("show the list of available log appenders.")
     ),
     advgetopt::define_option(
           advgetopt::Name("list-severities")
