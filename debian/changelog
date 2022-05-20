@@ -1,3 +1,9 @@
+snaplogger (1.0.44.1~bionic) bionic; urgency=high
+
+  * Bumped build version to rebuild on Launchpad.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Fri, 20 May 2022 16:44:53 -0700
+
 snaplogger (1.0.44.0~bionic) bionic; urgency=high
 
   * Load snaplogger plugins if any are found.
