@@ -6,15 +6,22 @@ snaplogger (1.0.44.0~bionic) bionic; urgency=high
   * Added the `--list-appenders` command.
   * Added a function to change the timestamp.
   * Fixed the "no-repeat" name, had to use the `no_repeat` variable.
-  * Added some documentation.
   * Added support to increase the current severity temporarily.
-  * Various cleanups.
+  * Added new sevevirity levels (noisy, todo, exception, severe, configuration).
+  * Added send_stack_trace() and SNAP_LOG_SEND_WITH_STACK_TRACE(e).
+  * Added set the `--except-collect-stack` command line option.
+  * Added the "exception" severity level for the stack trace lines.
+  * Added a "not implemented" component.
+  * Added some documentation.
+  * Cleaned up the cmake.
+  * Fixed the compat to v10.
+  * Various other cleanups.
 
  -- Alexis Wilke <alexis@m2osw.com>  Mon, 07 Mar 2022 17:51:46 -0800
 
 snaplogger (1.0.43.0~bionic) bionic; urgency=high
 
-  * Added the Environment Variable Into.
+  * Added the Environment Variable Intro.
 
  -- Alexis Wilke <alexis@m2osw.com>  Sat, 05 Mar 2022 21:15:03 -0800
 
