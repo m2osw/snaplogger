@@ -144,7 +144,7 @@ The following are the main features of this logger:
     to be included, you have to do it explicitely:
 
         SNAP_LOG_INFO
-            << snaplogger::get_component("electric-fence")
+            << snaplogger::section(snaplogger::get_component("electric-fence"))
             << "My message here"
             << SNAP_LOG_END;
 
@@ -161,6 +161,22 @@ The following are the main features of this logger:
     **Note:** You should allocate your components once and then reuse their
     pointers for efficiency. Calling the get_component() function each time
     is considered slow.
+
+    You can print the list of components attached to a message using the
+    `${components}` variable. This can be useful while debugging. Probably
+    less useful in production. It can help you find out why a message does
+    or does not make it through a given appender filter.
+
+    Messages are also filtered from the set of components defined on the
+    command line with the `--log-component` option. You can specify the
+    name of one or more component in that list. Only messages that have
+    at least one component matching that list are sent to the appenders.
+    You can reverse the meaning by prepending the exclamation point:
+
+        ... --log-component !debug ...
+
+    In that case, if the `debug` component is found in the message, then
+    the message gets dropped immediately.
 
 * Fields
 

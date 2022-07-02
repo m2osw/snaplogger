@@ -17,24 +17,33 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+// header being tested
+//
+#include    <snaplogger/message.h>
+
+
 // self
 //
 #include    "catch_main.h"
 
 
-// snaplogger lib
+// snaplogger
 //
 #include    <snaplogger/buffer_appender.h>
 #include    <snaplogger/exception.h>
 #include    <snaplogger/format.h>
 #include    <snaplogger/logger.h>
 #include    <snaplogger/map_diagnostic.h>
-#include    <snaplogger/message.h>
 #include    <snaplogger/severity.h>
 #include    <snaplogger/version.h>
 
 
-// C lib
+// advgetopt
+//
+#include    <advgetopt/exception.h>
+
+
+// C
 //
 #include    <math.h>
 #include    <unistd.h>
@@ -696,7 +705,7 @@ CATCH_TEST_CASE("message_component_filter", "[message][component]")
             << SNAP_LOG_SEND;
 
         // TODO: get the WARNING severity level dynamically
-        CATCH_REQUIRE(buffer->str() == "This message is secure and so is the buffer (100)\n");
+        CATCH_REQUIRE(buffer->str() == "This message is secure and so is the buffer (" + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_WARNING)) + ")\n");
 
         buffer->clear();
 
@@ -707,7 +716,110 @@ CATCH_TEST_CASE("message_component_filter", "[message][component]")
             << SNAP_LOG_SEND_SECURELY;  // mark at the end
 
         // TODO: get the WARNING severity level dynamically
-        CATCH_REQUIRE(buffer->str() == "Test number: 4 with secure buffer... (100)\n");
+        CATCH_REQUIRE(buffer->str() == "Test number: 4 with secure buffer... (" + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_WARNING)) + ")\n");
+
+        l->reset();
+    }
+    CATCH_END_SECTION()
+}
+
+
+
+CATCH_TEST_CASE("message_exception", "[message][exception]")
+{
+    CATCH_START_SECTION("message: Use '... << exception << ...")
+    {
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
+
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>(
+                "${message} (${severity:format=number}) exit code: ${field:name=exception_exit_code}"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+
+        advgetopt::getopt_exit const error("testing an exception -> logging", 123);
+
+        SNAP_LOG_WARNING
+            << "We got an exception! ["
+            << error
+            << "]"
+            << SNAP_LOG_SEND;
+
+        CATCH_REQUIRE_FALSE(buffer->empty());
+
+        std::string const expected("We got an exception! [getopt_exception: testing an exception -> logging] ("
+                                        + std::to_string(static_cast<int>(::snaplogger::severity_t::SEVERITY_WARNING))
+                                        + ") exit code: 123\n");
+        CATCH_REQUIRE(buffer->str() == expected);
+
+        buffer->clear();
+
+        l->reset();
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("message: Use '... << stringstream << ...")
+    {
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
+
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message} (${severity:format=number})"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+
+        std::stringstream ss;
+        ss << "testing that we can also \"send\" the content of a string stream";
+
+        SNAP_LOG_WARNING
+            << "We got an exception! ["
+            << ss
+            << "]"
+            << SNAP_LOG_SEND;
+
+        CATCH_REQUIRE_FALSE(buffer->empty());
+
+        std::string const expected("We got an exception! [testing that we can also \"send\" the content of a string stream] ("
+                                        + std::to_string(static_cast<int>(::snaplogger::severity_t::SEVERITY_WARNING))
+                                        + ")\n");
+        CATCH_REQUIRE(buffer->str() == expected);
+
+        buffer->clear();
 
         l->reset();
     }

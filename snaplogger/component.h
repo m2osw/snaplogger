@@ -73,6 +73,7 @@ namespace snaplogger
 {
 
 
+
 class message;
 class private_logger;
 
@@ -132,8 +133,6 @@ inline section_ptr section(component::pointer_t comp)
 {
     return { comp };
 }
-
-
 
 
 

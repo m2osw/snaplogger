@@ -39,6 +39,11 @@
 #include    <libexcept/exception.h>
 
 
+// snapdev
+//
+#include    <snapdev/join_strings.h>
+
+
 // C++
 //
 #include    <sstream>
@@ -231,14 +236,6 @@ operator << (std::basic_ostream<CharT, Traits> & os, field_t const & f)
 
 
 
-template<typename CharT, typename Traits>
-inline std::basic_ostream<CharT, Traits> &
-operator << (std::basic_ostream<CharT, Traits> & os, std::stringstream const & ss)
-{
-    return os << ss.str();
-}
-
-
 
 
 message::pointer_t create_message(
@@ -298,4 +295,42 @@ void send_stack_trace(libexcept::exception_base_t const & e);
 
 
 } // snaplogger namespace
+
+
+
+template<typename CharT, typename Traits>
+inline std::basic_ostream<CharT, Traits> &
+operator << (std::basic_ostream<CharT, Traits> & os, std::stringstream const & ss)
+{
+    return os << ss.str();
+}
+
+
+
+template<typename CharT, typename Traits>
+inline std::basic_ostream<CharT, Traits> &
+operator << (std::basic_ostream<CharT, Traits> & os, std::exception const & e)
+{
+    snaplogger::message * m(dynamic_cast<snaplogger::message *>(&os));
+    if(m != nullptr)
+    {
+        m->add_field("exception_message", e.what());
+
+        libexcept::exception_base_t const * b(dynamic_cast<libexcept::exception_base_t const *>(&e));
+        if(b != nullptr)
+        {
+            m->add_field("exception_stacktrace", snapdev::join_strings(b->get_stack_trace(), "\n") + "\n");
+
+            libexcept::parameter_t const & params(b->get_parameters());
+            for(auto const & p : params)
+            {
+                m->add_field("exception_" + p.first, p.second);
+            }
+        }
+    }
+
+    return os << e.what();
+}
+
+
 // vim: ts=4 sw=4 et

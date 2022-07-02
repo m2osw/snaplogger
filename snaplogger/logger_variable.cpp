@@ -558,6 +558,25 @@ DEFINE_LOGGER_VARIABLE(diagnostic)
 }
 
 
+DEFINE_LOGGER_VARIABLE(components)
+{
+    component::set_t const & components(msg.get_components());
+    if(!components.empty())
+    {
+        char sep('[');
+        for(auto c : components)
+        {
+            value += sep;
+            sep = ',';
+            value += c->get_name();
+        }
+        value += ']';
+
+        variable::process_value(msg, value);
+    }
+}
+
+
 }
 // no name namespace
 

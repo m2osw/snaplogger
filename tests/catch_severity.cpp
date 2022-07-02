@@ -79,7 +79,11 @@ CATCH_TEST_CASE("severity", "[severity]")
                       snaplogger::add_severity(s)
                     , snaplogger::duplicate_error
                     , Catch::Matchers::ExceptionMessage(
-                              "logger_error: a system severity (200) cannot be replaced (same severity level: 200)."));
+                                "logger_error: a system severity ("
+                              + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_ERROR))
+                              + ") cannot be replaced (same severity level: "
+                              + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_ERROR))
+                              + ")."));
         }
 
         // user severity by severity
@@ -90,7 +94,11 @@ CATCH_TEST_CASE("severity", "[severity]")
                       snaplogger::add_severity(s)
                     , snaplogger::duplicate_error
                     , Catch::Matchers::ExceptionMessage(
-                              "logger_error: a system severity (200) cannot be replaced (same severity level: 200)."));
+                                    "logger_error: a system severity ("
+                                  + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_ERROR))
+                                  + ") cannot be replaced (same severity level: "
+                                  + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_ERROR))
+                                  + ")."));
         }
 
         // actually create a valid severity

@@ -1,3 +1,13 @@
+snaplogger (1.0.45.0~bionic) bionic; urgency=high
+
+  * Added support for sending exceptions to the logs with `... << e ...`.
+  * Added tests to verify this exception support.
+  * Fixed a couple of tests that were not yet updated.
+  * Tested the stringstream support (`... << ss << ...`).
+  * Added "components" as a variable we can include in the format.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Fri, 01 Jul 2022 22:27:43 -0700
+
 snaplogger (1.0.44.1~bionic) bionic; urgency=high
 
   * Bumped build version to rebuild on Launchpad.

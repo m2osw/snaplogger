@@ -18,13 +18,27 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 /** \file
- * \brief Implementation of the environment variable support.
+ * \brief Implementation of user related variables.
  *
- * This file implements a variable which retrieves its value from the
- * process environment. For example, you could retrieve the path to
- * the HOME directory.
+ * This file implements support for data intrinsic to the current user.
  *
- * This is often used to distinguish between runs.
+ * \li `uid`
+ *
+ * The user identifier as found in `/etc/passwd`.
+ *
+ * \li `username`
+ *
+ * The name of the current user as defined in the password database.
+ * This function searches for a name for the current getuid().
+ *
+ * \li `gid`
+ *
+ * The group identifier of the current user as found in `/etc/group`.
+ *
+ * \li `groupname`
+ *
+ * The name of the current group as defined in the group database.
+ * This function searches for a name for the current getgid().
  */
 
 // self
