@@ -75,4 +75,17 @@ enough, it may be much more practical to handle it through a callback.
   The subscription can then be used by a tool which would replace fail2ban.
   (i.e. a form of extension to the snapwatchdog service)
 
+* Added support for sealing (encrypting) the logs
+
+  When dealing with logs on the very computer that created them, we want to
+  make sure attackers can't temper with them. Although we offer a network
+  extension (see the eventdispatcher project for said extension), most of
+  our logs stop on the very computer where they are created.
+
+  The Seal feature would allow for protection of these logs. They at least
+  can't be tempered with (they can still be deleted, though). The journald
+  system already implements this feature. I have a PDF document about how
+  this is achieved.
+
+      doc/secure-logging-seekable-sequential-key-generators-2013-397.pdf
 
