@@ -1,9 +1,10 @@
 # - Try to find SnapLogger
 #
-# SNAPLOGGER_FOUND        - System has SnapLogger
-# SNAPLOGGER_INCLUDE_DIRS - The SnapLogger include directories
-# SNAPLOGGER_LIBRARIES    - The libraries needed to use SnapLogger
-# SNAPLOGGER_DEFINITIONS  - Compiler switches required for using SnapLogger
+# SNAPLOGGER_FOUND          - system has SnapLogger
+# SNAPLOGGER_INCLUDE_DIRS   - the SnapLogger include directories
+# SNAPLOGGER_LIBRARIES      - the libraries needed to use SnapLogger
+# SNAPLOGGER_DEFINITIONS    - compiler switches required for using SnapLogger
+# SNAPLOGGER_SHARE_CONF_DIR - directory where you install configuration files
 #
 # License:
 #
@@ -59,5 +60,7 @@ find_package_handle_standard_args(
         SNAPLOGGER_INCLUDE_DIR
         SNAPLOGGER_LIBRARY
 )
+
+set(SNAPLOGGER_SHARE_CONF_DIR share/snaplogger/etc)
 
 # vim: ts=4 sw=4 et

@@ -5,6 +5,7 @@ snaplogger (1.0.45.0~bionic) bionic; urgency=high
   * Fixed a couple of tests that were not yet updated.
   * Tested the stringstream support (`... << ss << ...`).
   * Added "components" as a variable we can include in the format.
+  * Offer a SNAPLOGGER_SHARE_CONF_DIR to install logger configuration files.
 
  -- Alexis Wilke <alexis@m2osw.com>  Fri, 01 Jul 2022 22:27:43 -0700
 
