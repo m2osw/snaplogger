@@ -1,3 +1,9 @@
+snaplogger (1.0.45.1~bionic) bionic; urgency=high
+
+  * Fixed name of TODO.md file (was still TODO.txt in debian/docs).
+
+ -- Alexis Wilke <alexis@m2osw.com>  Mon, 11 Jul 2022 10:59:34 -0700
+
 snaplogger (1.0.45.0~bionic) bionic; urgency=high
 
   * Added support for sending exceptions to the logs with `... << e ...`.
