@@ -87,6 +87,7 @@ auto_delete_logger          g_logger_deleter = auto_delete_logger();
 
 
 logger::logger()
+    : server(serverplugins::get_id("logger"))
 {
 }
 
@@ -700,7 +701,7 @@ void logger::set_asynchronous(bool status)
 
 void logger::log_message(message const & msg)
 {
-    if(const_cast<message &>(msg).tellp() != 0)
+    if(const_cast<message &>(msg).tellp() > 0)
     {
         bool asynchronous(false);
         {
