@@ -3,24 +3,50 @@
 
 ** Type
 
-Right now we allow for fields of type string (which value is a string).
+   Right now we allow for fields of type string (which value is a string).
 
-The fields should be given a type and be integers, floating points as
-well as strings (maybe some other types too? like a date & bool & size?)
+   The fields should be given a type and be integers, floating points as
+   well as strings (maybe some other types too? like a date & bool & size?)
 
 ** ${fields}
 
-The library allows for system fields such as "_timestamp". But these are
-totally missed by the ${fields} at the moment.
+   The library allows for system fields such as `"_timestamp"`. But these are
+   totally missed by the ${fields} at the moment.
 
 ** Dynamic Fields
 
-Whenever a message gets created, we could call a user defined callback
-to generate fields dynamically. For example, you could have a flag that
-you want to report just at the time the log message is created. You could,
-of course, add something such as `... << (flag ? "true" : "false") ...`
-to your `SNAP_LOG_ERROR << ...` statement. But if that flag is general
-enough, it may be much more practical to handle it through a callback.
+   Whenever a message gets created, we could call a user defined callback
+   to generate fields dynamically. For example, you could have a flag that
+   you want to report just at the time the log message is created. You could,
+   of course, add something such as `... << (flag ? "true" : "false") ...`
+   to your `SNAP_LOG_ERROR << ...` statement. But if that flag is generic
+   enough, it may be much more practical to handle it through a callback.
+
+** Conditional Fields
+
+   Often, the format includes a field which is set only at times. It would
+   be great to display that field only when actually set. There are other
+   conditions too; for example when ${tid} == ${pid} then we could avoid
+   showing the ${tid} altogether.
+
+   The condition would require an if-like statement. It is often written with
+   a tag in an XML environment. We could have something like this:
+
+       ${if:<expr>}...${endif}
+       ${if:<expr>}...${else}...${endif}
+
+   The feature would have to support multiple level to make use very useful.
+   We need to determine what `<expr>` would need to be. For sure, we want to
+   output certain strings only if a given field is not empty. So such a test
+   needs to be available.
+
+
+* Allow for a set of default formats to be defined in snaplogger directly.
+
+  Especially, I want to be able to add just `.../${tid}...` when a process
+  runs with threads. This allows us to have the thread identifier when a
+  log goes out. It's not particularly good to have a such format in all the
+  other project that want that field.
 
 
 * Document all the fields of the existing appenders.
@@ -29,8 +55,8 @@ enough, it may be much more practical to handle it through a callback.
 * Actually implement the snaploggerchecker tool.
 
 
-* Severities have the mark_as_registered() function and the constructor
-  which I think should be private and only the logger_private object
+* Severities have the `mark_as_registered()` function and the constructor
+  which I think should be private and only the `logger_private` object
   would be able to access them. This way it would be much safer. But I
   have to determine whether this is how the severities are expected to
   be limited.
@@ -74,6 +100,7 @@ enough, it may be much more practical to handle it through a callback.
 
   The subscription can then be used by a tool which would replace fail2ban.
   (i.e. a form of extension to the snapwatchdog service)
+
 
 * Added support for sealing (encrypting) the logs
 
