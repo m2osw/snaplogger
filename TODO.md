@@ -40,13 +40,19 @@
    output certain strings only if a given field is not empty. So such a test
    needs to be available.
 
+   We may want to get the `snap_expr` class in a separate project first so
+   we can use it for the `<expr>`.
+
 
 * Allow for a set of default formats to be defined in snaplogger directly.
 
   Especially, I want to be able to add just `.../${tid}...` when a process
   runs with threads. This allows us to have the thread identifier when a
   log goes out. It's not particularly good to have a such format in all the
-  other project that want that field.
+  other project that want that field. Although this one could also be
+  resolved with the ${if...} like so:
+
+      ...${if:${tid}!=${pid}&&${tid}!=""}/${tid}${endif}...
 
 
 * Document all the fields of the existing appenders.
