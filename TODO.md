@@ -55,6 +55,17 @@
       ...${if:${tid}!=${pid}&&${tid}!=""}/${tid}${endif}...
 
 
+* Look at making the removal of the banner conditional per appender
+
+  Right now it's all or nothing, yet I think that when running a command
+  line you may still want to get the banner in the files (assuming you have
+  write permissions).
+
+  I think I can add a tag to prevent the banner dynamically (i.e. if the tag
+  is set, then in the `[console]` definition, the message does not get
+  printed.
+
+
 * Document all the fields of the existing appenders.
 
 
