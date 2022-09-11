@@ -117,7 +117,7 @@ advgetopt::option const g_options[] =
         , advgetopt::Flags(advgetopt::command_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS
                     , advgetopt::GETOPT_FLAG_REQUIRED>())
-        , advgetopt::Help("log data to this specific log files")
+        , advgetopt::Help("log messages to this specific log file.")
     ),
     advgetopt::define_option(
           advgetopt::Name("log-config")
@@ -142,7 +142,7 @@ advgetopt::option const g_options[] =
           advgetopt::Name("logger-show-banner")
         , advgetopt::Flags(advgetopt::standalone_command_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
-        , advgetopt::Help("show a banner on startup with the tool name and version.")
+        , advgetopt::Help("show a banner on startup with the program name and version.")
     ),
     advgetopt::define_option(
           advgetopt::Name("logger-hide-banner")
