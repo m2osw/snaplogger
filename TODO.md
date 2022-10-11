@@ -1,4 +1,26 @@
 
+* Change how the variables are discovered in our messages
+
+  The best (I think) would be to have sections of the message clearly marked
+  as including variables and others not (i.e. by default the message itself
+  should probably not include variables).
+
+  I had a problem with ipload which has variables which may include an
+  advgetopt variable (i.e. `knock = ${knock_ports}`). Writing that value
+  in log message was captured by the "here is a variable". Because no
+  variable type named `"knock_ports"` exists, it would just throw an
+  exception. The result was that the app. would break early.
+
+  The current solution is: if the variable (type) does not exist then we just
+  ignore the introducer and print the variable as is in the output message.
+  However, parsing a variable is complex and can still generate many errors.
+  Although of course you have to have a variable which matches a snaplogger
+  variable type (such as "if").
+
+  I think that if the parsing fails at any step we should not throw but just
+  ignore that as being a variable. I could also help debugging in case you
+  misstype a variable.
+
 * Review the `field` extension
 
 ** Type

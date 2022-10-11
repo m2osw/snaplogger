@@ -659,10 +659,11 @@ variable::pointer_t private_logger::get_variable(std::string const & type)
     auto it(f_variable_factories.find(type));
     if(it == f_variable_factories.end())
     {
-        // TBD: should we instead return a null var.?
-        throw invalid_variable("You can't create variable with type \""
-                             + type
-                             + "\", no such variable type was registered.");
+        // if a message includes a variable like pattern, it may just be part
+        // of the input message so leave it alone (just return nullptr) instead
+        // of "crashing" the app. completely
+        //
+        return variable::pointer_t();
     }
 
     return it->second->create_variable();

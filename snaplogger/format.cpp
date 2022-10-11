@@ -218,17 +218,17 @@ public:
         }
     }
 
-    void parse_variable()
+    bool parse_variable()
     {
         token_t tok(get_token());
         if(tok != token_t::TOKEN_IDENTIFIER)
         {
-            throw invalid_variable("expected a token as the variable name.");
+            return false;
         }
         variable::pointer_t var(get_variable(f_text));
         if(var == nullptr)
         {
-            throw invalid_variable("unknown variable \"" + f_text + "\".");
+            return false;
         }
         f_variables.push_back(var);
 
@@ -274,6 +274,8 @@ public:
                 tok = get_token();
             }
         }
+
+        return true;
     }
 
     void parse()
@@ -308,12 +310,21 @@ public:
                 c = getc();
                 if(c == '{')
                 {
-                    // we found a variable definition
+                    // we found what looks like a variable definition
                     //
                     add_text(text);
                     text.clear();
 
-                    parse_variable();
+                    // try parsing the variable, if that fails, ignore
+                    // the variable and instead add the "${" introducer
+                    // on its own
+                    //
+                    auto const save_pos(f_pos);
+                    if(!parse_variable())
+                    {
+                        text += "${";
+                        f_pos = save_pos;
+                    }
                 }
                 else
                 {
