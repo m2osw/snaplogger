@@ -635,10 +635,7 @@ CATCH_TEST_CASE("duplicate_factory", "[variable][factory]")
 
     CATCH_START_SECTION("variable: attempt creating a variable with a non-existant type")
     {
-        CATCH_REQUIRE_THROWS_MATCHES(
-                  snaplogger::get_variable("fake")
-                , snaplogger::invalid_variable
-                , Catch::Matchers::ExceptionMessage("logger_error: You can't create variable with type \"fake\", no such variable type was registered."));
+        CATCH_REQUIRE(snaplogger::get_variable("fake") == nullptr);
     }
     CATCH_END_SECTION()
 
