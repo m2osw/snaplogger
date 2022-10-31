@@ -1,3 +1,10 @@
+snaplogger (1.0.46.0~bionic) bionic; urgency=high
+
+  * Allow get_Variable() to return a nullptr instead of throwing.
+  * Avoid outputting the message if tellp() returns -1.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sun, 30 Oct 2022 21:58:17 -0700
+
 snaplogger (1.0.45.1~bionic) bionic; urgency=high
 
   * Fixed name of TODO.md file (was still TODO.txt in debian/docs).
