@@ -1,3 +1,9 @@
+snaplogger (1.0.46.1~bionic) bionic; urgency=high
+
+  * Updated serverplugins-dev dependency version to latest.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Thu, 03 Nov 2022 06:10:00 -0700
+
 snaplogger (1.0.46.0~bionic) bionic; urgency=high
 
   * Allow get_Variable() to return a nullptr instead of throwing.
