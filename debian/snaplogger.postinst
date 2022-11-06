@@ -12,18 +12,17 @@ then
     USERNAME=snaplogger
     GROUPNAME=snaplogger
 
-    # Create the logfile because the communicatord user may have
-    # difficulties with it otherwise during logrotate.
+    # Create the default snaplogger output directory
     #
     LOGDIR=/var/log/${PACKAGENAME}
     mkdir -p ${LOGDIR}
     chown ${USERNAME}:${GROUPNAME} ${LOGDIR}
-    chmod 1775 ${LOGDIR}
+    chmod 1773 ${LOGDIR}
 
     SECURELOGDIR=${LOGDIR}/secure
     mkdir -p ${SECURELOGDIR}
     chown ${USERNAME}:${GROUPNAME} ${SECURELOGDIR}
-    chmod 1751 ${SECURELOGDIR}
+    chmod 1753 ${SECURELOGDIR}
 fi
 
 # vim: ts=4 sw=4 et nocindent
