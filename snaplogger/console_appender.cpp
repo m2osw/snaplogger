@@ -214,7 +214,7 @@ void console_appender::set_config(advgetopt::getopt const & opts)
     std::string const tty_field(get_name() + "::tty");
     if(opts.is_defined(tty_field))
     {
-        f_tty = opts.get_string(tty_field);
+        f_tty = advgetopt::is_true(opts.get_string(tty_field));
     }
 
     // OUTPUT
