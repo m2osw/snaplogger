@@ -1,3 +1,9 @@
+snaplogger (1.0.47.2~bionic) bionic; urgency=high
+
+  * Added  the dh-sysuser helper as a dependency.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sun, 06 Nov 2022 07:59:52 -0800
+
 snaplogger (1.0.47.1~bionic) bionic; urgency=high
 
   * Fixed the tty to bool statement.
