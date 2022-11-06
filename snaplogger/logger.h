@@ -87,6 +87,7 @@ public:
     void                        remove_component_to_include(component::pointer_t comp);
     void                        add_component_to_ignore(component::pointer_t comp);
     void                        remove_component_to_ignore(component::pointer_t comp);
+    component::map_t            get_component_list() const;
 
     void                        add_default_field(std::string const & name, std::string const & value);
     std::string                 get_default_field(std::string const & name) const;

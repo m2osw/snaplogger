@@ -32,7 +32,7 @@
 #include    "snaplogger/exception.h"
 
 
-// C++ lib
+// C++
 //
 #include    <numeric>
 #include    <iostream>
@@ -355,9 +355,16 @@ private:
 
 
 format::format(std::string const & f)
+    : f_format(f)
 {
     parser p(f, f_variables);
     p.parse();
+}
+
+
+std::string format::get_format() const
+{
+    return f_format;
 }
 
 

@@ -3,9 +3,9 @@
 // https://snapwebsites.org/project/snaplogger
 // contact@m2osw.com
 //
-// This program is free software; you can redistribute it and/or modify
+// This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
+// the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
@@ -13,9 +13,8 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License along
-// with this program; if not, write to the Free Software Foundation, Inc.,
-// 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 // snaplogger
 //
@@ -28,6 +27,11 @@
 // advgetopt
 //
 #include    <advgetopt/exception.h>
+
+
+// libexcept
+//
+#include    <libexcept/file_inheritance.h>
 
 
 // snapdev
@@ -81,26 +85,15 @@ advgetopt::option const g_command_line_options[] =
         , advgetopt::Help("list each appender output format.")
     ),
     advgetopt::define_option(
-          advgetopt::Name("list-levels")
-        , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
-        , advgetopt::Help("list of available log levels.")
-    ),
-    advgetopt::define_option(
-          advgetopt::Name("list-types")
-        , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
-        , advgetopt::Help("list of available log types.")
-    ),
-    advgetopt::define_option(
           advgetopt::Name("log")
         , advgetopt::ShortName('l')
         , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
-        , advgetopt::Help("verify the snaplogger configuration files.")
+        , advgetopt::Help("send a log to a set of appenders.")
     ),
     advgetopt::define_option(
           advgetopt::Name("verify")
-        , advgetopt::ShortName('v')
         , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
-        , advgetopt::Help("verify the snaplogger configuration files.")
+        , advgetopt::Help("verify the snaplogger configuration files (this is the default if no command is specified).")
     ),
 
     // OPTIONS
@@ -124,10 +117,10 @@ advgetopt::option const g_command_line_options[] =
         , advgetopt::Help("name of the function the log is being generated from.")
     ),
     advgetopt::define_option(
-          advgetopt::Name("level")
+          advgetopt::Name("severity")
         , advgetopt::Flags(advgetopt::command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS
                                                   , advgetopt::GETOPT_FLAG_REQUIRED>())
-        , advgetopt::Help("the log level (info, warn, error, etc.)")
+        , advgetopt::Help("the log severity (info, warn, error, etc.)")
     ),
     advgetopt::define_option(
           advgetopt::Name("line")
@@ -139,6 +132,7 @@ advgetopt::option const g_command_line_options[] =
           advgetopt::Name("message")
         , advgetopt::Flags(advgetopt::command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS
                                                   , advgetopt::GETOPT_FLAG_REQUIRED>())
+        , advgetopt::ShortName('m')
         , advgetopt::Help("the message to log.")
     ),
     advgetopt::define_option(
@@ -146,7 +140,7 @@ advgetopt::option const g_command_line_options[] =
         , advgetopt::ShortName('o')
         , advgetopt::Flags(advgetopt::command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS
                                                   , advgetopt::GETOPT_FLAG_REQUIRED>())
-        , advgetopt::Help("name of the output file (to save the compiled configuration files.)")
+        , advgetopt::Help("name of the output file (to save the compiled configuration files).")
     ),
     advgetopt::define_option(
           advgetopt::Name("project")
@@ -158,6 +152,7 @@ advgetopt::option const g_command_line_options[] =
     advgetopt::define_option(
           advgetopt::Name("verbose")
         , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+        , advgetopt::ShortName('v')
         , advgetopt::Help("make the process verbose.")
     ),
     advgetopt::define_option(
@@ -196,8 +191,8 @@ advgetopt::group_description const g_group_descriptions[] =
 #pragma GCC diagnostic ignored "-Wpedantic"
 advgetopt::options_environment const g_options_environment =
 {
-    .f_project_name = "snapwebsites",
-    .f_group_name = nullptr,
+    .f_project_name = "snaploggerchecker",
+    .f_group_name = "snaplogger",
     .f_options = g_command_line_options,
     .f_options_files_directory = nullptr,
     .f_environment_variable_name = nullptr,
@@ -211,7 +206,7 @@ advgetopt::options_environment const g_options_environment =
                      "where --<opt> is one or more of:",
     .f_help_footer = "%c",
     .f_version = SNAPLOGGER_VERSION_STRING,
-    .f_license = "GNU GPL v2",
+    .f_license = "GNU GPL v3",
     .f_copyright = "Copyright (c) 2013-"
                    BOOST_PP_STRINGIZE(UTC_BUILD_YEAR)
                    " by Made to Order Software Corporation -- All Rights Reserved",
@@ -229,29 +224,164 @@ advgetopt::options_environment const g_options_environment =
 class tool
 {
 public:
-    int                             init(int argc, char * argv[]);
+                                    tool(int argc, char * argv[]);
+
+    int                             run();
 
 private:
-    advgetopt::getopt::pointer_t    f_opt = advgetopt::getopt::pointer_t();
+    typedef std::function<int()>    command_t;
+
+    int                             determine_command();
+
+    int                             list_components();
+    int                             list_formats();
+    int                             list_types();
+    int                             log();
+    int                             verify();
+
+    advgetopt::getopt               f_opts;
+    command_t                       f_command = nullptr;
 };
 
 
 
-int tool::init(int argc, char * argv[])
+tool::tool(int argc, char * argv[])
+    : f_opts(g_options_environment)
 {
-    f_opt = std::make_shared<advgetopt::getopt>(g_options_environment);
-
     snaplogger::logger::get_instance()->add_default_field("tool", "snaploggerchecker");
-    snaplogger::add_logger_options(*f_opt);
+    snaplogger::add_logger_options(f_opts);
 
-    f_opt->finish_parsing(argc, argv);
+    f_opts.finish_parsing(argc, argv);
 
-    if(!snaplogger::process_logger_options(*f_opt))
+    if(!snaplogger::process_logger_options(
+            f_opts
+            , "/etc/snaplogger/logger"
+            , std::cout
+            , !isatty(fileno(stdin))))
     {
         // exit on any error
         throw advgetopt::getopt_exit("logger options generated an error.", 0);
     }
+}
 
+
+int tool::run()
+{
+    int r;
+
+    r = determine_command();
+    if(r != 0)
+    {
+        return r;
+    }
+
+    f_command();
+
+    return 0;
+}
+
+
+int tool::determine_command()
+{
+    struct command_name_pointer_t
+    {
+        char const *    f_name = nullptr;
+        command_t       f_command = nullptr;
+    };
+
+    command_name_pointer_t const command_list[] =
+    {
+        { "list-components", std::bind(&tool::list_components, this) },
+        { "list-formats",    std::bind(&tool::list_formats,    this) },
+        { "log",             std::bind(&tool::log,             this) },
+        { "verify",          std::bind(&tool::verify,          this) },
+    };
+
+    std::string first;
+    for(auto const & c : command_list)
+    {
+        if(f_opts.is_defined(c.f_name))
+        {
+            if(f_command != nullptr)
+            {
+                SNAP_LOG_ERROR
+                    << "you can only specify one command on the command line; found \""
+                    << first
+                    << "\" and \""
+                    << c.f_name
+                    << "\"."
+                    << SNAP_LOG_SEND;
+                return 1;
+            }
+
+            first = c.f_name;
+            f_command = c.f_command;
+        }
+    }
+
+    // if not specified, default to --verify
+    //
+    if(f_command == nullptr)
+    {
+        f_command = std::bind(&tool::verify, this);
+    }
+
+    return 0;
+}
+
+
+int tool::list_components()
+{
+    snaplogger::component::map_t const components(snaplogger::logger::get_instance()->get_component_list());
+
+    std::cout << "Available components:\n";
+    for(auto const & c : components)
+    {
+        std::cout << "  . " << c.first << '\n';
+    }
+    std::cout << std::endl;
+
+    return 0;
+}
+
+
+int tool::list_formats()
+{
+    snaplogger::appender::vector_t const appenders(snaplogger::logger::get_instance()->get_appenders());
+    for(auto const & a : appenders)
+    {
+        snaplogger::format::pointer_t f(a->get_format());
+
+        std::cout
+            << a->get_name()
+            << ": "
+            << f->get_format()
+            << '\n';
+    }
+    std::cout << std::endl;
+
+    return 0;
+}
+
+
+int tool::log()
+{
+    SNAP_LOG_FATAL
+        << snaplogger::section(snaplogger::g_normal_component)
+        << snaplogger::section(snaplogger::g_not_implemented_component)
+        << "The --log command is not yet implemented."
+        << SNAP_LOG_SEND;
+    return 0;
+}
+
+
+int tool::verify()
+{
+    SNAP_LOG_FATAL
+        << snaplogger::section(snaplogger::g_normal_component)
+        << snaplogger::section(snaplogger::g_not_implemented_component)
+        << "The --verify command is not yet implemented."
+        << SNAP_LOG_SEND;
     return 0;
 }
 
@@ -266,15 +396,13 @@ int tool::init(int argc, char * argv[])
 
 int main(int argc, char * argv[])
 {
+    libexcept::verify_inherited_files();
+    libexcept::collect_stack_trace();
+
     try
     {
-        tool t;
-        if(t.init(argc, argv) != 0)
-        {
-            return 0;
-        }
-
-        return 0;
+        tool t(argc, argv);
+        return t.run();
     }
     catch(advgetopt::getopt_exit const &)
     {

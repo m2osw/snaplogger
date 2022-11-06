@@ -479,6 +479,14 @@ void appender::add_component(component::pointer_t comp)
 }
 
 
+format::pointer_t appender::get_format() const
+{
+    guard g;
+
+    return f_format;
+}
+
+
 format::pointer_t appender::set_format(format::pointer_t new_format)
 {
     guard g;

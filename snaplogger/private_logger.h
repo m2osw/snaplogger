@@ -91,6 +91,7 @@ public:
     appender::pointer_t         create_appender(std::string const & type, std::string const & name);
 
     component::pointer_t        get_component(std::string const & name);
+    component::map_t            get_component_list() const;
 
     format::pointer_t           get_default_format();
 

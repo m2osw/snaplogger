@@ -306,6 +306,12 @@ component::pointer_t private_logger::get_component(std::string const & name)
 }
 
 
+component::map_t private_logger::get_component_list() const
+{
+    return f_components;
+}
+
+
 format::pointer_t private_logger::get_default_format()
 {
     guard g;

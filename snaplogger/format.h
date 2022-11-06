@@ -45,9 +45,11 @@ public:
 
                         format(std::string const & f);
 
+    std::string         get_format() const;
     std::string         process_message(message const & msg, bool ignore_on_no_repeat = false);
 
 private:
+    std::string const   f_format;
     variable::vector_t  f_variables = variable::vector_t();
 };
 

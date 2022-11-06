@@ -606,6 +606,15 @@ void logger::remove_component_to_ignore(component::pointer_t comp)
 }
 
 
+component::map_t logger::get_component_list() const
+{
+    guard g;
+
+    private_logger const * l(dynamic_cast<private_logger const *>(this));
+    return l->get_component_list();
+}
+
+
 void logger::add_default_field(std::string const & name, std::string const & value)
 {
     if(!name.empty())
