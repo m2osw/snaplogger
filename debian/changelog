@@ -1,3 +1,9 @@
+snaplogger (1.0.46.2~bionic) bionic; urgency=high
+
+  * Actually create the default /var/log/snaplogger[/secure] folders.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sat, 05 Nov 2022 20:14:50 -0700
+
 snaplogger (1.0.46.1~bionic) bionic; urgency=high
 
   * Updated serverplugins-dev dependency version to latest.
