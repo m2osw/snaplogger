@@ -209,6 +209,14 @@ void console_appender::set_config(advgetopt::getopt const & opts)
         f_flush = advgetopt::is_true(opts.get_string(flush_field));
     }
 
+    // TTY
+    //
+    std::string const tty_field(get_name() + "::tty");
+    if(opts.is_defined(tty_field))
+    {
+        f_tty = opts.get_string(tty_field);
+    }
+
     // OUTPUT
     //
     std::string const output_field(get_name() + "::output");
@@ -240,8 +248,18 @@ void console_appender::process_message(message const & msg, std::string const & 
             f_console.reset(open("/dev/console", O_WRONLY | O_APPEND | O_CLOEXEC | O_NOCTTY));
             f_fd = f_console.get();
         }
+        // else -- we cannot really emit an error in this case...
 
         f_is_a_tty = isatty(f_fd);
+
+        if(!f_is_a_tty && f_tty)
+        {
+            // the user require to use the console only if it is a TTY
+            // void the fd if that's not the case
+            //
+            f_console.reset();  // in case it was a console
+            f_fd = -1;
+        }
     }
 
     if(f_fd == -1)

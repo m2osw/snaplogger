@@ -1,0 +1,7 @@
+# Create a user "<Name>" and corresponding group "<Name>"
+# and create a home directory (a.k.a. /var/lib/<Name>)
+#
+# see: man dh_sysuser
+#
+# Name            Options
+snaplogger        home

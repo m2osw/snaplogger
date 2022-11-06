@@ -63,6 +63,7 @@ private:
     bool                    f_force_style = false;
     bool                    f_lock = true;
     bool                    f_flush = true;
+    bool                    f_tty = false;
     bool                    f_is_a_tty = true;
 };
 
