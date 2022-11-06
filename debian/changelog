@@ -1,3 +1,9 @@
+snaplogger (1.0.47.4~bionic) bionic; urgency=high
+
+  * Added the "--with sysuser".
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sun, 06 Nov 2022 09:03:38 -0800
+
 snaplogger (1.0.47.3~bionic) bionic; urgency=high
 
   * Change of license to GPL 3.
