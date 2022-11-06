@@ -1,3 +1,9 @@
+snaplogger (1.0.47.1~bionic) bionic; urgency=high
+
+  * Fixed the tty to bool statement.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sun, 06 Nov 2022 05:13:38 -0800
+
 snaplogger (1.0.47.0~bionic) bionic; urgency=high
 
   * Added support for a tty=true for the [console] so it does not print to
