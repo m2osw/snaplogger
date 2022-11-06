@@ -1,3 +1,9 @@
+snaplogger (1.0.47.3~bionic) bionic; urgency=high
+
+  * Change of license to GPL 3.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sun, 06 Nov 2022 08:25:47 -0800
+
 snaplogger (1.0.47.2~bionic) bionic; urgency=high
 
   * Added  the dh-sysuser helper as a dependency.
