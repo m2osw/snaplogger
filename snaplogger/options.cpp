@@ -100,7 +100,8 @@ advgetopt::option const g_options[] =
           advgetopt::Name("logger-plugin-paths")
         , advgetopt::Flags(advgetopt::all_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS
-                    , advgetopt::GETOPT_FLAG_REQUIRED>())
+                    , advgetopt::GETOPT_FLAG_REQUIRED
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("one or more paths separated by colons (:) to snaplogger plugins.")
     ),
 
@@ -116,20 +117,23 @@ advgetopt::option const g_options[] =
           advgetopt::Name("log-file")
         , advgetopt::Flags(advgetopt::command_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS
-                    , advgetopt::GETOPT_FLAG_REQUIRED>())
+                    , advgetopt::GETOPT_FLAG_REQUIRED
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("log messages to this specific log file.")
     ),
     advgetopt::define_option(
           advgetopt::Name("log-config")
         , advgetopt::Flags(advgetopt::command_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS
-                    , advgetopt::GETOPT_FLAG_REQUIRED>())
+                    , advgetopt::GETOPT_FLAG_REQUIRED
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("only load this specific configuration file.")
     ),
     advgetopt::define_option(
           advgetopt::Name("syslog")
         , advgetopt::Flags(advgetopt::command_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("send the logs to syslog only, the argument, if specified, is the name to use as the identity.")
     ),
     advgetopt::define_option(
@@ -141,7 +145,8 @@ advgetopt::option const g_options[] =
     advgetopt::define_option(
           advgetopt::Name("logger-show-banner")
         , advgetopt::Flags(advgetopt::standalone_command_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("show a banner on startup with the program name and version.")
     ),
     advgetopt::define_option(
@@ -157,7 +162,8 @@ advgetopt::option const g_options[] =
           advgetopt::Name("log-config-path")
         , advgetopt::Flags(advgetopt::all_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS
-                    , advgetopt::GETOPT_FLAG_REQUIRED>())
+                    , advgetopt::GETOPT_FLAG_REQUIRED
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("the path to the configuration folders.")
     ),
 
@@ -172,21 +178,24 @@ advgetopt::option const g_options[] =
     advgetopt::define_option(
           advgetopt::Name("trace")
         , advgetopt::Flags(advgetopt::standalone_command_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("change the logger severity level of each appender to TRACE.")
     ),
     advgetopt::define_option(
           advgetopt::Name("log-severity")
         , advgetopt::Flags(advgetopt::command_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS
-                    , advgetopt::GETOPT_FLAG_REQUIRED>())
+                    , advgetopt::GETOPT_FLAG_REQUIRED
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("reduce the severity level of each appender to the specified level unless it is already lower.")
     ),
     advgetopt::define_option(
           advgetopt::Name("force-severity")
         , advgetopt::Flags(advgetopt::command_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS
-                    , advgetopt::GETOPT_FLAG_REQUIRED>())
+                    , advgetopt::GETOPT_FLAG_REQUIRED
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("change the logger severity level of each appender to the specified level.")
     ),
 
@@ -197,7 +206,8 @@ advgetopt::option const g_options[] =
         , advgetopt::Flags(advgetopt::command_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS
                     , advgetopt::GETOPT_FLAG_MULTIPLE
-                    , advgetopt::GETOPT_FLAG_REQUIRED>())
+                    , advgetopt::GETOPT_FLAG_REQUIRED
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("filter logs by component, use ! in front of a name to prevent those logs.")
     ),
 
@@ -207,7 +217,8 @@ advgetopt::option const g_options[] =
           advgetopt::Name("except-stack-collect")
         , advgetopt::Flags(advgetopt::command_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS
-                    , advgetopt::GETOPT_FLAG_REQUIRED>())
+                    , advgetopt::GETOPT_FLAG_REQUIRED
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::DefaultValue("yes")
         , advgetopt::Help("what to collect from the stack on an exception: no, yes or simple, complete.")
     ),
@@ -217,25 +228,29 @@ advgetopt::option const g_options[] =
     advgetopt::define_option(
           advgetopt::Name("list-appenders")
         , advgetopt::Flags(advgetopt::standalone_command_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
+                      advgetopt::GETOPT_FLAG_GROUP_COMMANDS
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("show the list of available log appenders.")
     ),
     advgetopt::define_option(
           advgetopt::Name("list-severities")
         , advgetopt::Flags(advgetopt::standalone_command_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
+                      advgetopt::GETOPT_FLAG_GROUP_COMMANDS
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("show the list of available log severities.")
     ),
     advgetopt::define_option(
           advgetopt::Name("logger-version")
         , advgetopt::Flags(advgetopt::standalone_command_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
+                      advgetopt::GETOPT_FLAG_GROUP_COMMANDS
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("show the version of the logger library.")
     ),
     advgetopt::define_option(
           advgetopt::Name("logger-configuration-filenames")
         , advgetopt::Flags(advgetopt::standalone_command_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
+                      advgetopt::GETOPT_FLAG_GROUP_COMMANDS
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("show the list of configuration filenames that would be loaded with the current options.")
     ),
 
