@@ -1,3 +1,9 @@
+snaplogger (1.0.49.1~bionic) bionic; urgency=high
+
+  * Bumped build version to rebuild on Launchpad.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sat, 12 Nov 2022 17:42:49 -0800
+
 snaplogger (1.0.49.0~bionic) bionic; urgency=high
 
   * Marked some options as system options.
