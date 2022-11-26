@@ -1,4 +1,8 @@
 
+* Verify that data passed by app. is valid UTF-8 (especially the message)
+  If some bytes do not represent a valid UTF-8 character, replace with '?'.
+  We should be able to use a function in libutf8 for that purpose.
+
 * Change how the variables are discovered in our messages
 
   The best (I think) would be to have sections of the message clearly marked
