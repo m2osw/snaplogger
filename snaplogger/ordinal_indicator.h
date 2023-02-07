@@ -29,18 +29,13 @@
  *
  * The language is very important although we offer functions that return
  * the ordinal indicator in each language, you probably want to use the
- * main function that will return the indicator depending on the language.
+ * main function that returns the indicator depending on the language.
  *
  * \note
  * The ordinal indicator changes even within one language. The default can
  * be used by more languages (those that do not otherwise offer an ordinal
  * indicator).
  */
-
-// self
-//
-//#include    "snapdev/reverse_cstring.h"
-
 
 // C++ lib
 //
