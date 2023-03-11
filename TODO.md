@@ -96,6 +96,7 @@
 
 
 * Actually implement the snaploggerchecker tool.
+  (i.e. verify .conf files & allow for script to send logs)
 
 
 * Severities have the `mark_as_registered()` function and the constructor
@@ -145,7 +146,7 @@
   (i.e. a form of extension to the snapwatchdog service)
 
 
-* Added support for sealing (encrypting) the logs
+* Add support for sealing (encrypting) the logs
 
   When dealing with logs on the very computer that created them, we want to
   make sure attackers can't temper with them. Although we offer a network
@@ -158,4 +159,11 @@
   this is achieved.
 
       doc/secure-logging-seekable-sequential-key-generators-2013-397.pdf
+
+* Add support for filtering
+
+  Right now, each appender can apply their own filter. I'm thinking that
+  we may want to have a filter mechanism which runs ahead of the appenders
+  to filter out some messages (maybe because of number/sec.--i.e. throttle;
+  or maybe some types of messages depending on component info, etc.)
 
