@@ -165,7 +165,7 @@ advgetopt::option const g_options[] =
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS
                     , advgetopt::GETOPT_FLAG_REQUIRED
                     , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
-        , advgetopt::Help("the path to the configuration folders.")
+        , advgetopt::Help("the path to the logger configuration directory.")
     ),
 
     // SEVERITY
