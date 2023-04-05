@@ -152,7 +152,8 @@ advgetopt::option const g_options[] =
     advgetopt::define_option(
           advgetopt::Name("logger-hide-banner")
         , advgetopt::Flags(advgetopt::standalone_command_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("do not show the banner (--logger-show-banner has priority if specified).")
     ),
 
