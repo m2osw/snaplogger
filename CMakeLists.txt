@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2022  Made to Order Software Corp.  All Rights Reserved
+# Copyright (c) 2013-2023  Made to Order Software Corp.  All Rights Reserved
 #
 # https://snapwebsites.org/project/snaplogger
 # contact@m2osw.com
@@ -42,6 +42,7 @@ add_subdirectory(snaplogger)
 add_subdirectory(tests     )
 add_subdirectory(doc       )
 add_subdirectory(cmake     )
+add_subdirectory(scripts   )
 add_subdirectory(tools     )
 
 # vim: ts=4 sw=4 et

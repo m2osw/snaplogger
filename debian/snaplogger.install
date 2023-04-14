@@ -5,3 +5,4 @@ conf/severity.ini                   etc/snaplogger/
 conf/shredlog.conf                  etc/snaplogger/
 conf/SEVERITY.md                    usr/share/snaplogger
 conf/README.md                      usr/share/snaplogger/etc
+share/snaplogger/debconf/snaplogger usr/share/snaplogger/debconf
