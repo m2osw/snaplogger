@@ -1,0 +1,31 @@
+
+Template: snaplogger/title
+Type: title
+Description: snaplogger settings
+
+Template: snaplogger/shredmode
+Type: select
+Choices: auto, delete, shred, both
+Description: Shred Mode
+ When you purge a project using the snaplogger library, you can request
+ all or at least the secure logs to be shreded (although note that really
+ only works well on HDD and depends on the type of file system, etc.)
+ .
+ The available modes are: auto, delete, shred, both.
+ .
+ In most likelihood, the shred or both options are not going to be useful,
+ especially if your drive is an SSD device. The "auto" feature also does
+ not properly detect whether a drive is rotational (HDD) or not (SSD). So
+ the best option on most VPS (such as computers at a provider such as
+ DigitalOcean or your VirtualBox environment at home) is to use "delete"
+ which is the default in the administrator configuration file and means
+ that by default you would not shred anything.
+ .
+ This selection allows you to choose another mode. It will be saved in
+ your administrator's configuration file.
+
+Template: snaplogger/empty
+Type: error
+Description: This parameter cannot be empty.
+ Please make sure to enter a valid domain name.
+

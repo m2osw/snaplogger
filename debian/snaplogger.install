@@ -3,6 +3,6 @@ usr/bin/shredlog                    usr/bin/
 usr/bin/snaploggerchecker           usr/bin/
 conf/severity.ini                   etc/snaplogger/
 conf/shredlog.conf                  etc/snaplogger/
-conf/SEVERITY.md                    usr/share/snaplogger
-conf/README.md                      usr/share/snaplogger/etc
-share/snaplogger/debconf/snaplogger usr/share/snaplogger/debconf
+conf/SEVERITY.md                    usr/share/snaplogger/
+conf/README.md                      usr/share/snaplogger/etc/
+lib/snaplogger/inst/manage-log-dirs usr/lib/snaplogger/inst/

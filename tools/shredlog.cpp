@@ -1,71 +1,44 @@
-/*
- * Copyright (c) 2013-2022  Made to Order Software Corp.  All Rights Reserved
- *
- * https://snapwebsites.org/project/snaplogger
- * contact@m2osw.com
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
-
-// snaplogger lib
+// Copyright (c) 2013-2023  Made to Order Software Corp.  All Rights Reserved
 //
-#include    <snaplogger/exception.h>
+// https://snapwebsites.org/project/snaplogger
+// contact@m2osw.com
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+// snaplogger
+//
 #include    <snaplogger/logger.h>
 #include    <snaplogger/options.h>
 #include    <snaplogger/version.h>
 
 
-// advgetopt lib
+// advgetopt
 //
 #include    <advgetopt/exception.h>
 #include    <advgetopt/options.h>
 #include    <advgetopt/utils.h>
 
 
-// cppthread lib
+// cppthread
 //
 #include    <cppthread/log.h>
 
 
-// snapdev lib
+// snapdev
 //
-#include    <snapdev/not_reached.h>
-#include    <snapdev/not_used.h>
-#include    <snapdev/raii_generic_deleter.h>
-
-
-// boost lib
-//
-#include    <boost/algorithm/string/join.hpp>
-#include    <boost/preprocessor/stringize.hpp>
-
-
-// C++ lib
-//
-#include    <fstream>
-#include    <map>
-
-
-// C lib
-//
-#include    <glob.h>
-#include    <limits.h>
-#include    <stdlib.h>
-#include    <sys/sysmacros.h>
-#include    <sys/stat.h>
-#include    <unistd.h>
+#include    <snapdev/glob_to_list.h>
+#include    <snapdev/stringize.h>
 
 
 // last include
@@ -95,9 +68,9 @@
  * We offer several other modes, especially, the auto-detection of HDD or
  * SSD drives fails badly on any VPS (the ones you run on your computer
  * at home and at data centers like DigialOcean). I think this is because
- * by default the systems that create virtualize  computers have fake
+ * by default the systems that create virtualize computers have fake
  * drives for HDD and thus they _say_ that the drives are rotational.
- * Hopefully this will be fixed at some point so the virtual system can
+ * Hopefully, this will be fixed at some point so the virtual system can
  * detect the original drive type and replicate that in the virtual
  * environment.
  *
@@ -174,39 +147,8 @@ namespace
 {
 
 
-typedef std::unique_ptr<glob_t, snapdev::raii_pointer_deleter<glob_t, decltype(&::globfree), &::globfree>> glob_pointer_t;
-
-
 advgetopt::option const g_options[] =
 {
-    // COMMANDS
-    //
-    advgetopt::define_option(
-          advgetopt::Name("auto")
-        , advgetopt::Flags(advgetopt::standalone_all_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
-        , advgetopt::Help("select shreding on HDD, only unlink on SSD; this is the default.")
-    ),
-    advgetopt::define_option(
-          advgetopt::Name("delete")
-        , advgetopt::Flags(advgetopt::standalone_all_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
-        , advgetopt::Help("force unlink (no shreding unless --shred is also specified).")
-    ),
-    advgetopt::define_option(
-          advgetopt::Name("shred")
-        , advgetopt::Flags(advgetopt::standalone_all_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
-        , advgetopt::Help("force shreding, whatever drive is detected.")
-    ),
-    advgetopt::define_option(
-          advgetopt::Name("unlink")
-        , advgetopt::ShortName('u')
-        , advgetopt::Flags(advgetopt::standalone_all_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
-        , advgetopt::Help("truncate and remove file after overwriting.")
-    ),
-
     // OPTIONS
     //
     advgetopt::define_option(
@@ -215,6 +157,12 @@ advgetopt::option const g_options[] =
         , advgetopt::Flags(advgetopt::standalone_all_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
         , advgetopt::Help("do not round file sizes up to the next full block; this is the default for non-regular files.")
+    ),
+    advgetopt::define_option(
+          advgetopt::Name("ignore-fail-on-non-empty")
+        , advgetopt::Flags(advgetopt::standalone_all_flags<
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+        , advgetopt::Help("ignore the \"directory not empty\" error.")
     ),
     advgetopt::define_option(
           advgetopt::Name("force")
@@ -231,6 +179,12 @@ advgetopt::option const g_options[] =
                     , advgetopt::GETOPT_FLAG_REQUIRED>())
         , advgetopt::DefaultValue("3")
         , advgetopt::Help("overwrite this number of times instead of the default.")
+    ),
+    advgetopt::define_option(
+          advgetopt::Name("mode")
+        , advgetopt::Flags(advgetopt::standalone_all_flags<
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+        , advgetopt::Help("select shreding mode: auto, delete, shred, both.")
     ),
     advgetopt::define_option(
           advgetopt::Name("random-source")
@@ -277,7 +231,7 @@ advgetopt::option const g_options[] =
         , advgetopt::Help("add a final overwrite with zeros to hide shredding.")
     ),
 
-    // FILENAMES/PATHS
+    // FILENAMES/DIRECTORIES
     //
     advgetopt::define_option(
           advgetopt::Name("--")
@@ -339,7 +293,7 @@ advgetopt::options_environment const g_options_environment =
     .f_version = SNAPLOGGER_VERSION_STRING,
     .f_license = "GNU GPL v2",
     .f_copyright = "Copyright (c) 2013-"
-                   BOOST_PP_STRINGIZE(UTC_BUILD_YEAR)
+                   SNAPDEV_STRINGIZE(UTC_BUILD_YEAR)
                    " by Made to Order Software Corporation -- All Rights Reserved",
     .f_build_date = UTC_BUILD_DATE,
     .f_build_time = UTC_BUILD_TIME,
@@ -370,12 +324,12 @@ public:
 private:
     int                             process(std::string const & filename);
     bool                            get_disk_type(struct stat & s);
-    bool                            is_hdd(struct stat & s) const;
 
     advgetopt::getopt::pointer_t    f_opt = advgetopt::getopt::pointer_t();
     select_t                        f_select = select_t::SELECT_AUTO;
-    bool                            f_found_file = false;
+    int                             f_found_file = 0;
     bool                            f_verbose = false;
+    bool                            f_ignore_fail_on_non_empty = false;
     bool                            f_force = false;
 };
 
@@ -396,6 +350,7 @@ int tool::init(int argc, char * argv[])
                 , false))
     {
         // exit on any error
+        //
         throw advgetopt::getopt_exit("logger options generated an error.", 0);
     }
 
@@ -403,75 +358,42 @@ int tool::init(int argc, char * argv[])
 }
 
 
-
-constexpr int CMD_AUTO   = 0x0001;
-constexpr int CMD_DELETE = 0x0002;
-constexpr int CMD_SHRED  = 0x0004;
-constexpr int CMD_UNLINK = 0x0008;
-
-
 int tool::execute()
 {
-    int command = 0;
-
     f_verbose = f_opt->is_defined("verbose");
+    f_ignore_fail_on_non_empty = f_opt->is_defined("ignore-fail-on-non-empty");
     f_force = f_opt->is_defined("force");
 
-    if(f_opt->is_defined("auto"))
+    std::string const mode(f_opt->get_string("mode"));
+    if(mode == "auto")
     {
-        command |= CMD_AUTO;
-    }
-    if(f_opt->is_defined("delete"))
-    {
-        command |= CMD_DELETE;
-    }
-    if(f_opt->is_defined("shred"))
-    {
-        command |= CMD_SHRED;
-    }
-    if(f_opt->is_defined("unlink"))
-    {
-        command |= CMD_UNLINK;
-    }
-    if(command == 0)
-    {
-        command = CMD_AUTO;
-    }
-
-    switch(command)
-    {
-    case CMD_AUTO:
-    case CMD_AUTO | CMD_UNLINK:
         f_select = select_t::SELECT_AUTO;
-        break;
-
-    case CMD_DELETE:
-    case CMD_DELETE | CMD_UNLINK:
+    }
+    else if(mode == "delete")
+    {
         f_select = select_t::SELECT_DELETE;
-        break;
-
-    case CMD_SHRED:
+    }
+    else if(f_opt->is_defined("shred"))
+    {
         f_select = select_t::SELECT_SHRED;
-        break;
-
-    case CMD_DELETE | CMD_SHRED:
-    case CMD_SHRED | CMD_UNLINK:
-    case CMD_UNLINK:
+    }
+    else if(f_opt->is_defined("both"))
+    {
         f_select = select_t::SELECT_BOTH;
-        break;
-
-    default:
-        cppthread::log
-                << cppthread::log_level_t::fatal
-                << "invalid command combo; try just --auto, --delete, or --shred."
-                << cppthread::end;
+    }
+    else
+    {
+        SNAP_LOG_FATAL
+            << "mode \""
+            << mode
+            << "\" is  unknown. Try one of \"auto\", \"delete\", \"shred\", or \"both\"."
+            << SNAP_LOG_SEND;
         return 1;
-
     }
 
     int result(0);
-    size_t const max(f_opt->size("--"));
-    for(size_t idx(0); idx < max; ++idx)
+    std::size_t const max(f_opt->size("--"));
+    for(std::size_t idx(0); idx < max; ++idx)
     {
         int const r(process(f_opt->get_string("--", idx)));
         if(result == 0
@@ -481,29 +403,12 @@ int tool::execute()
         }
     }
 
-    if(f_found_file)
+    if(f_verbose && f_found_file > 0)
     {
+        std::cout << "shredded " << f_found_file << " files.\n";
     }
 
     return result;
-}
-
-
-int glob_err_callback(char const * epath, int eerrno)
-{
-    SNAP_LOG_ERROR
-        << "an error occurred while reading directory under \""
-        << epath
-        << "\". Got error: "
-        << eerrno
-        << ", "
-        << strerror(eerrno)
-        << "."
-        << SNAP_LOG_SEND;
-
-    // do not abort on a directory read error...
-    //
-    return 0;
 }
 
 
@@ -536,74 +441,37 @@ int tool::process(std::string const & filename)
     {
         // this is a directory, ignore unless we have --recursive
         //
-        if(f_opt->is_defined("recursive"))
+        if(!f_opt->is_defined("recursive"))
         {
-            std::string const pattern(filename + "/*");
-            glob_pointer_t dir(glob_pointer_t(new glob_t));
-            int const r(glob(
-                      pattern.c_str()
-                    , GLOB_NOSORT | GLOB_PERIOD
-                    , glob_err_callback
-                    , dir.get()));
-            if(r != 0)
-            {
-                // do nothing when errors occur
-                //
-                switch(r)
-                {
-                case GLOB_NOSPACE:
-                    SNAP_LOG_ERROR
-                            << "glob() did not have enough memory to alllocate its buffers."
-                            << SNAP_LOG_SEND;
-                    return 1;
-
-                case GLOB_ABORTED:
-                    SNAP_LOG_ERROR
-                            << "glob() was aborted after a read error."
-                            << SNAP_LOG_SEND;
-                    return 1;
-
-                case GLOB_NOMATCH:
-                    // just delete the folder
-                    break;
-
-                default:
-                    SNAP_LOG_ERROR
-                            << "unknown glob() error code: "
-                            << r
-                            << "."
-                            << SNAP_LOG_SEND;
-                    return 1;
-
-                }
-            }
-            else
-            {
-                for(size_t idx(0); idx < dir->gl_pathc; ++idx)
-                {
-                    // ignore "." and ".."
-                    //
-                    std::string path(dir->gl_pathv[idx]);
-                    if(path == filename + "/."
-                    || path == filename + "/..")
-                    {
-                        continue;
-                    }
-                    if(process(dir->gl_pathv[idx]) != 0)
-                    {
-                        result = 1;
-                    }
-                }
-            }
-        }
-        else
-        {
-            SNAP_LOG_ERROR
+            SNAP_LOG_RECOVERABLE_ERROR
                     << "\""
                     << filename
-                    << "\" is a directory; ignored (use --recursive to ${progname} directories)."
+                    << "\" is a directory; ignored (use --recursive to ${progname} sub-directories)."
+                    << SNAP_LOG_SEND;
+            return 0;
+        }
+
+        std::string const pattern(filename + "/*");
+        snapdev::glob_to_list<std::list<std::string>> dir;
+        if(!dir.read_path<
+                  snapdev::glob_to_list_flag_t::GLOB_FLAG_IGNORE_ERRORS
+                , snapdev::glob_to_list_flag_t::GLOB_FLAG_PERIOD
+                , snapdev::glob_to_list_flag_t::GLOB_FLAG_EMPTY>(pattern))
+        {
+            SNAP_LOG_ERROR
+                    << "an error occurred while reading directory \""
+                    << filename
+                    << "\": "
+                    << dir.get_last_error_message()
                     << SNAP_LOG_SEND;
             return 1;
+        }
+        for(auto const & f : dir)
+        {
+            if(process(f) != 0)
+            {
+                result = 1;
+            }
         }
 
         if(f_force)
@@ -620,14 +488,14 @@ int tool::process(std::string const & filename)
                 //
                 int const e(errno);
                 SNAP_LOG_ERROR
-                        << "could not delete directory \""
-                        << filename
-                        << "\" (errno: "
-                        << std::to_string(e)
-                        << " -- "
-                        << strerror(e)
-                        << ")."
-                        << SNAP_LOG_SEND;
+                    << "could not delete directory \""
+                    << filename
+                    << "\" (errno: "
+                    << std::to_string(e)
+                    << " -- "
+                    << strerror(e)
+                    << ")."
+                    << SNAP_LOG_SEND;
                 return 1;
             }
         }
@@ -639,21 +507,19 @@ int tool::process(std::string const & filename)
             }
             if(rmdir(filename.c_str()) != 0)
             {
-                // note: should we stay quiet if `result` is already not zero?
-                //
-                if(!f_force
-                || errno != ENOENT)
+                if(errno != ENOENT
+                && (!f_ignore_fail_on_non_empty || errno != ENOTEMPTY))
                 {
                     int const e(errno);
                     SNAP_LOG_ERROR
-                            << "could not delete directory \""
-                            << filename
-                            << "\" (errno: "
-                            << std::to_string(e)
-                            << " -- "
-                            << strerror(e)
-                            << ")."
-                            << SNAP_LOG_SEND;
+                        << "could not delete directory \""
+                        << filename
+                        << "\" (errno: "
+                        << std::to_string(e)
+                        << " -- "
+                        << strerror(e)
+                        << ")."
+                        << SNAP_LOG_SEND;
                     return 1;
                 }
             }
@@ -661,7 +527,7 @@ int tool::process(std::string const & filename)
     }
     else
     {
-        f_found_file = true;
+        ++f_found_file;
 
         // this is a file, shred and/or unlink as specified
         //
@@ -669,16 +535,9 @@ int tool::process(std::string const & filename)
 
         if(select == select_t::SELECT_AUTO)
         {
-            if(is_hdd(s))
+            if(snaplogger::is_rotational(s))
             {
-                if(f_opt->is_defined("unlink"))
-                {
-                    select = select_t::SELECT_BOTH;
-                }
-                else
-                {
-                    select = select_t::SELECT_SHRED;
-                }
+                select = select_t::SELECT_BOTH;
             }
             else
             {
@@ -701,14 +560,14 @@ int tool::process(std::string const & filename)
                 {
                     int const e(errno);
                     SNAP_LOG_ERROR
-                            << "could not delete directory \""
-                            << filename
-                            << "\" (errno: "
-                            << std::to_string(e)
-                            << " -- "
-                            << strerror(e)
-                            << ")."
-                            << SNAP_LOG_SEND;
+                        << "could not delete file \""
+                        << filename
+                        << "\" (errno: "
+                        << e
+                        << " -- "
+                        << strerror(e)
+                        << ")."
+                        << SNAP_LOG_SEND;
                     return 1;
                 }
             }
@@ -770,7 +629,7 @@ int tool::process(std::string const & filename)
         {
             int const e(errno);
             SNAP_LOG_ERROR
-                    << "could not delete directory \""
+                    << "could not shred file \""
                     << filename
                     << "\" (errno: "
                     << std::to_string(e)
@@ -783,40 +642,6 @@ int tool::process(std::string const & filename)
     }
 
     return result;
-}
-
-
-
-
-bool tool::is_hdd(struct stat & s) const
-{
-    std::string dev_path("/sys/dev/block/");
-    dev_path += std::to_string(major(s.st_dev));
-    dev_path += ":";
-    dev_path += std::to_string(minor(s.st_dev));
-    char device_path[PATH_MAX + 1];
-    if(realpath(dev_path.c_str(), device_path) == nullptr)
-    {
-        return true;
-    }
-
-    advgetopt::string_list_t segments;
-    advgetopt::split_string(device_path, segments, { "/" });
-    while(segments.size() > 3)
-    {
-        std::string path("/" + boost::algorithm::join(segments, "/") + "/queue/rotational");
-        std::ifstream in;
-        in.open(path);
-        if(in.is_open())
-        {
-            char line[32];
-            in.getline(line, sizeof(line));
-            return std::atoi(line) != 0;
-        }
-        segments.pop_back();
-    }
-
-    return true;
 }
 
 
@@ -847,7 +672,7 @@ int main(int argc, char * argv[])
     }
     catch(std::exception const & e)
     {
-        std::cerr << "error: " << e.what() << std::endl;
+        std::cerr << "error: " << e.what() << '\n';
         return 1;
     }
 }

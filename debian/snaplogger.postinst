@@ -8,21 +8,52 @@
 
 if [ "$1" = "configure" ]
 then
-    PACKAGENAME=snaplogger
-    USERNAME=snaplogger
-    GROUPNAME=snaplogger
+    ENVIRONMENT_NAME=snaplogger
+    PACKAGE_NAME=snaplogger
+    USER_NAME=snaplogger
+    GROUP_NAME=snaplogger
+    SHREDLOG_NAME=shredlog
 
-    # Create the default snaplogger output directory
+    # Create the log directories and files
     #
-    LOGDIR=/var/log/${PACKAGENAME}
-    mkdir -p ${LOGDIR}
-    chown ${USERNAME}:${GROUPNAME} ${LOGDIR}
-    chmod 1773 ${LOGDIR}
+    create_log_dirs ${ENVIRONMENT_NAME} ${PACKAGE_NAME} ${USER_NAME} ${GROUP_NAME} true
 
-    SECURELOGDIR=${LOGDIR}/secure
-    mkdir -p ${SECURELOGDIR}
-    chown ${USERNAME}:${GROUPNAME} ${SECURELOGDIR}
-    chmod 1753 ${SECURELOGDIR}
+    # The shredlog tool defaults to just "delete" which is safer for SSD
+    # drives if such are used on your server; however, there are times
+    # when you know that "auto" would work; the following allows you to
+    # switch the mode through the template screen
+    #
+    if test -n "${shredmode}"
+    then
+        echo ${shredmode} > ${MAILNAME}
+    fi
+
+    # Create a default user editable shredlog.conf file if it does not
+    # exist yet
+    #
+    SHREDLOG_CONFIGURATION_FILE=/etc/${ENVIRONMENT_NAME}/${ENVIRONMENT_NAME}.d/50-${SHREDLOG_NAME}.conf
+    if test ! -f ${SHREDLOG_CONFIGURATION_FILE}
+    then
+        # When first installing, we ask the user to choose the shredding mode
+        # which would otherwise be set to "delete" by default
+        #
+        echo "# The mode of the shredlog command can be set to several values:" >${SHREDLOG_CONFIGURATION_FILE}
+        echo "#    . auto -- try to determine the drive type" >>${SHREDLOG_CONFIGURATION_FILE}
+        echo "#    . delete -- only delete, do not shred files" >>${SHREDLOG_CONFIGURATION_FILE}
+        echo "#    . shred -- only shred, do not delete files" >>${SHREDLOG_CONFIGURATION_FILE}
+        echo "#    . both -- first shred and then delete files" >>${SHREDLOG_CONFIGURATION_FILE}
+        echo "# the default is exlected to be \"delete\", but you may want to use" >>${SHREDLOG_CONFIGURATION_FILE}
+        echo "# \"both\" instead." >>${SHREDLOG_CONFIGURATION_FILE}
+        echo "#" >>${SHREDLOG_CONFIGURATION_FILE}
+        db_get snaplogger/shredmode && shredmode="$RET"
+        echo "mode=${shredmode}" >>${SHREDLOG_CONFIGURATION_FILE}
+        echo "" >>${SHREDLOG_CONFIGURATION_FILE}
+        echo "# Feel free to add other parameters you want to override below." >>${SHREDLOG_CONFIGURATION_FILE}
+        echo "# This file does not get updated by the package once it exists." >>${SHREDLOG_CONFIGURATION_FILE}
+        echo "" >>${SHREDLOG_CONFIGURATION_FILE}
+    fi
+
+
 fi
 
 # vim: ts=4 sw=4 et nocindent

@@ -1,0 +1,152 @@
+#!/bin/sh -e
+
+# Create log directories and files for the specified package.
+#
+# This is particularly useful for all the projects that make use of the
+# snaplogger project.
+#
+# Usage: in your <project>.postinst you first source this file:
+#
+#     . /usr/lib/snaplogger/inst/manage-log-dirs
+#
+# Later you call this script using:
+#
+#     if [ "$1" = "configure" ]
+#     then
+#         ...
+#         create_log_dirs ${ENVIRONMENT_NAME} ${PACKAGE_NAME} ${USER_NAME} ${GROUP_NAME} true
+#         ...
+#     fi
+#
+# param[in] $1  environment name
+# param[in] $2  package name
+# param[in] $3  user name
+# param[in] $4  group name
+# param[in] $5  secure flag (true or false, defaults to false if not specified)
+#
+create_log_dirs() {
+    ENVIRONMENT_NAME=$1
+    PACKAGE_NAME=$2
+    USER_NAME=$3
+    GROUP_NAME=$4
+    SECURE=$5
+
+    LOG_DIR=/var/log/${ENVIRONMENT_NAME}
+    install --owner root --group ${GROUP_NAME} --mode="u=rwx,o=rx,g=rwxs" --directory ${LOG_DIR}
+
+    LOG_FILE=${LOG_DIR}/${PACKAGE_NAME}.log
+    touch ${LOG_FILE}
+    chown ${USER_NAME}:${GROUP_NAME} ${LOG_FILE}
+    chmod "u=rw,g=r,o=,ug-s" ${LOG_FILE}
+
+    if test -n "${SECURE}" && ${SECURE}
+    then
+        SECURE_LOG_DIR=${LOG_DIR}/secure
+        install --owner ${USER_NAME} --group ${GROUP_NAME} --mode="ug=rwx,o=" --directory ${SECURE_LOG_DIR}
+
+        SECURE_LOG_FILE=${SECURE_LOG_DIR}/${PACKAGE_NAME}.log
+        touch ${SECURE_LOG_FILE}
+        chown ${USER_NAME}:${GROUP_NAME} ${SECURE_LOG_FILE}
+        chmod 640 ${SECURE_LOG_FILE}
+        chmod "u=rw,g=r,o=,ug-s" ${SECURE_LOG_FILE}
+    fi
+}
+
+# Destroy the log directories and files for the specified user.
+#
+# If you call the create_log_dirs() function above in your postinst script,
+# then you can simply call this destroy_log_dirs() function to remove all
+# the logs on a purge of your project.
+#
+# Usage: in your <project>.postrm you first source this file:
+#
+#     . /usr/lib/snaplogger/inst/manage-log-dirs
+#
+# Later you call this script using:
+#
+#     if [ "$1" = "purge" ]
+#     then
+#         ...
+#         destroy_log_dirs ${ENVIRONMENT_NAME} "" none
+#            ---or---
+#         destroy_log_dirs ${ENVIRONMENT_NAME} ${PACKAGE_NAME} none
+#         ...
+#     fi
+#
+# By default, you are not expected to specify a package name. If you do
+# specify a package name, the function only deletes logs for that package.
+# Without the package name, all the files within the log directories get
+# deleted. If the environment name is different from the package name and
+# this is not the base package, when you probably do want to specify a
+# package name (i.e. as we do in the snapcpp/snapwebsites projects).
+#
+# The "shred mode" parameter defaults to "none" if not specified. Here are
+# the supported modes:
+#
+# * "node" -- do not attempt to shred log files
+# * "secure" -- only attempt to shred secure log files
+# * "all" -- attempt to shred all the log files
+#
+# For security reasons, "all" is the safest. However, the best option is
+# to use "none" (or not specified a mode) because that way the default
+# defined in the shredlog configuration file is used and that default is
+# much more likely to be the correct option (i.e. represent whether the
+# drive where the logs are is a rotational drive and shred will work as
+# expected).
+#
+# param[in] $1  environment name
+# param[in] $2  package name
+# param[in] $3  shred mode: none (default), all, secure
+#
+desroy_log_dirs() {
+    ENVIRONMENT_NAME=$1
+    PACKAGE_NAME=$2
+    SHRED_MODE=$3
+
+    LOG_DIR=/var/log/${ENVIRONMENT_NAME}
+    case "${SHRED_MODE}" in
+    "secure")
+        if test -n "${PACKAGE_NAME}"
+        then
+            shredlog --mode auto --force ${LOG_DIR}/secure/*${PACKAGE_NAME}*
+            shredlog --mode delete --force ${LOG_DIR}/*${PACKAGE_NAME}*
+            rmdir --ignore-fail-on-non-empty ${LOG_DIR}/secure
+            rmdir --ignore-fail-on-non-empty ${LOG_DIR}
+        else
+            shredlog --mode auto --force --ignore-fail-on-non-empty --recursive ${LOG_DIR}/secure
+            shredlog --mode delete --force --ignore-fail-on-non-empty --recursive ${LOG_DIR}
+        fi
+        ;;
+
+    "all")
+        if test -n "${PACKAGE_NAME}"
+        then
+            shredlog --mode auto --force ${LOG_DIR}/secure/*${PACKAGE_NAME}*
+            shredlog --mode auto --force ${LOG_DIR}/*${PACKAGE_NAME}*
+            rmdir --ignore-fail-on-non-empty ${LOG_DIR}/secure
+            rmdir --ignore-fail-on-non-empty ${LOG_DIR}
+        else
+            shredlog --mode auto --force --ignore-fail-on-non-empty --recursive ${LOG_DIR}
+        fi
+        ;;
+
+    "none")
+        if test -n "${PACKAGE_NAME}"
+        then
+            shredlog --mode delete --force ${LOG_DIR}/secure/*${PACKAGE_NAME}*
+            shredlog --mode delete --force ${LOG_DIR}/*${PACKAGE_NAME}*
+            rmdir --ignore-fail-on-non-empty ${LOG_DIR}/secure
+            rmdir --ignore-fail-on-non-empty ${LOG_DIR}
+        else
+            shredlog --mode delete --force --ignore-fail-on-non-empty --recursive ${LOG_DIR}
+        fi
+        ;;
+
+    *)
+        echo "error: invalid shread mode \"${SHRED_MODE}\"--try one of \"none\", \"all\", or \"secure\"."
+        ;;
+
+    esac
+}
+
+# vim: ts=4 sw=4 et

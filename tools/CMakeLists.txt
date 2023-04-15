@@ -1,11 +1,11 @@
-# Copyright (c) 2013-2022  Made to Order Software Corp.  All Rights Reserved.
+# Copyright (c) 2013-2023  Made to Order Software Corp.  All Rights Reserved.
 #
 # https://snapwebsites.org/project/snaplogger
 # contact@m2osw.com
 #
-# This program is free software; you can redistribute it and/or modify
+# This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -14,8 +14,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ##
 ## build the snap logger checker tool
@@ -61,6 +60,38 @@ include_directories(
 
 add_executable(${PROJECT_NAME}
     shredlog.cpp
+)
+
+target_link_libraries(${PROJECT_NAME}
+    snaplogger
+    ${ADVGETOPT_LIBRARIES}
+    ${LIBEXCEPT_LIBRARIES}
+)
+
+install(
+    TARGETS
+        ${PROJECT_NAME}
+
+    RUNTIME DESTINATION
+        bin
+
+    COMPONENT
+        runtime
+)
+
+
+##
+## build the is-hdd tool
+##
+project(is-hdd)
+
+include_directories(
+    ${LIBEXCEPT_INCLUDE_DIRS}
+    ${SNAPDEV_INCLUDE_DIRS}
+)
+
+add_executable(${PROJECT_NAME}
+    is_hdd.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}

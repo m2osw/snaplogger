@@ -36,13 +36,7 @@
 
 // snapdev
 //
-#include    <snapdev/not_reached.h>
-#include    <snapdev/not_used.h>
-
-
-// boost
-//
-#include    <boost/preprocessor/stringize.hpp>
+#include    <snapdev/stringize.h>
 
 
 // last include
@@ -208,7 +202,7 @@ advgetopt::options_environment const g_options_environment =
     .f_version = SNAPLOGGER_VERSION_STRING,
     .f_license = "GNU GPL v3",
     .f_copyright = "Copyright (c) 2013-"
-                   BOOST_PP_STRINGIZE(UTC_BUILD_YEAR)
+                   SNAPDEV_STRINGIZE(UTC_BUILD_YEAR)
                    " by Made to Order Software Corporation -- All Rights Reserved",
     .f_build_date = UTC_BUILD_DATE,
     .f_build_time = UTC_BUILD_TIME,

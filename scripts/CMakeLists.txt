@@ -22,11 +22,11 @@
 project(snaploggerscripts)
 
 install(
-    FILES
-        snaplogger
+    PROGRAMS
+        manage-log-dirs
 
     DESTINATION
-        share/snaplogger/debconf
+        lib/snaplogger/inst/
 )
 
 # vim: ts=4 sw=4 et
