@@ -1,0 +1,20 @@
+#!/bin/sh -e
+
+# Source debconf library.
+. /usr/share/debconf/confmodule
+
+if [ "$1" = "purge" ]
+then
+    ENVIRONMENT_NAME=snaplogger
+    #PACKAGE_NAME=snaplogger
+
+    # the shredlog and destroy_log_dirs are not available to us anymore at
+    # this stage so use a straight rm -rf ... instead
+    #
+    LOG_DIR=/var/log/${ENVIRONMENT_NAME}
+    rm -rf ${LOG_DIR}
+fi
+
+#DEBHELPER#
+
+# vim: ts=4 sw=4 et nocindent
