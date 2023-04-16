@@ -24,7 +24,6 @@ message("CMAKE_MODULE_PATH is ${CMAKE_MODULE_PATH}")
 
 find_package(SnapCMakeModules  REQUIRED)
 find_package(AdvGetOpt         REQUIRED)
-find_package(Boost             REQUIRED COMPONENTS locale )
 find_package(CppThread         REQUIRED)
 find_package(LibExcept         REQUIRED)
 find_package(LibUtf8           REQUIRED)
