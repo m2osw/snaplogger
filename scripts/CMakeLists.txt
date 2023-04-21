@@ -26,7 +26,7 @@ install(
         manage-log-dirs
 
     DESTINATION
-        lib/snaplogger/inst/
+        lib/snaplogger/inst
 )
 
 # vim: ts=4 sw=4 et
