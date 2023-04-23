@@ -1,8 +1,13 @@
 usr/lib/lib*.so.*
-usr/bin/shredlog                    usr/bin/
-usr/bin/snaploggerchecker           usr/bin/
-conf/severity.ini                   etc/snaplogger/
-conf/shredlog.conf                  etc/snaplogger/
-conf/SEVERITY.md                    usr/share/snaplogger/
-conf/README.md                      usr/share/snaplogger/etc/
-lib/snaplogger/inst/manage-log-dirs usr/lib/snaplogger/inst/
+usr/lib/snaplogger/inst/manage-log-dirs usr/lib/snaplogger/inst/
+
+usr/bin/shredlog                        usr/bin/
+usr/bin/snaploggerchecker               usr/bin/
+usr/bin/is-hdd                          usr/bin/
+
+doc/is-hdd.1                            usr/share/man/man1/
+
+conf/severity.ini                       etc/snaplogger/
+conf/shredlog.conf                      etc/snaplogger/
+conf/SEVERITY.md                        usr/share/snaplogger/
+conf/README.md                          usr/share/snaplogger/etc/
