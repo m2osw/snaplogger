@@ -98,7 +98,7 @@ create_log_dirs() {
 # param[in] $2  package name
 # param[in] $3  shred mode: none (default), all, secure
 #
-desroy_log_dirs() {
+destroy_log_dirs() {
     ENVIRONMENT_NAME=$1
     PACKAGE_NAME=$2
     SHRED_MODE=$3

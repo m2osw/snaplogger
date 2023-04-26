@@ -4,6 +4,7 @@
 
 # Source debconf library.
 . /usr/share/debconf/confmodule
+. /usr/lib/snaplogger/inst/manage-log-dirs
 
 
 if [ "$1" = "configure" ]
