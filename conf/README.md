@@ -5,7 +5,7 @@ This directory is used to save default logger configurations.
 
 The logger will first look for files under `/usr/share/snaplogger/etc`.
 If you have a tool which uses the `snaplogger` library, you can save your
-defaults here which means administrators can then update the files
+defaults there which means administrators can then update the files
 under `/etc` and not affect your defaults.
 
 # Which Files?

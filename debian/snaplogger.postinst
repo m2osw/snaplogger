@@ -14,6 +14,12 @@ then
     USER_NAME=snaplogger
     GROUP_NAME=snaplogger
     SHREDLOG_NAME=shredlog
+    CONFIGURATION_DIR=/etc/${ENVIRONMENT_NAME}/${ENVIRONMENT_NAME}.d
+
+    # Create the admin configuration directory
+    #
+    install --owner root --group root --mode="ug=rwx,o=rx" --directory ${CONFIGURATION_DIR}
+    cp -f /usr/share/snaplogger/etc/README.md ${CONFIGURATION_DIR}/.
 
     # Create the log directories and files
     #
@@ -32,7 +38,7 @@ then
     # Create a default user editable shredlog.conf file if it does not
     # exist yet
     #
-    SHREDLOG_CONFIGURATION_FILE=/etc/${ENVIRONMENT_NAME}/${ENVIRONMENT_NAME}.d/50-${SHREDLOG_NAME}.conf
+    SHREDLOG_CONFIGURATION_FILE=${CONFIGURATION_DIR}/50-${SHREDLOG_NAME}.conf
     if test ! -f ${SHREDLOG_CONFIGURATION_FILE}
     then
         # When first installing, we ask the user to choose the shredding mode
