@@ -162,7 +162,7 @@ CATCH_TEST_CASE("severity", "[severity]")
             CATCH_REQUIRE(s->get_severity() == level);
             CATCH_REQUIRE(s->get_name() == "remark");
 
-#if defined(__GNUC__) && __GNUC__ >= 7 && __GNUC_MINOR__ >= 5 && __GNUC_PATCHLEVEL__ >= 0
+#if SNAPDEV_CHECK_GCC_VERSION(7, 5, 0)
             snaplogger::severity::pointer_t r("remark"_sev);
             CATCH_REQUIRE(r == s);
 

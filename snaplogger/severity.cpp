@@ -677,7 +677,7 @@ severity_by_severity_t get_severities_by_severity()
 } // snaplogger namespace
 
 
-#if defined(__GNUC__) && __GNUC__ >= 7 && __GNUC_MINOR__ >= 5 && __GNUC_PATCHLEVEL__ >= 0
+#if SNAPDEV_CHECK_GCC_VERSION(7, 5, 0)
 snaplogger::severity::pointer_t operator ""_sev (char const * name, unsigned long size)
 {
     return snaplogger::get_severity(std::string(name, size));
