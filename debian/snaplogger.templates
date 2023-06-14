@@ -6,6 +6,7 @@ Description: snaplogger settings
 Template: snaplogger/shredmode
 Type: select
 Choices: auto, delete, shred, both
+Default: delete
 Description: Shred Mode
  When you purge a project using the snaplogger library, you can request
  all or at least the secure logs to be shreded (although note that really
