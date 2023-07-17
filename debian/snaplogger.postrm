@@ -7,8 +7,23 @@ if [ "$1" = "purge" ]
 then
     ENVIRONMENT_NAME=snaplogger
     #PACKAGE_NAME=snaplogger
+    SHREDLOG_NAME=shredlog
+    CONFIGURATION_DIR=/etc/${ENVIRONMENT_NAME}/${ENVIRONMENT_NAME}.d
 
-    # the shredlog and destroy_log_dirs are not available to us anymore at
+    # remove the README.md
+    #
+    rm -f ${CONFIGURATION_DIR}/README.md
+
+    # The user 50-shredlog.conf file is created by us, delete it
+    #
+    SHREDLOG_CONFIGURATION_FILE=${CONFIGURATION_DIR}/50-${SHREDLOG_NAME}.conf
+    rm -f ${SHREDLOG_CONFIGURATION_FILE}
+
+    # now remove the the folder itself
+    #
+    rmdir --ignore-fail-on-non-empty ${CONFIGURATION_DIR}
+
+    # the `shredlog` and `destroy_log_dirs` are not available to us anymore at
     # this stage so use a straight rm -rf ... instead
     #
     LOG_DIR=/var/log/${ENVIRONMENT_NAME}
