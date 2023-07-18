@@ -35,13 +35,13 @@
 #include    <snapdev/join_strings.h>
 
 
-// C++ lib
+// C++
 //
 #include    <iostream>
 #include    <set>
 
 
-// C lib
+// C
 //
 #include    <fcntl.h>
 #include    <sys/stat.h>
