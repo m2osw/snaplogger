@@ -3,6 +3,13 @@
   If some bytes do not represent a valid UTF-8 character, replace with '?'.
   We should be able to use a function in libutf8 for that purpose.
 
+* Add counter capabilities. When tracking a given event, we may not want to
+  send a log each time it happens (in most cases because that would be way
+  too many logs). The idea is to create a counter capability. Use a name
+  to track the counter and find a way to send the data once in a while.
+  (i.e. maybe a timer in the event dispatcher or a thread keeping track;
+  we can also offer an explicit call to log & reset the counter).
+
 * Change how the variables are discovered in our messages
 
   The best (I think) would be to have sections of the message clearly marked
