@@ -10,6 +10,15 @@
   (i.e. maybe a timer in the event dispatcher or a thread keeping track;
   we can also offer an explicit call to log & reset the counter).
 
+  Note: we already have counters of log messages in the eventdispatcher
+        alert appender; however, those work the other way around; i.e. when
+	we receive a certain message, those counters count the number of
+	times the message happens; after a while, the counter is decremented;
+	if it reaches a predetermined limit, the appender generates an alert
+	on top of the standard event log. Here we are looking at increasing
+	counters and when they reach a given limit, then generate one single
+	message.
+
 * Change how the variables are discovered in our messages
 
   The best (I think) would be to have sections of the message clearly marked
