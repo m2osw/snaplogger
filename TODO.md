@@ -10,6 +10,13 @@
   (i.e. maybe a timer in the event dispatcher or a thread keeping track;
   we can also offer an explicit call to log & reset the counter).
 
+  We could also do sampling per request. An HTTP server receives a request
+  from a client. Give the client an identifier (say a UUID), then decide
+  whether to track this client. Make the logger filter out all logs for a
+  request unless it is a client being tracked. We may still want to log
+  a request's result (i.e. HTTP 200 or 404 etc.), but not track the entire
+  request.
+
   Note: we already have counters of log messages in the eventdispatcher
         alert appender; however, those work the other way around; i.e. when
 	we receive a certain message, those counters count the number of
@@ -17,7 +24,9 @@
 	if it reaches a predetermined limit, the appender generates an alert
 	on top of the standard event log. Here we are looking at increasing
 	counters and when they reach a given limit, then generate one single
-	message.
+	message. (one message every one event, one message every ten events,
+	one message even one hundred events, on message every thousand
+	events, etc.)
 
 * Change how the variables are discovered in our messages
 
@@ -112,7 +121,7 @@
 
 
 * Actually implement the snaploggerchecker tool.
-  (i.e. verify .conf files & allow for script to send logs)
+  (i.e. verify .conf files & allow for scripts to send logs)
 
 
 * Severities have the `mark_as_registered()` function and the constructor
