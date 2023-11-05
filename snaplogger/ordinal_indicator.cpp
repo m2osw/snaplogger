@@ -51,6 +51,7 @@
 
 // C++ lib
 //
+#include    <cstdint>
 #include    <string>
 
 
