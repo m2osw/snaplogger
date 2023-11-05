@@ -620,7 +620,6 @@ bool process_logger_options(advgetopt::getopt & opts
     }
     if(opts.is_defined("debug"))
     {
-std::cerr << "----- '--debug' detected!\n";
         severity_selection |= OPTION_DEBUG_SEVERITY;
     }
     if(opts.is_defined("log-severity"))
