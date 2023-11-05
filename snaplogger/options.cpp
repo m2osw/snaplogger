@@ -620,6 +620,7 @@ bool process_logger_options(advgetopt::getopt & opts
     }
     if(opts.is_defined("debug"))
     {
+std::cerr << "----- '--debug' detected!\n";
         severity_selection |= OPTION_DEBUG_SEVERITY;
     }
     if(opts.is_defined("log-severity"))
@@ -638,13 +639,13 @@ bool process_logger_options(advgetopt::getopt & opts
         break;
 
     case OPTION_TRACE_SEVERITY:
-        logger::get_instance()->reduce_severity(severity_t::SEVERITY_TRACE);
         configure_console(true);
+        logger::get_instance()->reduce_severity(severity_t::SEVERITY_TRACE);
         break;
 
     case OPTION_DEBUG_SEVERITY:
-        logger::get_instance()->reduce_severity(severity_t::SEVERITY_DEBUG);
         configure_console(true);
+        logger::get_instance()->reduce_severity(severity_t::SEVERITY_DEBUG);
         break;
 
     case OPTION_LOG_SEVERITY:
@@ -656,7 +657,7 @@ bool process_logger_options(advgetopt::getopt & opts
                 cppthread::log << cppthread::log_level_t::error
                                << "unknown severity level \""
                                << severity_name
-                               << "\"; please check your spelling."
+                               << "\"; please check your spelling against the --list-severities."
                                << cppthread::end;
                 result = false;
             }
@@ -689,7 +690,7 @@ bool process_logger_options(advgetopt::getopt & opts
 
     default:
         cppthread::log << cppthread::log_level_t::error
-                       << "only one of --debug, --log-severity, --force-severity can be used on your command line."
+                       << "only one of --trace, --debug, --log-severity, --force-severity can be used on your command line."
                        << cppthread::end;
         return false;
 
