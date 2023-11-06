@@ -195,10 +195,13 @@ bool is_rotational(struct stat & s)
     advgetopt::split_string(device_path, segments, { "/" });
     while(segments.size() > 3)
     {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wrestrict"
         std::string const path(
                           "/"
                         + snapdev::join_strings(segments, "/")
                         + "/queue/rotational");
+#pragma GCC diagnostic pop
         std::ifstream in;
         in.open(path);
         if(in.is_open())
