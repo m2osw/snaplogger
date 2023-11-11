@@ -1,3 +1,11 @@
+snaplogger (1.0.51.0~jammy) jammy; urgency=high
+
+  * Fixed a couple of #include <cstdint>.
+  * Fixed all public headers to use <...> for all #include's.
+  * Updated the copyright notice to 2023 (finally).
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sat, 11 Nov 2023 07:20:41 -0800
+
 snaplogger (1.0.50.0~jammy) jammy; urgency=high
 
   * Redesign the shredlog to use a --mode instead of many commands.
