@@ -6,6 +6,10 @@ snaplogger (1.0.50.0~jammy) jammy; urgency=high
   * Removed dependency on boost library.
   * Moved the is_hdd() function to the  library named is_rotational().
   * Make use of snapdev instead of duplicate code.
+  * Flipped order of --debug/--trace implementation so it actually works.
+  * The severity now offers string to enum functionality.
+  * Install the README.md in the right place.
+  * Removed some debug output.
 
  -- Alexis Wilke <alexis@m2osw.com>  Sat, 15 Apr 2023 10:58:17 -0700
 
