@@ -60,7 +60,7 @@
  */
 
 
-// C++ lib
+// C++
 //
 #include    <map>
 #include    <memory>

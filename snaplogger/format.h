@@ -28,7 +28,7 @@
 
 // self
 //
-#include    "snaplogger/variable.h"
+#include    <snaplogger/variable.h>
 
 
 

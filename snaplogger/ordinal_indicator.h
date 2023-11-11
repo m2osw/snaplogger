@@ -37,7 +37,7 @@
  * indicator).
  */
 
-// C++ lib
+// C++
 //
 #include    <string>
 

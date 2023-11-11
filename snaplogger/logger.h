@@ -26,8 +26,8 @@
 
 // self
 //
-#include    "snaplogger/appender.h"
-#include    "snaplogger/message.h"
+#include    <snaplogger/appender.h>
+#include    <snaplogger/message.h>
 
 
 // serverplugins

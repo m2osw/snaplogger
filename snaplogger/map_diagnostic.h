@@ -26,14 +26,16 @@
 
 // self
 //
-#include    "snaplogger/message.h"
+#include    <snaplogger/message.h>
 
-// C++ lib
+
+
+// C++
 //
 #include    <map>
 
 
-// C lib
+// C
 //
 #include    <sys/time.h>
 

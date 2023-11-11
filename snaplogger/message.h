@@ -29,9 +29,10 @@
 
 // self
 //
-#include    "snaplogger/component.h"
-#include    "snaplogger/environment.h"
-#include    "snaplogger/severity.h"
+#include    <snaplogger/component.h>
+#include    <snaplogger/environment.h>
+#include    <snaplogger/severity.h>
+
 
 
 // libexcept

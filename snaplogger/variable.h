@@ -52,16 +52,18 @@
 
 // self
 //
-#include    "snaplogger/message.h"
+#include    <snaplogger/message.h>
 
 
-// libutf8 lib
+
+// libutf8
 //
 #include    <libutf8/libutf8.h>
 
 
 // C++
 //
+#include    <cstdint>
 #include    <vector>
 
 

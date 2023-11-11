@@ -26,8 +26,8 @@
 
 // self
 //
-#include    "snaplogger/message.h"
-#include    "snaplogger/utils.h"
+#include    <snaplogger/message.h>
+#include    <snaplogger/utils.h>
 
 
 

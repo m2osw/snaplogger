@@ -33,13 +33,13 @@
 //
 
 
-// C++ lib
+// C++
 //
 #include    <memory>
 #include    <string>
 
 
-// C lib
+// C
 //
 #include    <unistd.h>
 

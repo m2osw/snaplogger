@@ -26,7 +26,7 @@
 
 // self
 //
-#include    "snaplogger/format.h"
+#include    <snaplogger/format.h>
 
 
 // advgetopt

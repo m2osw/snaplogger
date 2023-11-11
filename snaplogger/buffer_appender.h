@@ -26,10 +26,10 @@
 
 // self
 //
-#include    "snaplogger/appender.h"
+#include    <snaplogger/appender.h>
 
 
-// C++ lib
+// C++
 //
 #include    <sstream>
 

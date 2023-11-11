@@ -28,12 +28,12 @@
  */
 
 
-// advgetopt lib
+// advgetopt
 //
 #include    <advgetopt/advgetopt.h>
 
 
-// C++ lib
+// C++
 //
 #include    <iostream>
 

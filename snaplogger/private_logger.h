@@ -36,12 +36,13 @@
 
 // self
 //
-#include    "snaplogger/logger.h"
-#include    "snaplogger/map_diagnostic.h"
-#include    "snaplogger/trace_diagnostic.h"
+#include    <snaplogger/logger.h>
+#include    <snaplogger/map_diagnostic.h>
+#include    <snaplogger/trace_diagnostic.h>
 
 
-// cppthread lib
+
+// cppthread
 //
 #include    <cppthread/fifo.h>
 #include    <cppthread/thread.h>

@@ -26,7 +26,8 @@
 
 // self
 //
-#include    "snaplogger/appender.h"
+#include    <snaplogger/appender.h>
+
 
 
 namespace snaplogger
