@@ -56,11 +56,6 @@
 
 
 
-// libutf8
-//
-#include    <libutf8/libutf8.h>
-
-
 // C++
 //
 #include    <cstdint>

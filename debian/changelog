@@ -1,3 +1,9 @@
+snaplogger (1.0.52.0~jammy) jammy; urgency=high
+
+  * Removing a #include leak.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sun, 19 Nov 2023 20:36:51 -0800
+
 snaplogger (1.0.51.0~jammy) jammy; urgency=high
 
   * Fixed a couple of #include <cstdint>.
