@@ -1,3 +1,9 @@
+snaplogger (1.0.53.0~jammy) jammy; urgency=high
+
+  * Replaced the obsolete db_title with db_settitle.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Wed, 06 Dec 2023 21:49:45 -0800
+
 snaplogger (1.0.52.0~jammy) jammy; urgency=high
 
   * Removing a #include leak.
