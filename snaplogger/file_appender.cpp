@@ -375,7 +375,7 @@ void file_appender::output_message(message const & msg, std::string const & form
     std::unique_ptr<snapdev::lockfd> lock_file;
     if(f_lock)
     {
-        lock_file = std::make_unique<snapdev::lockfd>(f_fd.get(), snapdev::lockfd::mode_t::LOCKFILE_EXCLUSIVE);
+        lock_file = std::make_unique<snapdev::lockfd>(f_fd.get(), snapdev::operation_t::OPERATION_EXCLUSIVE);
     }
 
     ssize_t const l(write(f_fd.get(), formatted_message.c_str(), formatted_message.length()));
