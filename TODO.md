@@ -3,6 +3,11 @@
   If some bytes do not represent a valid UTF-8 character, replace with '?'.
   We should be able to use a function in libutf8 for that purpose.
 
+* Parameter, not format. Look into whether there would be a way to
+  detect that a string within a message is a parameter that may include
+  "${" which will not represent a snaplogger format and maybe support
+  an escape character (i.e. "\$").
+
 * Add counter capabilities. When tracking a given event, we may not want to
   send a log each time it happens (in most cases because that would be way
   too many logs). The idea is to create a counter capability. Use a name
@@ -86,13 +91,14 @@
        ${if:<expr>}...${endif}
        ${if:<expr>}...${else}...${endif}
 
-   The feature would have to support multiple level to make use very useful.
+   The feature would have to support multiple level to make it useful.
    We need to determine what `<expr>` would need to be. For sure, we want to
    output certain strings only if a given field is not empty. So such a test
    needs to be available.
 
    We may want to get the `snap_expr` class in a separate project first so
-   we can use it for the `<expr>`.
+   we can use it for the `<expr>` (this is done and part of the as2js
+   language).
 
 
 * Allow for a set of default formats to be defined in snaplogger directly.

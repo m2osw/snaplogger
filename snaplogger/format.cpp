@@ -64,7 +64,9 @@ public:
         TOKEN_STRING,
         TOKEN_INTEGER,
         TOKEN_IDENTIFIER,
-        TOKEN_END
+        TOKEN_END,
+
+        TOKEN_ERROR, // mark an error
     };
 
     parser(std::string const & f, variable::vector_t & variables)
@@ -144,7 +146,7 @@ public:
                         }
                         if(c == EOF)
                         {
-                            throw invalid_variable("unterminated string in format variable.");
+                            return token_t::TOKEN_ERROR;
                         }
                         f_text += c;
                     }
@@ -203,14 +205,7 @@ public:
                 }
                 else
                 {
-                    std::stringstream ss;
-
-                    ss << "unexpected character '\\x"
-                       << std::hex
-                       << c
-                       << "' in format variable.";
-
-                    throw invalid_variable(ss.str());
+                    return token_t::TOKEN_ERROR;
                 }
                 break;
 
@@ -241,12 +236,12 @@ public:
             }
             if(tok != token_t::TOKEN_COLON)
             {
-                throw invalid_variable("variable parameters must be delimited by colon (:) characters.");
+                return false;
             }
             tok = get_token();
             if(tok != token_t::TOKEN_IDENTIFIER)
             {
-                throw invalid_variable("variable parameters must be given a name (an identifier).");
+                return false;
             }
             param::pointer_t p(std::make_shared<param>(f_text));
             var->add_param(p);
@@ -268,7 +263,7 @@ public:
                 }
                 else
                 {
-                    throw invalid_variable("unexpected token for a parameter value.");
+                    return false;
                 }
 
                 tok = get_token();
