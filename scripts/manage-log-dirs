@@ -31,6 +31,30 @@ create_log_dirs() {
     GROUP_NAME=$4
     SECURE=$5
 
+    if test -z "${ENVIRONMENT_NAME}"
+    then
+        echo "error: environment name is a mandatory variable in create_log_dirs()."
+        return
+    fi
+
+    if test -z "${PACKAGE_NAME}"
+    then
+        echo "error: environment name is a mandatory variable in create_log_dirs()."
+        return
+    fi
+
+    if test -z "${USER_NAME}"
+    then
+        echo "error: user name is a mandatory variable in create_log_dirs()."
+        return
+    fi
+
+    if test -z "${GROUP_NAME}"
+    then
+        echo "error: user name is a mandatory variable in create_log_dirs()."
+        return
+    fi
+
     LOG_DIR=/var/log/${ENVIRONMENT_NAME}
     install --owner root --group ${GROUP_NAME} --mode="u=rwx,o=rx,g=rwxs" --directory ${LOG_DIR}
 
@@ -103,6 +127,12 @@ destroy_log_dirs() {
     PACKAGE_NAME=$2
     SHRED_MODE=$3
 
+    if test -z "${ENVIRONMENT_NAME}"
+    then
+        echo "error: environment name is a mandatory variable in destroy_log_dirs()."
+        return
+    fi
+
     LOG_DIR=/var/log/${ENVIRONMENT_NAME}
     case "${SHRED_MODE}" in
     "secure")
@@ -143,7 +173,7 @@ destroy_log_dirs() {
         ;;
 
     *)
-        echo "error: invalid shread mode \"${SHRED_MODE}\"--try one of \"none\", \"all\", or \"secure\"."
+        echo "error: invalid shred mode \"${SHRED_MODE}\"--try one of \"none\", \"all\", or \"secure\"."
         ;;
 
     esac

@@ -2,6 +2,7 @@ snaplogger (1.0.55.0~jammy) jammy; urgency=high
 
   * Replaced some throw with a return to avoid crashing an app. over an
     invalid format string.
+  * Verify that input parameters in the debian helper script.
 
  -- Alexis Wilke <alexis@m2osw.com>  Sat, 27 Jan 2024 09:40:58 -0800
 
