@@ -321,7 +321,7 @@ format::pointer_t private_logger::get_default_format()
         f_default_format = std::make_shared<format>(
             //"${env:name=HOME:padding='-':align=center:exact_width=6} "
             "${date} ${time} ${hostname}"
-            " ${progname}[${pid}]: ${severity}:"
+            " ${progname}[${pid}/${tid}]: ${severity}:"
             " ${message:escape:max_width=1000}"
             " (in function \"${function}()\")"
             " (${basename}:${line})"
