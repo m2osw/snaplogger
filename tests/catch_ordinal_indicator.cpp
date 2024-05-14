@@ -35,7 +35,7 @@
 
 CATCH_TEST_CASE("ordinal_indicator_common", "[ordinal_indicator]")
 {
-    CATCH_START_SECTION("ordinal indicator: default settings")
+    CATCH_START_SECTION("ordinal_indicator: default settings")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -46,7 +46,7 @@ CATCH_TEST_CASE("ordinal_indicator_common", "[ordinal_indicator]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("ordinal indicator: test all possible parameters")
+    CATCH_START_SECTION("ordinal_indicator: test all possible parameters")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -86,7 +86,7 @@ CATCH_TEST_CASE("ordinal_indicator_common", "[ordinal_indicator]")
 
 CATCH_TEST_CASE("ordinal_indicator_english", "[ordinal_indicator]")
 {
-    CATCH_START_SECTION("ordinal indicator: 1st 2nd 3rd 4th ... 20th")
+    CATCH_START_SECTION("ordinal_indicator: 1st 2nd 3rd 4th ... 20th")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -102,7 +102,7 @@ CATCH_TEST_CASE("ordinal_indicator_english", "[ordinal_indicator]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("ordinal indicator: larger numbers")
+    CATCH_START_SECTION("ordinal_indicator: larger numbers")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -121,7 +121,7 @@ CATCH_TEST_CASE("ordinal_indicator_english", "[ordinal_indicator]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("ordinal indicator: 1st 2nd 3rd 4th with any gender & number")
+    CATCH_START_SECTION("ordinal_indicator: 1st 2nd 3rd 4th with any gender & number")
     {
         for(snaplogger::gender_t gender(snaplogger::gender_t::GENDER_MASCULINE);
             gender <= snaplogger::gender_t::GENDER_NEUTRAL;
@@ -155,7 +155,7 @@ CATCH_TEST_CASE("ordinal_indicator_english", "[ordinal_indicator]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("ordinal indicator: no other forms")
+    CATCH_START_SECTION("ordinal_indicator: no other forms")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -210,7 +210,7 @@ CATCH_TEST_CASE("ordinal_indicator_english", "[ordinal_indicator]")
 
 CATCH_TEST_CASE("ordinal_indicator_french", "[ordinal_indicator]")
 {
-    CATCH_START_SECTION("ordinal indicator: 1re 1res 1er 1ers (first)")
+    CATCH_START_SECTION("ordinal_indicator: 1re 1res 1er 1ers (first)")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -238,7 +238,7 @@ CATCH_TEST_CASE("ordinal_indicator_french", "[ordinal_indicator]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("ordinal indicator: 2e 2es 2d 2ds 2de 2des 2nd 2nds 2nde 2ndes 2eme 2emes (second)")
+    CATCH_START_SECTION("ordinal_indicator: 2e 2es 2d 2ds 2de 2des 2nd 2nds 2nde 2ndes 2eme 2emes (second)")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -346,7 +346,7 @@ CATCH_TEST_CASE("ordinal_indicator_french", "[ordinal_indicator]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("ordinal indicator: Ne Nes Neme Nemes Nieme Niemes (second)")
+    CATCH_START_SECTION("ordinal_indicator: Ne Nes Neme Nemes Nieme Niemes (second)")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -422,7 +422,7 @@ CATCH_TEST_CASE("ordinal_indicator_french", "[ordinal_indicator]")
 
 CATCH_TEST_CASE("ordinal_indicator_provincial", "[ordinal_indicator]")
 {
-    CATCH_START_SECTION("ordinal indicator: 1r 1re")
+    CATCH_START_SECTION("ordinal_indicator: 1r 1re")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -450,7 +450,7 @@ CATCH_TEST_CASE("ordinal_indicator_provincial", "[ordinal_indicator]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("ordinal indicator: 2nd 2nda 2emo 2ema (second)")
+    CATCH_START_SECTION("ordinal_indicator: 2nd 2nda 2emo 2ema (second)")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -498,7 +498,7 @@ CATCH_TEST_CASE("ordinal_indicator_provincial", "[ordinal_indicator]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("ordinal indicator: Nemo Nema")
+    CATCH_START_SECTION("ordinal_indicator: Nemo Nema")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -534,7 +534,7 @@ CATCH_TEST_CASE("ordinal_indicator_provincial", "[ordinal_indicator]")
 
 CATCH_TEST_CASE("ordinal_indicator_breton", "[ordinal_indicator]")
 {
-    CATCH_START_SECTION("ordinal indicator: 1an 2l 3de 4re 5vet")
+    CATCH_START_SECTION("ordinal_indicator: 1an 2l 3de 4re 5vet")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -569,7 +569,7 @@ CATCH_TEST_CASE("ordinal_indicator_breton", "[ordinal_indicator]")
 
 CATCH_TEST_CASE("ordinal_indicator_occitan", "[ordinal_indicator]")
 {
-    CATCH_START_SECTION("ordinal indicator: occitan: 1er 1era (first)")
+    CATCH_START_SECTION("ordinal_indicator: occitan: 1er 1era (first)")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -597,7 +597,7 @@ CATCH_TEST_CASE("ordinal_indicator_occitan", "[ordinal_indicator]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("ordinal indicator: occitan: 2nd 2nda (second)")
+    CATCH_START_SECTION("ordinal_indicator: occitan: 2nd 2nda (second)")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -625,7 +625,7 @@ CATCH_TEST_CASE("ordinal_indicator_occitan", "[ordinal_indicator]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("ordinal indicator: Nen Nena")
+    CATCH_START_SECTION("ordinal_indicator: Nen Nena")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -661,7 +661,7 @@ CATCH_TEST_CASE("ordinal_indicator_occitan", "[ordinal_indicator]")
 
 CATCH_TEST_CASE("ordinal_indicator_russian", "[ordinal_indicator]")
 {
-    CATCH_START_SECTION("ordinal indicator: singular plural neutral in russian")
+    CATCH_START_SECTION("ordinal_indicator: singular plural neutral in russian")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -698,7 +698,7 @@ CATCH_TEST_CASE("ordinal_indicator_russian", "[ordinal_indicator]")
 
 CATCH_TEST_CASE("ordinal_indicator_period", "[ordinal_indicator]")
 {
-    CATCH_START_SECTION("ordinal indicator: languages using a period")
+    CATCH_START_SECTION("ordinal_indicator: languages using a period")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -749,7 +749,7 @@ CATCH_TEST_CASE("ordinal_indicator_period", "[ordinal_indicator]")
 
 CATCH_TEST_CASE("ordinal_indicator_other_latin", "[ordinal_indicator]")
 {
-    CATCH_START_SECTION("ordinal indicator: other latin languages")
+    CATCH_START_SECTION("ordinal_indicator: other latin languages")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -792,7 +792,7 @@ CATCH_TEST_CASE("ordinal_indicator_other_latin", "[ordinal_indicator]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("ordinal indicator: spanish/portuguese secondary")
+    CATCH_START_SECTION("ordinal_indicator: spanish/portuguese secondary")
     {
         snaplogger::ordinal_indicator ind;
 
@@ -839,7 +839,7 @@ CATCH_TEST_CASE("ordinal_indicator_other_latin", "[ordinal_indicator]")
 
 CATCH_TEST_CASE("ordinal_indicator_error", "[ordinal_indicator][error]")
 {
-    CATCH_START_SECTION("ordinal indicator: ")
+    CATCH_START_SECTION("ordinal_indicator: negative and zero return an empty string")
     {
         snaplogger::ordinal_indicator ind;
 

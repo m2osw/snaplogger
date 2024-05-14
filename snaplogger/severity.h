@@ -73,8 +73,9 @@ enum class severity_t
     SEVERITY_DEPRECATED         = 120,
     SEVERITY_WARNING            = 130,
     SEVERITY_MAJOR              = 150,
-    SEVERITY_RECOVERABLE_ERROR  = 170,
-    SEVERITY_ERROR              = 180,
+    SEVERITY_RECOVERABLE_ERROR  = 160,
+    SEVERITY_ERROR              = 170,
+    SEVERITY_NOISY_ERROR        = 180,  // from here above is usually the threshold for errors to report to the admin
     SEVERITY_SEVERE             = 190,
     SEVERITY_EXCEPTION          = 200,
     SEVERITY_CRITICAL           = 210,
