@@ -253,6 +253,35 @@ CATCH_TEST_CASE("severity", "[severity]")
         }
     }
     CATCH_END_SECTION()
+
+    CATCH_START_SECTION("severity: Severity by Level or Name")
+    {
+        snaplogger::severity_by_severity_t severities(snaplogger::get_severities_by_severity());
+        snaplogger::severity_by_name_t names(snaplogger::get_severities_by_name());
+
+        // this is not true, there are more names than severity levels
+        //
+        //CATCH_REQUIRE(severities.size() == names.size());
+
+// this does not hold true, that is, the map is properly sorted, but for
+// entries with an alias, the s->get_name() returns the base name, not the
+// alias, and thus, the order may be skewed for all aliases
+//
+//        std::string previous_name;
+//        for(auto const & s : names)
+//        {
+//            CATCH_REQUIRE(s.second->get_name() > previous_name);
+//            previous_name = s.second->get_name();
+//        }
+
+        snaplogger::severity_t previous_severity(snaplogger::severity_t::SEVERITY_ALL - 1);
+        for(auto const & s : severities)
+        {
+            CATCH_REQUIRE(s.second->get_severity() > previous_severity);
+            previous_severity = s.second->get_severity();
+        }
+    }
+    CATCH_END_SECTION()
 }
 
 
