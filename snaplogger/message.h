@@ -48,6 +48,7 @@
 // C++
 //
 #include    <sstream>
+#include    <source_location>
 #include    <streambuf>
 
 
@@ -85,6 +86,7 @@ enum class system_field_t
     SYSTEM_FIELD_FILENAME,
     SYSTEM_FIELD_FUNCTION_NAME,
     SYSTEM_FIELD_LINE,
+    SYSTEM_FIELD_COLUMN,
 
     SYSTEM_FIELD_max
 };
@@ -107,9 +109,7 @@ public:
 
                                 message(
                                           severity_t sev = default_severity()
-                                        , char const * file = nullptr
-                                        , char const * func = nullptr
-                                        , int line = -1);
+                                        , std::source_location const & location = std::source_location::current());
                                 message(std::basic_stringstream<char> const & m, message const & msg);
                                 message(message const & rhs) = delete;
     virtual                     ~message();
@@ -119,9 +119,11 @@ public:
     static severity_t           default_severity();
 
     void                        set_severity(severity_t severity);
+    void                        set_location(std::source_location const & location);
     void                        set_filename(std::string const & filename);
     void                        set_function(std::string const & funcname);
-    void                        set_line(int line);
+    void                        set_line(std::uint_least32_t line);
+    void                        set_column(std::uint_least32_t line);
     void                        set_recursive_message(bool state) const;
     void                        set_precise_time();
     void                        set_timestamp(timespec const & timestamp);
@@ -134,7 +136,8 @@ public:
     timespec const &            get_timestamp() const;
     std::string const &         get_filename() const;
     std::string const &         get_function() const;
-    int                         get_line() const;
+    std::uint_least32_t         get_line() const;
+    std::uint_least32_t         get_column() const;
     bool                        get_recursive_message() const;
     bool                        has_component(component::pointer_t c) const;
     component::set_t const &    get_components() const;
@@ -151,7 +154,8 @@ private:
     severity_t                  f_severity = severity_t::SEVERITY_INFORMATION;
     std::string                 f_filename = std::string();
     std::string                 f_funcname = std::string();
-    int                         f_line = 0;
+    std::uint_least32_t         f_line = 0;
+    std::uint_least32_t         f_column = 0;
     mutable bool                f_recursive_message = false;
     environment::pointer_t      f_environment = environment::pointer_t();
     component::set_t            f_components = component::set_t();
@@ -241,50 +245,48 @@ operator << (std::basic_ostream<CharT, Traits> & os, field_t const & f)
 
 message::pointer_t create_message(
               severity_t sev = ::snaplogger::message::default_severity()
-            , char const * file = nullptr
-            , char const * func = nullptr
-            , int line = -1);
+            , std::source_location const & location = std::source_location::current());
 
 void send_message(std::basic_ostream<char> & msg);
 
 void send_stack_trace(libexcept::exception_base_t const & e);
 
 
-// TODO: with C++20, change the __FILE__, __LINE__, __func__ with
-//       std::location::current()
-//
-#define SNAP_LOG_FATAL              ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_FATAL,             __FILE__, __func__, __LINE__))
-#define SNAP_LOG_EMERG              ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_EMERGENCY,         __FILE__, __func__, __LINE__))
-#define SNAP_LOG_EMERGENCY          ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_EMERGENCY,         __FILE__, __func__, __LINE__))
-#define SNAP_LOG_ALERT              ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_ALERT,             __FILE__, __func__, __LINE__))
-#define SNAP_LOG_CRIT               ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_CRITICAL,          __FILE__, __func__, __LINE__))
-#define SNAP_LOG_CRITICAL           ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_CRITICAL,          __FILE__, __func__, __LINE__))
-#define SNAP_LOG_EXCEPTION          ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_EXCEPTION,         __FILE__, __func__, __LINE__))
-#define SNAP_LOG_SEVERE             ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_SEVERE,            __FILE__, __func__, __LINE__))
-#define SNAP_LOG_ERR                ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_ERROR,             __FILE__, __func__, __LINE__))
-#define SNAP_LOG_ERROR              ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_ERROR,             __FILE__, __func__, __LINE__))
-#define SNAP_LOG_RECOVERABLE_ERROR  ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_RECOVERABLE_ERROR, __FILE__, __func__, __LINE__))
-#define SNAP_LOG_MAJOR              ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_MAJOR,             __FILE__, __func__, __LINE__))
-#define SNAP_LOG_WARN               ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_WARNING,           __FILE__, __func__, __LINE__))
-#define SNAP_LOG_WARNING            ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_WARNING,           __FILE__, __func__, __LINE__))
-#define SNAP_LOG_DEPRECATED         ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_DEPRECATED,        __FILE__, __func__, __LINE__))
-#define SNAP_LOG_TODO               ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_TODO,              __FILE__, __func__, __LINE__))
-#define SNAP_LOG_MINOR              ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_MINOR,             __FILE__, __func__, __LINE__))
-#define SNAP_LOG_IMPORTANT          ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_IMPORTANT,         __FILE__, __func__, __LINE__))
-#define SNAP_LOG_INFO               ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_INFORMATION,       __FILE__, __func__, __LINE__))
-#define SNAP_LOG_INFORMATION        ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_INFORMATION,       __FILE__, __func__, __LINE__))
-#define SNAP_LOG_CONFIGURATION      ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_CONFIGURATION,     __FILE__, __func__, __LINE__))
-#define SNAP_LOG_CONFIG             ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_CONFIGURATION,     __FILE__, __func__, __LINE__))
-#define SNAP_LOG_VERBOSE            ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_VERBOSE,           __FILE__, __func__, __LINE__))
-#define SNAP_LOG_UNIMPORTANT        ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_UNIMPORTANT,       __FILE__, __func__, __LINE__))
-#define SNAP_LOG_NOTICE             ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_NOTICE,            __FILE__, __func__, __LINE__))
-#define SNAP_LOG_DEBUG              ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_DEBUG,             __FILE__, __func__, __LINE__))
-#define SNAP_LOG_NOISY              ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_NOISY,             __FILE__, __func__, __LINE__))
-#define SNAP_LOG_TRACE              ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_TRACE,             __FILE__, __func__, __LINE__))
-                                                                                                                                                                                  
-#define SNAP_LOG_DEFAULT            ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::message::default_severity(),            __FILE__, __func__, __LINE__))
+#define SNAP_LOG_FATAL                  ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_FATAL))
+#define SNAP_LOG_EMERG                  ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_EMERGENCY))
+#define SNAP_LOG_EMERGENCY              ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_EMERGENCY))
+#define SNAP_LOG_ALERT                  ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_ALERT))
+#define SNAP_LOG_CRIT                   ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_CRITICAL))
+#define SNAP_LOG_CRITICAL               ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_CRITICAL))
+#define SNAP_LOG_EXCEPTION              ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_EXCEPTION))
+#define SNAP_LOG_SEVERE                 ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_SEVERE))
+#define SNAP_LOG_ERR                    ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_ERROR))
+#define SNAP_LOG_ERROR                  ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_ERROR))
+#define SNAP_LOG_NOISY_ERROR            ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_NOISY_ERROR))
+#define SNAP_LOG_RECOVERABLE_ERROR      ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_RECOVERABLE_ERROR))
+#define SNAP_LOG_MAJOR                  ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_MAJOR))
+#define SNAP_LOG_WARN                   ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_WARNING))
+#define SNAP_LOG_WARNING                ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_WARNING))
+#define SNAP_LOG_DEPRECATED             ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_DEPRECATED))
+#define SNAP_LOG_TODO                   ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_TODO))
+#define SNAP_LOG_MINOR                  ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_MINOR))
+#define SNAP_LOG_IMPORTANT              ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_IMPORTANT))
+#define SNAP_LOG_INFO                   ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_INFORMATION))
+#define SNAP_LOG_INFORMATION            ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_INFORMATION))
+#define SNAP_LOG_CONFIG_WARN            ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_CONFIGURATION_WARNING))
+#define SNAP_LOG_CONFIGURATION_WARNING  ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_CONFIGURATION_WARNING))
+#define SNAP_LOG_CONFIGURATION          ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_CONFIGURATION))
+#define SNAP_LOG_CONFIG                 ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_CONFIGURATION))
+#define SNAP_LOG_VERBOSE                ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_VERBOSE))
+#define SNAP_LOG_UNIMPORTANT            ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_UNIMPORTANT))
+#define SNAP_LOG_NOTICE                 ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_NOTICE))
+#define SNAP_LOG_DEBUG                  ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_DEBUG))
+#define SNAP_LOG_NOISY                  ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_NOISY))
+#define SNAP_LOG_TRACE                  ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_TRACE))
 
-#define SNAP_LOG_FIELD(name, value) ::snaplogger::field((name), (value))
+#define SNAP_LOG_DEFAULT                ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::message::default_severity()))
+
+#define SNAP_LOG_FIELD(name, value)     ::snaplogger::field((name), (value))
 
 // The (( are in the opening macros
 //
@@ -332,6 +334,7 @@ operator << (std::basic_ostream<CharT, Traits> & os, std::exception const & e)
 
     return os << e.what();
 }
+
 
 
 // vim: ts=4 sw=4 et

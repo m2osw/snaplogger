@@ -145,6 +145,13 @@ constexpr system_severity g_system_severity[] =
         .f_styles       = nullptr
     },
     {
+        .f_severity     = severity_t::SEVERITY_CONFIGURATION_WARNING,
+        .f_name         = "configuration-warning",
+        .f_alias        = "config-warn",
+        .f_description  = "configuration warning",
+        .f_styles       = nullptr
+    },
+    {
         .f_severity     = severity_t::SEVERITY_INFORMATION,
         .f_name         = "information",
         .f_alias        = "info",
@@ -205,6 +212,13 @@ constexpr system_severity g_system_severity[] =
         .f_name         = "error",
         .f_alias        = "err",
         .f_description  = "error",
+        .f_styles       = "red"
+    },
+    {
+        .f_severity     = severity_t::SEVERITY_NOISY_ERROR,
+        .f_name         = "noisy-error",
+        .f_alias        = nullptr,
+        .f_description  = "noisy error",
         .f_styles       = "red"
     },
     {
@@ -500,13 +514,13 @@ severity::severity(severity_t sev, std::string const & name, bool system)
 {
     if(sev < severity_t::SEVERITY_MIN || sev > severity_t::SEVERITY_MAX)
     {
-        throw invalid_severity("the severity level can't be "
+        throw invalid_severity("the severity level cannot be "
                             + std::to_string(static_cast<int>(sev))
                             + ". The possible range is ["
-                              SNAPDEV_STRINGIZE(severity_t::SEVERITY_MIN)
-                              ".."
-                              SNAPDEV_STRINGIZE(severity_t::SEVERITY_MAX)
-                              "]");
+                            + std::to_string(static_cast<int>(severity_t::SEVERITY_MIN))
+                            + ".."
+                            + std::to_string(static_cast<int>(severity_t::SEVERITY_MAX))
+                            + "].");
     }
 }
 

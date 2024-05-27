@@ -22,7 +22,7 @@
 #include    "catch_main.h"
 
 
-// snaplogger lib
+// snaplogger
 //
 #include    <snaplogger/buffer_appender.h>
 #include    <snaplogger/exception.h>
@@ -32,6 +32,11 @@
 #include    <snaplogger/message.h>
 #include    <snaplogger/severity.h>
 #include    <snaplogger/version.h>
+
+
+// snapdev
+//
+#include    <snapdev/enum_class_math.h>
 
 
 // C lib
@@ -118,12 +123,36 @@ CATCH_TEST_CASE("severity", "[severity]")
             CATCH_REQUIRE(snaplogger::get_severity("bad-error") == nullptr);
             CATCH_REQUIRE(snaplogger::get_severity("big-error") == nullptr);
 
+            // duplicates are not allowed
+            //
+            CATCH_REQUIRE_THROWS_MATCHES(
+                      s->add_alias("bad-error")
+                    , snaplogger::duplicate_error
+                    , Catch::Matchers::ExceptionMessage(
+                              "logger_error: severity \""
+                              "bad-error"
+                              "\" already has an alias \""
+                              "bad-error"
+                              "\"."));
+
             snaplogger::add_severity(s);
 
             CATCH_REQUIRE(snaplogger::get_severity("bad-error") == s);
             CATCH_REQUIRE(snaplogger::get_severity("big-error") == nullptr);
 
             s->add_alias("big-error");
+
+            // duplicates are not allowed
+            //
+            CATCH_REQUIRE_THROWS_MATCHES(
+                      s->add_alias("big-error")
+                    , snaplogger::duplicate_error
+                    , Catch::Matchers::ExceptionMessage(
+                              "logger_error: severity \""
+                              "bad-error"
+                              "\" already has an alias \""
+                              "big-error"
+                              "\"."));
 
             CATCH_REQUIRE(s->get_all_names().size() == 2);
             CATCH_REQUIRE(s->get_all_names()[0] == "bad-error");
@@ -147,7 +176,7 @@ CATCH_TEST_CASE("severity", "[severity]")
             snaplogger::severity_t const level_plus_one(static_cast<snaplogger::severity_t>(static_cast<int>(level) + 1));
             CATCH_REQUIRE(snaplogger::get_severity(level_plus_one) == nullptr);
 
-            snaplogger::message msg(::snaplogger::severity_t::SEVERITY_ERROR, __FILE__, __func__, __LINE__);
+            snaplogger::message msg(::snaplogger::severity_t::SEVERITY_ERROR);
             CATCH_REQUIRE(snaplogger::get_severity(msg, "bad-error") == s);
             CATCH_REQUIRE(snaplogger::get_severity(msg, "big-error") == s);
         }
@@ -183,25 +212,31 @@ CATCH_TEST_CASE("severity", "[severity]")
 
         std::vector<level_and_name_t> level_and_name =
         {
-            { ::snaplogger::severity_t::SEVERITY_ALL,               "all" },
-            { ::snaplogger::severity_t::SEVERITY_TRACE,             "trace" },
-            { ::snaplogger::severity_t::SEVERITY_DEBUG,             "debug" },
-            { ::snaplogger::severity_t::SEVERITY_NOTICE,            "notice" },
-            { ::snaplogger::severity_t::SEVERITY_UNIMPORTANT,       "unimportant" },
-            { ::snaplogger::severity_t::SEVERITY_VERBOSE,           "verbose" },
-            { ::snaplogger::severity_t::SEVERITY_INFORMATION,       "information" },
-            { ::snaplogger::severity_t::SEVERITY_IMPORTANT,         "important" },
-            { ::snaplogger::severity_t::SEVERITY_MINOR,             "minor" },
-            { ::snaplogger::severity_t::SEVERITY_DEPRECATED,        "deprecated" },
-            { ::snaplogger::severity_t::SEVERITY_WARNING,           "warning" },
-            { ::snaplogger::severity_t::SEVERITY_MAJOR,             "major" },
-            { ::snaplogger::severity_t::SEVERITY_RECOVERABLE_ERROR, "recoverable-error" },
-            { ::snaplogger::severity_t::SEVERITY_ERROR,             "error" },
-            { ::snaplogger::severity_t::SEVERITY_CRITICAL,          "critical" },
-            { ::snaplogger::severity_t::SEVERITY_ALERT,             "alert" },
-            { ::snaplogger::severity_t::SEVERITY_EMERGENCY,         "emergency" },
-            { ::snaplogger::severity_t::SEVERITY_FATAL,             "fatal" },
-            { ::snaplogger::severity_t::SEVERITY_OFF,               "off" },
+            { ::snaplogger::severity_t::SEVERITY_ALL,                   "all" },
+            { ::snaplogger::severity_t::SEVERITY_TRACE,                 "trace" },
+            { ::snaplogger::severity_t::SEVERITY_NOISY,                 "noisy" },
+            { ::snaplogger::severity_t::SEVERITY_DEBUG,                 "debug" },
+            { ::snaplogger::severity_t::SEVERITY_NOTICE,                "notice" },
+            { ::snaplogger::severity_t::SEVERITY_UNIMPORTANT,           "unimportant" },
+            { ::snaplogger::severity_t::SEVERITY_VERBOSE,               "verbose" },
+            { ::snaplogger::severity_t::SEVERITY_CONFIGURATION,         "configuration" },
+            { ::snaplogger::severity_t::SEVERITY_CONFIGURATION_WARNING, "configuration-warning" },
+            { ::snaplogger::severity_t::SEVERITY_INFORMATION,           "information" },
+            { ::snaplogger::severity_t::SEVERITY_IMPORTANT,             "important" },
+            { ::snaplogger::severity_t::SEVERITY_MINOR,                 "minor" },
+            { ::snaplogger::severity_t::SEVERITY_DEPRECATED,            "deprecated" },
+            { ::snaplogger::severity_t::SEVERITY_WARNING,               "warning" },
+            { ::snaplogger::severity_t::SEVERITY_MAJOR,                 "major" },
+            { ::snaplogger::severity_t::SEVERITY_RECOVERABLE_ERROR,     "recoverable-error" },
+            { ::snaplogger::severity_t::SEVERITY_ERROR,                 "error" },
+            { ::snaplogger::severity_t::SEVERITY_NOISY_ERROR,           "noisy-error" },
+            { ::snaplogger::severity_t::SEVERITY_SEVERE,                "severe" },
+            { ::snaplogger::severity_t::SEVERITY_EXCEPTION,             "exception" },
+            { ::snaplogger::severity_t::SEVERITY_CRITICAL,              "critical" },
+            { ::snaplogger::severity_t::SEVERITY_ALERT,                 "alert" },
+            { ::snaplogger::severity_t::SEVERITY_EMERGENCY,             "emergency" },
+            { ::snaplogger::severity_t::SEVERITY_FATAL,                 "fatal" },
+            { ::snaplogger::severity_t::SEVERITY_OFF,                   "off" },
         };
 
         for(auto const & ln : level_and_name)
@@ -216,6 +251,42 @@ CATCH_TEST_CASE("severity", "[severity]")
             buffer << static_cast<::snaplogger::severity_t>(254);
             CATCH_REQUIRE(buffer.str() == "(unknown severity: 254)");
         }
+    }
+    CATCH_END_SECTION()
+}
+
+
+CATCH_TEST_CASE("severity_error", "[severity][error]")
+{
+    CATCH_START_SECTION("severity: too small")
+    {
+        CATCH_REQUIRE_THROWS_MATCHES(
+                  snaplogger::severity(snaplogger::severity_t::SEVERITY_MIN - 1, "TOO_SMALL")
+                , snaplogger::invalid_severity
+                , Catch::Matchers::ExceptionMessage(
+                          "logger_error: the severity level cannot be "
+                        + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_MIN - 1))
+                        + ". The possible range is ["
+                        + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_MIN))
+                        + ".."
+                        + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_MAX))
+                        + "]."));
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("severity: too large")
+    {
+        CATCH_REQUIRE_THROWS_MATCHES(
+                  snaplogger::severity(snaplogger::severity_t::SEVERITY_MAX + 1, "TOO_LARGE")
+                , snaplogger::invalid_severity
+                , Catch::Matchers::ExceptionMessage(
+                          "logger_error: the severity level cannot be "
+                        + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_MAX + 1))
+                        + ". The possible range is ["
+                        + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_MIN))
+                        + ".."
+                        + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_MAX))
+                        + "]."));
     }
     CATCH_END_SECTION()
 }

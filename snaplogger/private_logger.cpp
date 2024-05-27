@@ -84,7 +84,7 @@ void getopt_logs(cppthread::log_level_t l, std::string const & m)
 
     }
 
-    message msg(sev, __FILE__, __func__, __LINE__);
+    message msg(sev);
 
     // we do not use the g_... names in case they were not yet allocated
     //

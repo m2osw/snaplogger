@@ -231,7 +231,7 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
         buffer->set_format(f);
 
         snaplogger::message::pointer_t msg(std::make_shared<snaplogger::message>
-                        (::snaplogger::severity_t::SEVERITY_ERROR, __FILE__, __func__, __LINE__));
+                        (::snaplogger::severity_t::SEVERITY_ERROR));
         *msg << "The align=101 parameter is the wrong type";
         CATCH_REQUIRE_THROWS_MATCHES(
                   l->log_message(*msg)
@@ -252,7 +252,7 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
         buffer->set_format(f);
 
         msg = std::make_shared<snaplogger::message>
-                        (::snaplogger::severity_t::SEVERITY_ERROR, __FILE__, __func__, __LINE__);
+                        (::snaplogger::severity_t::SEVERITY_ERROR);
         *msg << "Try align=\"justify\" which has to fail.";
         CATCH_REQUIRE_THROWS_MATCHES(
                   l->log_message(*msg)
@@ -266,7 +266,7 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
         buffer->set_format(f);
 
         msg = std::make_shared<snaplogger::message>
-                        (::snaplogger::severity_t::SEVERITY_ERROR, __FILE__, __func__, __LINE__);
+                        (::snaplogger::severity_t::SEVERITY_ERROR);
         *msg << "The min_width=wide parameter is the wrong type";
         CATCH_REQUIRE_THROWS_MATCHES(
                   l->log_message(*msg)
@@ -287,7 +287,7 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
         buffer->set_format(f);
 
         msg = std::make_shared<snaplogger::message>
-                        (::snaplogger::severity_t::SEVERITY_ERROR, __FILE__, __func__, __LINE__);
+                        (::snaplogger::severity_t::SEVERITY_ERROR);
         *msg << "The padding=... accepts a number between 0 and 9 inclusive";
         CATCH_REQUIRE_THROWS_MATCHES(
                   l->log_message(*msg)
@@ -308,7 +308,7 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
         buffer->set_format(f);
 
         msg = std::make_shared<snaplogger::message>
-                        (::snaplogger::severity_t::SEVERITY_ERROR, __FILE__, __func__, __LINE__);
+                        (::snaplogger::severity_t::SEVERITY_ERROR);
         *msg << "The padding=... accepts one character";
         CATCH_REQUIRE_THROWS_MATCHES(
                   l->log_message(*msg)

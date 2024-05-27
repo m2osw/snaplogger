@@ -171,7 +171,7 @@
   which will be used to send all the logs here and there. It may be smart
   to implement that feature only in the `server daemon` since that one is
   remote and thus you do not eat on local resources (i.e. you can then have
-  log dedicated machines which allow for subscriptions.)
+  log dedicated machines which allow for subscriptions).
 
   The subscription can then be used by a tool which would replace fail2ban.
   (i.e. a form of extension to the snapwatchdog service)

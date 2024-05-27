@@ -38,6 +38,11 @@
 #include    <snaplogger/version.h>
 
 
+// snapdev
+//
+#include    <snapdev/enum_class_math.h>
+
+
 // advgetopt
 //
 #include    <advgetopt/exception.h>
@@ -48,6 +53,19 @@
 #include    <math.h>
 #include    <unistd.h>
 
+
+namespace
+{
+
+
+std::source_location get_other_loc()
+{
+    return std::source_location::current();
+}
+
+
+
+} // no name namespace
 
 
 CATCH_TEST_CASE("not_a_message", "[message]")
@@ -226,21 +244,35 @@ CATCH_TEST_CASE("message_copy", "[message]")
 
         l->add_appender(buffer);
 
-        int const line_number = __LINE__;
+        std::source_location const loc(std::source_location::current());
         snaplogger::message::pointer_t msg(std::make_shared<snaplogger::message>
-                        (::snaplogger::severity_t::SEVERITY_ERROR, __FILE__, __func__, line_number));
+                        (::snaplogger::severity_t::SEVERITY_ERROR, loc));
 
-        CATCH_REQUIRE(msg->get_filename() == __FILE__);
-        CATCH_REQUIRE(msg->get_function() == __func__);
-        CATCH_REQUIRE(msg->get_line() == line_number);
+        CATCH_REQUIRE(msg->get_filename() == loc.file_name());
+        CATCH_REQUIRE(msg->get_function() == loc.function_name());
+        CATCH_REQUIRE(msg->get_line() == loc.line());
+        CATCH_REQUIRE(msg->get_column() == loc.column());
 
-        msg->set_filename("logger.cpp");
-        msg->set_function("magical");
-        msg->set_line(701);
+        // using a standard location
+        //
+        std::source_location const other_loc(get_other_loc());
 
-        CATCH_REQUIRE(msg->get_filename() == "logger.cpp");
-        CATCH_REQUIRE(msg->get_function() == "magical");
-        CATCH_REQUIRE(msg->get_line() == 701);
+        CATCH_REQUIRE(msg->get_filename() == loc.file_name());
+        CATCH_REQUIRE(msg->get_function() == loc.function_name());
+        CATCH_REQUIRE(msg->get_line() == loc.line());
+        CATCH_REQUIRE(msg->get_column() == loc.column());
+
+        // direct
+        //
+        msg->set_filename("we-are-under-control.cpp");
+        msg->set_function("testing_set_function");
+        msg->set_line(123);
+        msg->set_column(64);
+
+        CATCH_REQUIRE(msg->get_filename() == "we-are-under-control.cpp");
+        CATCH_REQUIRE(msg->get_function() == "testing_set_function");
+        CATCH_REQUIRE(msg->get_line() == 123);
+        CATCH_REQUIRE(msg->get_column() == 64);
 
         *msg << "Logging an error.";
 
@@ -316,24 +348,20 @@ CATCH_TEST_CASE("message_severity", "[message][severity]")
 
         l->add_appender(buffer);
 
-        int const min_severity(static_cast<int>(snaplogger::severity_t::SEVERITY_MIN));
-        int const max_severity(static_cast<int>(snaplogger::severity_t::SEVERITY_MAX));
-        for(int i(min_severity); i <= max_severity; ++i)
+        // ++<enum> works here because of this header:
+        //    <snapdev/enum_class_math.h>
+        //
+        for(snaplogger::severity_t i(snaplogger::severity_t::SEVERITY_MIN); i <= snaplogger::severity_t::SEVERITY_MAX; ++i)
         {
-            buffer->set_severity(static_cast<snaplogger::severity_t>(i));
-            for(int j(min_severity); j <= max_severity; ++j)
+            buffer->set_severity(i);
+            for(snaplogger::severity_t j(snaplogger::severity_t::SEVERITY_MIN); j <= snaplogger::severity_t::SEVERITY_MAX; ++j)
             {
-                snaplogger::send_message(
-                    *::snaplogger::create_message(
-                              static_cast<::snaplogger::severity_t>(j)
-                            , __FILE__
-                            , __func__
-                            , __LINE__
-                        ) << "The message itself");
+                snaplogger::send_message(*::snaplogger::create_message(j)
+                                                << "The message itself");
 
                 if(j >= i
-                && i != static_cast<int>(snaplogger::severity_t::SEVERITY_OFF)
-                && j != static_cast<int>(snaplogger::severity_t::SEVERITY_OFF))
+                && i != snaplogger::severity_t::SEVERITY_OFF
+                && j != snaplogger::severity_t::SEVERITY_OFF)
                 {
                     CATCH_REQUIRE(buffer->str() == "The message itself\n");
                 }
@@ -378,32 +406,28 @@ CATCH_TEST_CASE("message_severity", "[message][severity]")
 
         l->add_appender(buffer);
 
-        int const min_severity(static_cast<int>(snaplogger::severity_t::SEVERITY_MIN));
-        int const max_severity(static_cast<int>(snaplogger::severity_t::SEVERITY_MAX));
-        for(int i(min_severity); i <= max_severity; i += 1 + (rand() & 15))
+        // <enum> += n works here because of this header:
+        //    <snapdev/enum_class_math.h>
+        //
+        for(snaplogger::severity_t i(snaplogger::severity_t::SEVERITY_MIN); i <= snaplogger::severity_t::SEVERITY_MAX; i += 1 + (rand() & 15))
         {
-            buffer->set_severity(static_cast<snaplogger::severity_t>(i));
-            for(int j(min_severity); j <= max_severity; j += 1 + (rand() & 15))
+            buffer->set_severity(i);
+            for(snaplogger::severity_t j(snaplogger::severity_t::SEVERITY_MIN); j <= snaplogger::severity_t::SEVERITY_MAX; j += 1 + (rand() & 15))
             {
-                for(int k(min_severity); k <= max_severity; k += 1 + (rand() & 15))
+                for(snaplogger::severity_t k(snaplogger::severity_t::SEVERITY_MIN); k <= snaplogger::severity_t::SEVERITY_MAX; k += 1 + (rand() & 15))
                 {
-                    ::snaplogger::message::pointer_t msg(std::make_shared<::snaplogger::message>(
-                              static_cast<::snaplogger::severity_t>(j)
-                            , __FILE__
-                            , __func__
-                            , __LINE__
-                        ));
+                    ::snaplogger::message::pointer_t msg(std::make_shared<::snaplogger::message>(j));
                     *msg << "Start of message";
-                    msg->set_severity(static_cast<::snaplogger::severity_t>(k));
+                    msg->set_severity(k);
                     *msg << " -- end of message";
                     snaplogger::send_message(*msg);
 //std::cerr << "checking with " << i << ", " << j << ", " << k << "\n";
 
                     if(j >= i
                     && k >= i
-                    && i != static_cast<int>(snaplogger::severity_t::SEVERITY_OFF)
-                    && j != static_cast<int>(snaplogger::severity_t::SEVERITY_OFF))
-                    //&& k != static_cast<int>(snaplogger::severity_t::SEVERITY_OFF))
+                    && i != snaplogger::severity_t::SEVERITY_OFF
+                    && j != snaplogger::severity_t::SEVERITY_OFF)
+                    //&& k != snaplogger::severity_t::SEVERITY_OFF)
                     {
                         if(j >= i)
                         {
@@ -618,7 +642,7 @@ CATCH_TEST_CASE("message_format", "[message][format]")
         // we create a message so we can check the timestamp in our test
         //
         snaplogger::message::pointer_t msg(std::make_shared<snaplogger::message>
-                        (::snaplogger::severity_t::SEVERITY_ERROR, __FILE__, __func__, __LINE__));
+                        (::snaplogger::severity_t::SEVERITY_ERROR));
         *msg << "Created message on YYYY = ${date:year}, MM = ${date:month}, DD = ${date:day}";
 
         timespec const stamp(msg->get_timestamp());
@@ -705,7 +729,10 @@ CATCH_TEST_CASE("message_component_filter", "[message][component]")
             << SNAP_LOG_SEND;
 
         // TODO: get the WARNING severity level dynamically
-        CATCH_REQUIRE(buffer->str() == "This message is secure and so is the buffer (" + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_WARNING)) + ")\n");
+        std::string const expected1("This message is secure and so is the buffer ("
+                + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_WARNING))
+                + ")\n");
+        CATCH_REQUIRE(buffer->str() == expected1);
 
         buffer->clear();
 
@@ -716,7 +743,10 @@ CATCH_TEST_CASE("message_component_filter", "[message][component]")
             << SNAP_LOG_SEND_SECURELY;  // mark at the end
 
         // TODO: get the WARNING severity level dynamically
-        CATCH_REQUIRE(buffer->str() == "Test number: 4 with secure buffer... (" + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_WARNING)) + ")\n");
+        std::string const expected2("Test number: 4 with secure buffer... ("
+                + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_WARNING))
+                + ")\n");
+        CATCH_REQUIRE(buffer->str() == expected2);
 
         l->reset();
     }
@@ -727,7 +757,7 @@ CATCH_TEST_CASE("message_component_filter", "[message][component]")
 
 CATCH_TEST_CASE("message_exception", "[message][exception]")
 {
-    CATCH_START_SECTION("message: Use '... << exception << ...")
+    CATCH_START_SECTION("message: Use '... << exception << ...'")
     {
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
@@ -776,7 +806,7 @@ CATCH_TEST_CASE("message_exception", "[message][exception]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("message: Use '... << stringstream << ...")
+    CATCH_START_SECTION("message: Use '... << stringstream << ...'")
     {
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));

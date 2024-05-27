@@ -104,14 +104,13 @@ int null_buffer::overflow(int c)
 
 message::message(
           severity_t sev
-        , char const * file
-        , char const * func
-        , int line)
+        , std::source_location const & location)
     : f_logger(logger::get_instance())
     , f_severity(sev)
-    , f_filename(file == nullptr ? std::string() : std::string(file))
-    , f_funcname(func == nullptr ? std::string() : std::string(func))
-    , f_line(line)
+    , f_filename(location.file_name())
+    , f_funcname(location.function_name())
+    , f_line(location.line())
+    , f_column(location.column())
     , f_environment(create_environment())
     , f_fields(f_logger->get_default_fields())
 {
@@ -136,6 +135,7 @@ message::message(std::basic_stringstream<char> const & m, message const & msg)
     , f_filename(msg.f_filename)
     , f_funcname(msg.f_funcname)
     , f_line(msg.f_line)
+    , f_column(msg.f_column)
     , f_recursive_message(msg.f_recursive_message)
     , f_environment(msg.f_environment)
     , f_components(msg.f_components)
@@ -170,6 +170,15 @@ void message::set_severity(severity_t severity)
 }
 
 
+void message::set_location(std::source_location const & location)
+{
+    f_filename = location.file_name();
+    f_funcname = location.function_name();
+    f_line = location.line();
+    f_column = location.column();
+}
+
+
 void message::set_filename(std::string const & filename)
 {
     f_filename = filename;
@@ -182,11 +191,16 @@ void message::set_function(std::string const & funcname)
 }
 
 
-void message::set_line(int line)
+void message::set_line(std::uint_least32_t line)
 {
     f_line = line;
 }
 
+
+void message::set_column(std::uint_least32_t column)
+{
+    f_column = column;
+}
 
 void message::set_recursive_message(bool state) const
 {
@@ -282,9 +296,15 @@ std::string const & message::get_function() const
 }
 
 
-int message::get_line() const
+std::uint_least32_t message::get_line() const
 {
     return f_line;
+}
+
+
+std::uint_least32_t message::get_column() const
+{
+    return f_column;
 }
 
 
@@ -442,6 +462,9 @@ std::string message::get_field(std::string const & name) const
         case system_field_t::SYSTEM_FIELD_LINE:
             return std::to_string(f_line);
 
+        case system_field_t::SYSTEM_FIELD_COLUMN:
+            return std::to_string(f_column);
+
         default:
             return std::string();
 
@@ -465,11 +488,9 @@ field_map_t message::get_fields() const
 
 message::pointer_t create_message(
       severity_t sev
-    , char const * file
-    , char const * func
-    , int line)
+    , std::source_location const & location)
 {
-    return std::make_shared<message>(sev, file, func, line);
+    return std::make_shared<message>(sev, location);
 }
 
 
