@@ -809,6 +809,12 @@ void logger::process_message(message const & msg)
 }
 
 
+void logger::set_fatal_error_severity(severity_t sev)
+{
+    f_fatal_severity = sev;
+}
+
+
 void logger::set_fatal_error_callback(std::function<void(void)> & f)
 {
     f_fatal_error_callback = f;

@@ -98,6 +98,7 @@ public:
     void                        set_asynchronous(bool status);
     void                        log_message(message const & msg);
     void                        process_message(message const & msg);
+    void                        set_fatal_error_severity(severity_t sev);
     void                        set_fatal_error_callback(std::function<void(void)> & f);
     void                        call_fatal_error_callback();
     severity_stats_t            get_severity_stats() const;
