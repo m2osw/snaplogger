@@ -154,14 +154,20 @@ void logger::load_plugins(std::string const & plugin_paths)
 {
     guard g;
 
-    serverplugins::paths paths;
-    paths.add(plugin_paths);
+    // we can load plugins only once, further calls must be ignored
+    // (it happens in our tests)
+    //
+    if(f_plugins == nullptr)
+    {
+        serverplugins::paths paths;
+        paths.add(plugin_paths);
 
-    serverplugins::names names(paths);
-    names.find_plugins("snaplogger_");
+        serverplugins::names names(paths);
+        names.find_plugins("snaplogger_");
 
-    f_plugins = std::make_shared<serverplugins::collection>(names);
-    f_plugins->load_plugins(shared_from_this());
+        f_plugins = std::make_shared<serverplugins::collection>(names);
+        f_plugins->load_plugins(shared_from_this());
+    }
 }
 
 
