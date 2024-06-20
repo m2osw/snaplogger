@@ -58,13 +58,13 @@
 #include    "snaplogger/private_logger.h"
 
 
-// libutf8 lib
+// libutf8
 //
 #include    <libutf8/exception.h>
 #include    <libutf8/libutf8.h>
 
 
-// C++ lib
+// C++
 //
 #include    <iostream>
 #include    <queue>
@@ -95,7 +95,7 @@ DEFINE_LOGGER_VARIABLE(direct)
     // insert all our parameters as is
     //
     auto const & params(get_params());
-    for(auto p : params)
+    for(auto const & p : params)
     {
         // TODO: should we add a space too? or can we have spaces in the params?
         value += p->get_value();
@@ -137,6 +137,12 @@ std::string const & param::get_name() const
 param::type_t param::get_type() const
 {
     return f_type;
+}
+
+
+bool param::empty() const
+{
+    return f_type == type_t::TYPE_STRING && f_value.empty();
 }
 
 

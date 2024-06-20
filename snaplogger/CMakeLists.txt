@@ -49,6 +49,7 @@ add_library(${PROJECT_NAME} SHARED
     ordinal_indicator.cpp
     private_logger.cpp
     severity.cpp
+    snapcatch2.cpp
     syslog_appender.cpp
     system_functions.cpp
     system_variable.cpp
@@ -118,6 +119,7 @@ install(
         nested_diagnostic.h
         options.h
         severity.h
+        snapcatch2.hpp
         syslog_appender.h
         trace_diagnostic.h
         utils.h

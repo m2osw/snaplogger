@@ -138,6 +138,7 @@ public:
     std::string const & get_name() const;
 
     type_t              get_type() const;
+    bool                empty() const;
 
     std::string         get_value() const;
     void                set_value(std::string const & value);

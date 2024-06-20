@@ -445,26 +445,38 @@ DEFINE_LOGGER_VARIABLE(diagnostic)
     constexpr int FLAG_TRACE  = 0x04;
 
     std::int64_t nested_depth(-1);
-    std::int64_t trace_depth(-1);
+    std::int64_t trace_count(-1);
     std::string key;
     int flags(0);
 
-    for(auto p : get_params())
+    for(auto const & p : get_params())
     {
         if(p->get_name() == "nested")
         {
-            nested_depth = p->get_integer();
             flags |= FLAG_NESTED;
+
+            // the integer is optional
+            //
+            if(!p->empty())
+            {
+                nested_depth = p->get_integer();
+            }
         }
         else if(p->get_name() == "map")
         {
-            key = p->get_value();
             flags |= FLAG_MAP;
+            key = p->get_value();
         }
         else if(p->get_name() == "trace")
         {
-            trace_depth = p->get_integer();
             flags |= FLAG_TRACE;
+
+            // the integer is optional
+            //
+            if(!p->empty())
+            {
+                trace_count = p->get_integer();
+            }
         }
     }
 
@@ -475,6 +487,7 @@ DEFINE_LOGGER_VARIABLE(diagnostic)
         string_vector_t nested(get_nested_diagnostics(msg));
         size_t idx(0);
         if((flags & FLAG_NESTED) != 0
+        && nested_depth != -1
         && static_cast<ssize_t>(nested.size()) > nested_depth)
         {
             idx = nested.size() - nested_depth;
@@ -504,9 +517,10 @@ DEFINE_LOGGER_VARIABLE(diagnostic)
         {
             auto it(trace.begin());
             size_t sz(trace.size());
-            if((flags & FLAG_TRACE) != 0)
+            if((flags & FLAG_TRACE) != 0
+            && trace_count > 0)
             {
-                for(; static_cast<int64_t>(sz) >  trace_depth && it != trace.end(); ++it, --sz);
+                for(; static_cast<int64_t>(sz) > trace_count && it != trace.end(); ++it, --sz);
             }
 
             char sep('[');

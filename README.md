@@ -633,6 +633,8 @@ versatile. The following are parameters supported internally:
                                 is specified, show at most that many messages
     ${diagnostic:map[=key]}     the current map diagnostic data; if key is
                                 given limit the diagnostic to that key
+    ${diagnostic:trace[=count]} the current set of traces (the last 'count'
+                                ones if larger)
 
     # System
     ${hostname}                 name of the computer

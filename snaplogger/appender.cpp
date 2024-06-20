@@ -44,7 +44,7 @@
 #include    <iostream>
 
 
-// C lib
+// C
 //
 #include    <math.h>
 

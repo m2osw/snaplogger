@@ -17,9 +17,13 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /** \file
- * \brief Appenders are used to append data to somewhere.
+ * \brief Implemented the console appender.
  *
- * This file declares the base appender class.
+ * This file implements the console appender. This appender directly writes
+ * to the console (std::cout).
+ *
+ * Since most console support color, this appender uses color to highlight
+ * more important messages.
  */
 
 // self
