@@ -226,6 +226,18 @@ void console_appender::set_config(advgetopt::getopt const & opts)
 }
 
 
+bool console_appender::get_force_style() const
+{
+    return f_force_style;
+}
+
+
+void console_appender::set_force_style(bool force_style)
+{
+    f_force_style = force_style;
+}
+
+
 void console_appender::process_message(message const & msg, std::string const & formatted_message)
 {
     guard g;

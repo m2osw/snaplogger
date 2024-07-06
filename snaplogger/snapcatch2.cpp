@@ -25,6 +25,7 @@
 
 // snaplogger
 //
+#include    <snaplogger/console_appender.h>
 #include    <snaplogger/format.h>
 #include    <snaplogger/logger.h>
 #include    <snaplogger/snapcatch2.hpp>
@@ -49,6 +50,12 @@ void setup_catch2_nested_diagnostics()
         std::string const & existing_format(console->get_format()->get_format());
         format::pointer_t new_format(std::make_shared<format>(existing_format + " ${diagnostic:nested}"));
         console->set_format(new_format);
+
+        console_appender::pointer_t c(std::dynamic_pointer_cast<console_appender>(console));
+        if(c != nullptr)
+        {
+            c->set_force_style(); // always show colors (so it works inside less ...)
+        }
     }
     else
     {

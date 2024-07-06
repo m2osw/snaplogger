@@ -51,6 +51,9 @@ public:
     virtual bool            unique() const override;
     virtual void            set_config(advgetopt::getopt const & params) override;
 
+    bool                    get_force_style() const;
+    void                    set_force_style(bool force_style = true);
+
 protected:
     virtual void            process_message(message const & msg, std::string const & formatted_message) override;
 
