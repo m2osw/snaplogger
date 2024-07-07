@@ -47,8 +47,8 @@
 
 // C++
 //
-#include    <sstream>
 #include    <source_location>
+#include    <sstream>
 #include    <streambuf>
 
 
