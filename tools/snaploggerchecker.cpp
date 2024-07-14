@@ -248,7 +248,7 @@ tool::tool(int argc, char * argv[])
     f_opts.finish_parsing(argc, argv);
 
     if(!snaplogger::process_logger_options(
-            f_opts
+              f_opts
             , "/etc/snaplogger/logger"
             , std::cout
             , !isatty(fileno(stdin))))

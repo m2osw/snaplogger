@@ -5,7 +5,7 @@
     missingok
     rotate 10
     postrotate
-        if test -x /usr/bin/ed-signal; then /usr/bin/ed-signal ./LOGROTATE; fi
+        if test -x /usr/bin/ed-signal; then /usr/bin/ed-signal ./LOG_ROTATE; fi
     endscript
     compress
     delaycompress
@@ -18,7 +18,7 @@
     missingok
     rotate 5
     postrotate
-        if test -x /usr/bin/ed-signal; then /usr/bin/ed-signal ./LOGROTATE; fi
+        if test -x /usr/bin/ed-signal; then /usr/bin/ed-signal ./LOG_ROTATE; fi
     endscript
     compress
     delaycompress
