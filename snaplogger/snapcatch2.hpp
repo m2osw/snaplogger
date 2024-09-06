@@ -60,7 +60,7 @@
         { \
             std::cout << "SECTION: " << name << std::endl; \
         } \
-        ::snaplogger::nested_diagnostic snaplogger_diagnostic(name, true);
+        ::snaplogger::nested_diagnostic section_diagnostic(name, true);
 
 
 
