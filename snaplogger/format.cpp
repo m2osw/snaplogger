@@ -96,7 +96,14 @@ public:
         --f_pos;
         if(f_input[f_pos] != c)
         {
-            throw logger_logic_error("ungetc() called with the wrong character.");      // LCOV_EXCL_LINE
+            // LCOV_EXCL_START
+            throw logger_logic_error(
+                  std::string("ungetc() called with the wrong character (expected '")
+                + static_cast<char>(f_input[f_pos])
+                + "', got '"
+                + static_cast<char>(c)
+                + "').");
+            // LCOV_EXCL_STOP
         }
     }
 
