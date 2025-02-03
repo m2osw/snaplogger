@@ -53,7 +53,7 @@
  * \brief Tool to shred log and other files.
  *
  * This tool is used to shred files (by calling `shred -uf <filename>` for
- * exampe.)
+ * example.)
  *
  * The shredlog tool can be used to shred and delete files and directories.
  *
@@ -68,7 +68,7 @@
  * We offer several other modes, especially, the auto-detection of HDD or
  * SSD drives fails badly on any VPS (the ones you run on your computer
  * at home and at data centers like DigialOcean). I think this is because
- * by default the systems that create virtualize computers have fake
+ * by default the systems that create virtualized computers have fake
  * drives for HDD and thus they _say_ that the drives are rotational.
  * Hopefully, this will be fixed at some point so the virtual system can
  * detect the original drive type and replicate that in the virtual
@@ -117,7 +117,7 @@
  * a file; `unlink` -- just call `unlink()`; `wipe` -- first truncate the
  * file, rename it multiple times, then `unlink()` it; `wipesync` -- like
  * `wipe` but use `sync` wherever possible (i.e. so each modification gets
- * commited on disk; otherwise it will only happen in memory)
+ * committed on disk; otherwise it will only happen in memory).
  *
  * \li `--size=\<count[KMG]>` -- specify the maximum number of bytes to
  * shred; you can specify K, M, or G to change the number in kilo, mega,
@@ -134,7 +134,7 @@
  * Note that by default the `shredlog` command is used in `auto` mode
  * which means that the files get deleted if on an SSD drive and only
  * shredded on an HDD drive (i.e. in the latter the file remains on
- * disk, only its data was overwriten with random data.)
+ * disk, only its data was overwritten with random data.)
  * \warning
  * It is strongly suggested that you always use the `--unlink` command
  * line option. We may actually change this behavior in later versions
@@ -169,7 +169,7 @@ advgetopt::option const g_options[] =
         , advgetopt::ShortName('f')
         , advgetopt::Flags(advgetopt::standalone_all_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
-        , advgetopt::Help("change permission to allow writting if necessary.")
+        , advgetopt::Help("change permission to allow writing if necessary.")
     ),
     advgetopt::define_option(
           advgetopt::Name("iterations")
@@ -184,7 +184,7 @@ advgetopt::option const g_options[] =
           advgetopt::Name("mode")
         , advgetopt::Flags(advgetopt::standalone_all_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
-        , advgetopt::Help("select shreding mode: auto, delete, shred, both.")
+        , advgetopt::Help("select shredding mode: auto, delete, shred, both.")
     ),
     advgetopt::define_option(
           advgetopt::Name("random-source")
