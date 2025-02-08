@@ -94,7 +94,7 @@ class indicator_value
 public:
     typedef T   value_t;
 
-    constexpr indicator_value<T>(T const v)
+    constexpr indicator_value(T const v)
         : f_value(v)
     {
     }
