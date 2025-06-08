@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2024  Made to Order Software Corp.  All Rights Reserved
+// Copyright (c) 2011-2025  Made to Order Software Corp.  All Rights Reserved
 //
 // https://snapwebsites.org/project/snaplogger
 // contact@m2osw.com
@@ -54,7 +54,7 @@ namespace snaplogger
  * below do. The "default" language template returns an empty string.
  *
  * \todo
- * Write the necessary function(s) to add convert the conventional LANG
+ * Write the necessary function(s) to convert the conventional LANG
  * value in one of our language enumeration.
  */
 enum class language_t
