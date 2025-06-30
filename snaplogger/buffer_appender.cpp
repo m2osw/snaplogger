@@ -38,17 +38,17 @@
 #include    "snaplogger/guard.h"
 
 
-// snapdev lib
+// snapdev
 //
 #include    <snapdev/lockfile.h>
 
 
-// C++ lib
+// C++
 //
 #include    <iostream>
 
 
-// C lib
+// C
 //
 #include    <fcntl.h>
 #include    <sys/stat.h>

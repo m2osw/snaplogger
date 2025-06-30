@@ -33,22 +33,22 @@
 #include    "snaplogger/syslog_appender.h"
 
 
-// advgetopt lib
+// advgetopt
 //
 #include    <advgetopt/validator_size.h>
 
 
-// snapdev lib
+// snapdev
 //
 #include    <snapdev/lockfile.h>
 
 
-// C++ lib
+// C++
 //
 #include    <iostream>
 
 
-// C lib
+// C
 //
 #include    <fcntl.h>
 #include    <syslog.h>

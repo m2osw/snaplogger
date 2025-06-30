@@ -27,7 +27,7 @@
 #include    "catch_main.h"
 
 
-// snaplogger lib
+// snaplogger
 //
 #include    <snaplogger/buffer_appender.h>
 #include    <snaplogger/format.h>

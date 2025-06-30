@@ -21,7 +21,7 @@
 //
 #include    "catch_main.h"
 
-// snaplogger lib
+// snaplogger
 //
 #include    <snaplogger/version.h>
 

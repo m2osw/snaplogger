@@ -34,6 +34,7 @@ add_library(${PROJECT_NAME} SHARED
     buffer_appender.cpp
     component.cpp
     console_appender.cpp
+    convert_ansi.cpp
     date_variable.cpp
     environment.cpp
     environment_variable.cpp

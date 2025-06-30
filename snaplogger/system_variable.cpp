@@ -34,12 +34,12 @@
 #include    "snaplogger/variable.h"
 
 
-// cppthread lib
+// cppthread
 //
 #include    <cppthread/thread.h>
 
 
-// C lib
+// C
 //
 #include    <netdb.h>
 #include    <sys/param.h>

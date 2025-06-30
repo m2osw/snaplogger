@@ -32,12 +32,12 @@
 #include    "snaplogger/private_logger.h"
 
 
-// snapdev lib
+// snapdev
 //
 #include    <snapdev/not_used.h>
 
 
-// C++ lib
+// C++
 //
 #include    <map>
 

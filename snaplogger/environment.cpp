@@ -47,12 +47,12 @@
 #include    "snaplogger/private_logger.h"
 
 
-// cppthread lib
+// cppthread
 //
 #include    <cppthread/thread.h>
 
 
-// C lib
+// C
 //
 #include    <grp.h>
 #include    <netdb.h>

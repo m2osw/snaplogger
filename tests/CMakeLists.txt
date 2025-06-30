@@ -31,6 +31,7 @@ if(SnapCatch2_FOUND)
         catch_appender.cpp
         catch_asynchronous.cpp
         catch_component.cpp
+        catch_convert_ansi.cpp
         catch_diagnostic.cpp
         catch_message.cpp
         catch_ordinal_indicator.cpp

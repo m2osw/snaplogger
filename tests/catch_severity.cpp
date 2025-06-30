@@ -39,7 +39,7 @@
 #include    <snapdev/enum_class_math.h>
 
 
-// C lib
+// C
 //
 #include    <unistd.h>
 #include    <netdb.h>

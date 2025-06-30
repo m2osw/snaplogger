@@ -22,7 +22,7 @@
 #include    "catch_main.h"
 
 
-// snaplogger lib
+// snaplogger
 //
 #include    <snaplogger/buffer_appender.h>
 #include    <snaplogger/exception.h>
@@ -35,7 +35,7 @@
 #include    <snaplogger/version.h>
 
 
-// C lib
+// C
 //
 #include    <unistd.h>
 

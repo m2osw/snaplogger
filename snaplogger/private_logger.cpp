@@ -35,7 +35,7 @@
 #include    "snaplogger/syslog_appender.h"
 
 
-// cppthread lib
+// cppthread
 //
 #include    <cppthread/log.h>
 #include    <cppthread/runner.h>

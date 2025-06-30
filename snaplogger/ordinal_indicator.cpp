@@ -44,12 +44,12 @@
 #include    "snaplogger/ordinal_indicator.h"
 
 
-// snapdev lib
+// snapdev
 //
 #include    <snapdev/not_used.h>
 
 
-// C++ lib
+// C++
 //
 #include    <cstdint>
 #include    <string>

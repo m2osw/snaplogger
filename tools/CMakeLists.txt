@@ -112,4 +112,34 @@ install(
 )
 
 
+##
+## convert-ansi
+##
+project(convert-ansi)
+
+add_executable(${PROJECT_NAME}
+    convert_ansi.cpp
+)
+
+target_include_directories(${PROJECT_NAME}
+    PUBLIC
+        ${ADVGETOPT_INCLUDE_DIRS}
+        ${SNAPDEV_INCLUDE_DIRS}
+)
+
+target_link_libraries(${PROJECT_NAME}
+    snaplogger
+    ${ADVGETOPT_LIBRARIES}
+    ${LIBEXCEPT_LIBRARIES}
+)
+
+install(
+    TARGETS
+        ${PROJECT_NAME}
+
+    RUNTIME DESTINATION
+        bin
+)
+
+
 # vim: ts=4 sw=4 et nocindent

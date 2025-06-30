@@ -46,7 +46,7 @@
 #include    "snaplogger/variable.h"
 
 
-// C lib
+// C
 //
 #include    <grp.h>
 #include    <pwd.h>

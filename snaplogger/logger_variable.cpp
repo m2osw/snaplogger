@@ -36,7 +36,7 @@
 #include    "snaplogger/variable.h"
 
 
-// C++ lib
+// C++
 //
 #include    <iostream>
 

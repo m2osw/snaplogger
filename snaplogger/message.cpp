@@ -32,12 +32,12 @@
 #include    "snaplogger/logger.h"
 
 
-// C++ lib
+// C++
 //
 #include    <iostream>
 
 
-// C lib
+// C
 //
 #include    <sys/time.h>
 

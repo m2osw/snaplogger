@@ -40,12 +40,12 @@
 #include    <snapdev/string_replace_many.h>
 
 
-// advgetopt lib
+// advgetopt
 //
 #include    <advgetopt/exception.h>
 
 
-// cppthread lib
+// cppthread
 //
 #include    <cppthread/log.h>
 

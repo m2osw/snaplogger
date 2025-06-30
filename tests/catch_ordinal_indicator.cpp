@@ -22,12 +22,12 @@
 #include    "catch_main.h"
 
 
-// snaplogger lib
+// snaplogger
 //
 #include    <snaplogger/ordinal_indicator.h>
 
 
-// C lib
+// C
 //
 #include    <unistd.h>
 

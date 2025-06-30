@@ -28,17 +28,17 @@
 #include    "snaplogger/syslog_appender.h"
 
 
-// snapdev lib
+// snapdev
 //
 #include    <snapdev/not_reached.h>
 
 
-// C++ lib
+// C++
 //
 #include    <iostream>
 
 
-// C lib
+// C
 //
 #include    <syslog.h>
 

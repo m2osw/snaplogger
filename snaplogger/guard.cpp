@@ -37,7 +37,7 @@
 #include    "snaplogger/guard.h"
 
 
-// cppthread lib
+// cppthread
 //
 #include    <cppthread/guard.h>
 #include    <cppthread/mutex.h>

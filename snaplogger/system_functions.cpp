@@ -55,17 +55,17 @@
 #include    "snaplogger/variable.h"
 
 
-// libutf8 lib
+// libutf8
 //
 #include    <libutf8/libutf8.h>
 
 
-// snapdev lib
+// snapdev
 //
 #include    <snapdev/not_used.h>
 
 
-// C++ lib
+// C++
 //
 #include    <algorithm>
 #include    <iostream>
