@@ -176,7 +176,7 @@ constexpr system_severity g_system_severity[] =
         .f_severity     = severity_t::SEVERITY_TODO,
         .f_name         = "todo",
         .f_alias        = nullptr,
-        .f_description  = "uncomplete task",
+        .f_description  = "uncompleted task",
         .f_styles       = nullptr
     },
     {

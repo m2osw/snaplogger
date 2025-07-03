@@ -199,11 +199,11 @@ void appender::set_config(advgetopt::getopt const & opts)
         std::string const specialized_enabled(f_name + "::enabled");
         if(opts.is_defined(specialized_enabled))
         {
-            f_enabled = opts.get_string(specialized_enabled) != "false";
+            f_enabled = !advgetopt::is_false(opts.get_string(specialized_enabled));
         }
         else if(opts.is_defined("enabled"))
         {
-            f_enabled = opts.get_string("enabled") != "false";
+            f_enabled = !advgetopt::is_false(opts.get_string("enabled"));
         }
         else
         {
@@ -503,18 +503,18 @@ long appender::get_bytes_per_minute() const
 }
 
 
-/** \brief Return the number of dropped message due to bitrate restrictions.
+/** \brief Return the number of dropped messages due to bitrate restrictions.
  *
- * It is possible to set the number of bits per second that an appender
- * will accept. Anything over that amount will be dropped.
+ * It is possible to set the bit rate at which an appender accepts messages.
+ * Anything beyond that number gets dropped. The bit rate defined in the
+ * appender configuration gets transformed in a number of bytes per minute.
  *
- * The logger converts the bits per second amount to a bytes per minute.
- * Each time a message gets sent, the number of bytes in that message
+ * Each time a message is sent, the number of bytes in that message
  * string is added to a counter. If that counter reaches a number of bytes
- * per minute larger than the allowed bytes per minutes, then the messages
- * get dropped until 1 minute elapses.
+ * in a minute larger than the allowed bytes per minute, then the following
+ * messages get dropped until that one minute has elapsed.
  *
- * This function returns any message that was sent and was dropped because
+ * This function returns the number of messages that were dropped because
  * the bytes per minute limit was reached.
  *
  * \note
@@ -522,11 +522,12 @@ long appender::get_bytes_per_minute() const
  * total of all the messages that were dropped so far. This counter is
  * per appender.
  *
- * \return The number of messages that were dropped.
+ * \return The number of messages that were dropped because the bitrate was
+ * reached.
  */
-std::size_t appender::get_bytes_dropped_messages() const
+std::size_t appender::get_bitrate_dropped_messages() const
 {
-    return f_bytes_dropped_messages;
+    return f_bitrate_dropped_messages;
 }
 
 
@@ -584,10 +585,10 @@ void appender::send_message(message const & msg)
     //
     if(f_bytes_per_minute != 0)
     {
-        time_t const now(time(0));
-        if(f_bytes_minute - now >= 60)
+        time_t const current_minute(time(0) / 60);
+        if(current_minute != f_bytes_minute)
         {
-            f_bytes_minute = now;
+            f_bytes_minute = current_minute;
             f_bytes_received = 0;
         }
         else if(f_bytes_received + static_cast<long>(formatted_message.length())
@@ -599,7 +600,7 @@ void appender::send_message(message const & msg)
             // message and then accept a smaller one which still fits in the
             // `f_bytes_per_minute` bitrate
             //
-            ++f_bytes_dropped_messages;
+            ++f_bitrate_dropped_messages;
             return;
         }
         f_bytes_received += formatted_message.length();
@@ -662,7 +663,7 @@ appender_factory::appender_factory(std::string const & type)
     if(appender_factory_debug != nullptr
     && *appender_factory_debug != '\0')
     {
-        std::cerr << "appender_factor:debug: adding appender factory \"" << type << "\".\n";
+        std::cerr << "appender_factory:debug: adding appender factory \"" << type << "\".\n";
     }
 }
 

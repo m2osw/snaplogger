@@ -166,7 +166,7 @@ void syslog_appender::set_config(advgetopt::getopt const & opts)
     std::string const fallback_to_console_field(get_name() + "::fallback_to_console");
     if(opts.is_defined(fallback_to_console_field))
     {
-        if(opts.get_string(fallback_to_console_field) == "true")
+        if(advgetopt::is_true(opts.get_string(fallback_to_console_field)))
         {
             options |= LOG_CONS;
         }

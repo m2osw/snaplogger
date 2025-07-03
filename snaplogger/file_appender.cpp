@@ -150,7 +150,7 @@ void file_appender::set_config(advgetopt::getopt const & opts)
     std::string const lock_field(get_name() + "::lock");
     if(opts.is_defined(lock_field))
     {
-        f_lock = opts.get_string(lock_field) == "true";
+        f_lock = advgetopt::is_true(opts.get_string(lock_field));
     }
 
     // FLUSH
@@ -158,7 +158,7 @@ void file_appender::set_config(advgetopt::getopt const & opts)
     std::string const flush_field(get_name() + "::flush");
     if(opts.is_defined(flush_field))
     {
-        f_flush = opts.get_string(flush_field) == "true";
+        f_flush = advgetopt::is_true(opts.get_string(flush_field));
     }
 
     // SECURE
@@ -166,7 +166,7 @@ void file_appender::set_config(advgetopt::getopt const & opts)
     std::string const secure_field(get_name() + "::secure");
     if(opts.is_defined(secure_field))
     {
-        f_secure = opts.get_string(secure_field) != "false";
+        f_secure = !advgetopt::is_false(opts.get_string(secure_field));
     }
 
     // FALLBACK TO CONSOLE
@@ -174,7 +174,7 @@ void file_appender::set_config(advgetopt::getopt const & opts)
     std::string const fallback_to_console_field(get_name() + "::fallback_to_console");
     if(opts.is_defined(fallback_to_console_field))
     {
-        f_fallback_to_console = opts.get_string(fallback_to_console_field) == "true";
+        f_fallback_to_console = advgetopt::is_true(opts.get_string(fallback_to_console_field));
     }
 
     // FALLBACK TO SYSLOG
@@ -182,7 +182,7 @@ void file_appender::set_config(advgetopt::getopt const & opts)
     std::string const fallback_to_syslog_field(get_name() + "::fallback_to_syslog");
     if(opts.is_defined(fallback_to_syslog_field))
     {
-        f_fallback_to_syslog = opts.get_string(fallback_to_syslog_field) == "true";
+        f_fallback_to_syslog = advgetopt::is_true(opts.get_string(fallback_to_syslog_field));
     }
 }
 

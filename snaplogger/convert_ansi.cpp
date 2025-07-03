@@ -197,27 +197,27 @@ std::string convert_ansi::read()
                     }
                     switch(wc)
                     {
-                    case '"':
+                    case U'"':
                         f_result += "&quot;";
                         break;
 
-                    case '&':
+                    case U'&':
                         f_result += "&amp;";
                         break;
 
-                    case '\'':
+                    case U'\'':
                         f_result += "&apos;";
                         break;
 
-                    case '<':
+                    case U'<':
                         f_result += "&lt;";
                         break;
 
-                    case '>': // important for xhtml
+                    case U'>': // important for xhtml
                         f_result += "&gt;";
                         break;
 
-                    case '\n':
+                    case U'\n':
                         f_result += "<br/>\n";
                         break;
 
@@ -244,20 +244,20 @@ std::string convert_ansi::read()
                     }
                     switch(wc)
                     {
-                    case '*':
-                    case '-':
-                    case '#':
-                    case '_':
-                    case '<':
-                    case '>':
-                    case '`':
-                    case '[':
-                    case '\\':
+                    case U'*':
+                    case U'-':
+                    case U'#':
+                    case U'_':
+                    case U'<':
+                    case U'>':
+                    case U'`':
+                    case U'[':
+                    case U'\\':
                         f_result += '\\';
                         f_result += static_cast<char>(wc);
                         break;
 
-                    case '\n':
+                    case U'\n':
                         end_style();
                         f_current_graphical_state = GRAPHICAL_STATE_NORMAL;
                         f_result += '\n';
@@ -279,7 +279,7 @@ std::string convert_ansi::read()
             break;
 
         case state_t::ANSI_STATE_ESCAPE:
-            if(wc == '[')
+            if(wc == U'[')
             {
                 // Escape + '[' = Control Sequence Introducer
                 //
@@ -297,35 +297,35 @@ std::string convert_ansi::read()
             break;
 
         case state_t::ANSI_STATE_PARAMETERS:
-            if(wc >= '@' && wc <= '\x7E')
+            if(wc >= U'@' && wc <= U'\x7E')
             {
                 // ends the sequence and process it
                 //
                 switch(wc)
                 {
-                case 'm':
+                case U'm':
                     apply_graphical_rendition();
                     break;
 
-                case 'A':
-                case 'B':
-                case 'C':
-                case 'D':
-                case 'E':
-                case 'F':
-                case 'G':
-                case 'H':
-                case 'J':
-                case 'K':
-                case 'S':
-                case 'T':
-                case 'f':
-                case 'h':
-                case 'i':
-                case 'l':
-                case 'n':
-                case 's':
-                case 'u':
+                case U'A':
+                case U'B':
+                case U'C':
+                case U'D':
+                case U'E':
+                case U'F':
+                case U'G':
+                case U'H':
+                case U'J':
+                case U'K':
+                case U'S':
+                case U'T':
+                case U'f':
+                case U'h':
+                case U'i':
+                case U'l':
+                case U'n':
+                case U's':
+                case U'u':
                     // valid but ignored
                     break;
 
@@ -341,17 +341,19 @@ std::string convert_ansi::read()
 
                 f_state = state_t::ANSI_STATE_PLAIN_TEXT;
             }
-            else if(wc >= '0' && wc <= '9')
+            else if(wc >= U'0' && wc <= U'9')
             {
                 f_parameters[f_parameters.size() - 1] *= 10;
-                f_parameters[f_parameters.size() - 1] += wc - '0';
+                f_parameters[f_parameters.size() - 1] += wc - U'0';
             }
             else 
             {
-                // we expect ';' here because all the sequences we support
-                // are expected to have such as the separator
+                // we expect ';' or ':' here because all the sequences we
+                // support are expected to have such as the separator
+                // (the ':' is at times used for color definitions)
                 //
-                if(wc != ';')
+                if(wc != U';'
+                && wc != U':')
                 {
                     // "invalid" is not automatically true, but we do not
                     // recognize other sequences at the moment
@@ -375,7 +377,7 @@ void convert_ansi::apply_graphical_rendition()
 {
     for(f_param_pos = 0; static_cast<std::size_t>(f_param_pos) < f_parameters.size();)
     {
-std::cerr << "\n--- PARAMS! switch: " << f_parameters[f_param_pos] << "\n";
+//std::cerr << "\n--- PARAMS! switch: " << f_parameters[f_param_pos] << "\n";
         switch(f_parameters[f_param_pos])
         {
         case 0:
@@ -700,7 +702,7 @@ std::int32_t convert_ansi::get_color(bool support_transparent)
                           (((255 - f_parameters[f_param_pos + 2]) * percent / 255) << 16)
                         | (((255 - f_parameters[f_param_pos + 3]) * percent / 255) <<  8)
                         | (((255 - f_parameters[f_param_pos + 4]) * percent / 255) <<  0));
-                    f_param_pos += 5;
+                    f_param_pos += 6;
                     return color;
                 }
             }
@@ -787,7 +789,6 @@ void convert_ansi::open_span()
 
     f_graphical_state_for_styles |= f_current_graphical_state;
 
-std::cerr << "--- OPEN SPAN: " << f_graphical_state << "\n";
     if((f_current_graphical_state & GRAPHICAL_STATE_BOLD) != 0)
     {
         if(f_optimize)
@@ -926,11 +927,13 @@ std::cerr << "--- OPEN SPAN: " << f_graphical_state << "\n";
         classes.push_back("ansi-vs");
         break;
 
+    // LCOV_EXCL_START
     default:
         throw logger_logic_error(
               "unhandled underline + double underline + overline + cross out case (0x"
             + snapdev::int_to_hex(f_current_graphical_state & (GRAPHICAL_STATE_UNDERLINE | GRAPHICAL_STATE_DOUBLE_UNDERLINE | GRAPHICAL_STATE_OVERLINE | GRAPHICAL_STATE_CROSS_OUT), false, 4)
             + ")");
+    // LCOV_EXCL_STOP
 
     }
 
@@ -1252,7 +1255,7 @@ std::string convert_ansi::get_styles(bool apply_to_detauls) const
     }
 
     return styles;
-}
+} // LCOV_EXCL_LINE
 
 
 /** \brief Check whether any of the input was considered invalid.

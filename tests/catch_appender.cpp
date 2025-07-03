@@ -55,6 +55,16 @@ CATCH_TEST_CASE("appender", "[appender]")
 
         snaplogger::appender::pointer_t buffer(snaplogger::create_appender("buffer", "test-buffer"));
         CATCH_REQUIRE(buffer != nullptr);
+        CATCH_REQUIRE(buffer->get_type() == "buffer");
+        CATCH_REQUIRE(buffer->get_name() == "test-buffer");
+
+        // the name cannot be changed because it is not "console" or "syslog"
+        //
+        CATCH_REQUIRE_THROWS_MATCHES(
+                  buffer->set_name("not-available")
+                , snaplogger::invalid_parameter
+                , Catch::Matchers::ExceptionMessage(
+                            "logger_error: the appender set_name() can only be used for the console & syslog appenders to rename them to your own appender name (and done internally only)."));
 
         char const * cargv[] =
         {
@@ -74,12 +84,72 @@ CATCH_TEST_CASE("appender", "[appender]")
 
         snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${severity}: ${message}"));
         buffer->set_format(f);
+        CATCH_REQUIRE(buffer->get_format() == f);
+
+        CATCH_REQUIRE(buffer->get_bytes_per_minute() == 0);
+        CATCH_REQUIRE(buffer->get_bitrate_dropped_messages() == 0);
 
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         l->add_appender(buffer);
 
+        CATCH_REQUIRE(buffer->is_enabled());
+
         SNAP_LOG_FATAL << "Appender created by name" << SNAP_LOG_SEND;
         CATCH_REQUIRE(std::dynamic_pointer_cast<snaplogger::buffer_appender>(buffer)->str() == "fatal: Appender created by name\n");
+
+        buffer->set_enabled(false);
+        CATCH_REQUIRE_FALSE(buffer->is_enabled());
+
+        SNAP_LOG_FATAL << "Another message when disabled does not make it" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(std::dynamic_pointer_cast<snaplogger::buffer_appender>(buffer)->str() == "fatal: Appender created by name\n");
+
+        CATCH_REQUIRE_FALSE(buffer->unique());
+
+        // nothing happens by default
+        //
+        buffer->reopen();
+
+        // change severity
+        //
+        CATCH_REQUIRE(buffer->get_severity() == snaplogger::severity_t::SEVERITY_INFORMATION);
+        buffer->set_severity(snaplogger::severity_t::SEVERITY_ERROR);
+        CATCH_REQUIRE(buffer->get_severity() == snaplogger::severity_t::SEVERITY_ERROR);
+
+        buffer->set_enabled(true);
+        CATCH_REQUIRE(buffer->is_enabled());
+
+        SNAP_LOG_INFORMATION << "Severity prevents this message from going in" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(std::dynamic_pointer_cast<snaplogger::buffer_appender>(buffer)->str() == "fatal: Appender created by name\n");
+
+        buffer->reduce_severity(snaplogger::severity_t::SEVERITY_FATAL);
+        CATCH_REQUIRE(buffer->get_severity() == snaplogger::severity_t::SEVERITY_ERROR);
+        buffer->reduce_severity(snaplogger::severity_t::SEVERITY_INFORMATION);
+        CATCH_REQUIRE(buffer->get_severity() == snaplogger::severity_t::SEVERITY_INFORMATION);
+
+        snaplogger::format::pointer_t g(std::make_shared<snaplogger::format>("appender[${severity}]:${line}: ${message}"));
+        std::shared_ptr<snaplogger::safe_format> safe(std::make_shared<snaplogger::safe_format>(buffer, g));
+        CATCH_REQUIRE(buffer->get_format() == g);
+
+        // the format includes the line number so we need to save that as it can
+        // move each time we edit this file...
+        //
+        int const line = __LINE__;
+        SNAP_LOG_TODO << "Complete the tests to 100%." << SNAP_LOG_SEND;
+
+        CATCH_REQUIRE(std::dynamic_pointer_cast<snaplogger::buffer_appender>(buffer)->str()
+                == "fatal: Appender created by name\n"
+                   "appender[uncompleted task]:" + std::to_string(line + 1) + ": Complete the tests to 100%.\n");
+
+        safe.reset();
+        CATCH_REQUIRE(buffer->get_format() == f);
+
+        buffer->increase_severity(snaplogger::severity_t::SEVERITY_DEBUG);
+        CATCH_REQUIRE(buffer->get_severity() == snaplogger::severity_t::SEVERITY_INFORMATION);
+        buffer->increase_severity(snaplogger::severity_t::SEVERITY_MAJOR);
+        CATCH_REQUIRE(buffer->get_severity() == snaplogger::severity_t::SEVERITY_MAJOR);
+
+        snaplogger::appender::pointer_t other_buffer(snaplogger::create_appender("buffer", "other-buffer"));
+        CATCH_REQUIRE(*other_buffer < *buffer);
 
         l->reset();
     }
