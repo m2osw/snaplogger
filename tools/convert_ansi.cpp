@@ -166,7 +166,7 @@ advgetopt::options_environment const g_options_environment =
     .f_configuration_filename = "convert-ansi.conf",
     .f_configuration_directories = g_configuration_directories,
     .f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_PROCESS_SYSTEM_PARAMETERS,
-    .f_help_header = "Usage: %p [--<opt>] <config-name> ...\n"
+    .f_help_header = "Usage: %p [--<opt>] [<console-output.txt> | -]\n"
                      "where --<opt> is one or more of:",
     .f_help_footer = "%c",
     .f_version = SNAPLOGGER_VERSION_STRING,
