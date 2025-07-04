@@ -78,11 +78,16 @@ enum class group_t
     GROUP_BACKGROUND_COLOR,
     GROUP_BLINK,
     GROUP_CROSS_OUT,
+    GROUP_FONT,
     GROUP_FOREGROUND_COLOR,
+    GROUP_FRAMED,
     GROUP_INTENSITY,
     GROUP_INVERSE,
     GROUP_ITALIC,
+    GROUP_NORMAL,
+    GROUP_NOSCRIPT,
     GROUP_OVERLINE,
+    GROUP_SUBSCRIPT,
     GROUP_SUPERSCRIPT,
     GROUP_UNDERLINE,
     GROUP_VISIBLE,
@@ -164,7 +169,7 @@ name_to_style const       g_name_to_style[] =
     { group_t::GROUP_CROSS_OUT,         "not-crossed-out",          nullptr,     nullptr    },
     { group_t::GROUP_FRAMED,            "not-framed",               nullptr,     nullptr    },
     { group_t::GROUP_ITALIC,            "not-italic",               nullptr,     nullptr    },
-    { group_t::GROUP_OVERLINE           "not-overline",             nullptr,     nullptr    },
+    { group_t::GROUP_OVERLINE,          "not-overline",             nullptr,     nullptr    },
     { group_t::GROUP_NOSCRIPT,          "not-script",               nullptr,     nullptr    },
     { group_t::GROUP_FOREGROUND_COLOR,  "orange",                   "\x1B[33m",  "\x1B[39m" },
     { group_t::GROUP_OVERLINE,          "overline",                 "\x1B[53m",  "\x1B[55m" },
@@ -368,10 +373,13 @@ void console_appender::process_message(message const & msg, std::string const & 
                 {
                     for(auto const & ps : processed_styles)
                     {
-                        style += ps.f_style;
-                        if(!ps.f_unstyle.empty())
+                        if(ps.second.f_style != nullptr)
                         {
-                            unstyle += ps.f_unstyle;
+                            style += ps.second.f_style;
+                        }
+                        if(ps.second.f_unstyle != nullptr)
+                        {
+                            unstyle += ps.second.f_unstyle;
                         }
                     }
                     //processed_styles[g_name_to_style[p].f_group].f_style = g_name_to_style[p].f_style;
