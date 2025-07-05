@@ -1,9 +1,10 @@
 usr/lib/lib*.so.*
 usr/lib/snaplogger/inst/manage-log-dirs usr/lib/snaplogger/inst/
 
-usr/bin/shredlog                        usr/bin/
-usr/bin/snaploggerchecker               usr/bin/
+usr/bin/convert-ansi                    usr/bin/
 usr/bin/is-hdd                          usr/bin/
+usr/bin/snaploggerchecker               usr/bin/
+usr/bin/shredlog                        usr/bin/
 
 doc/is-hdd.1                            usr/share/man/man1/
 
