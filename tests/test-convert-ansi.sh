@@ -15,9 +15,11 @@ usage() {
 	echo "Usage: `basename $0` [--opt ...] [state ...]"
 	echo
 	echo "where --opt is one or more of the following options:" 
+	echo "  -b | --br             add <br/> along \\n"
 	echo "       --convert        do the conversion (opposite of --show)"
 	echo "  -h | --help           show this help screen"
 	echo "       --hide-style     do not show the HTML styles"
+	echo "  -B | --no-br          do not add <br/> along \\n"
 	echo "  -O | --optimize       optimize the HTML (i.e. <b> instead of <span class=\"ansi-bold\">)"
 	echo "  -s | --show           show the effect in your console (no conversion)"
 	echo "       --show-hex       show what is output in hex & ASCII (no conversion)"
@@ -97,6 +99,7 @@ usage() {
 
 # Make an easy to use command line instead of escape codes
 #
+BR=""
 INTRO=""
 TEXT="test"
 SHOW=convert
@@ -217,6 +220,10 @@ do
 		shift 3
 		;;
 
+	"-b"|"--br")
+		BR=""
+		;;
+
 	"--convert")
 		SHOW=convert
 		;;
@@ -228,6 +235,10 @@ do
 
 	"--hide-style")
 		OUTPUT_STYLE=""
+		;;
+
+	"-B"|"--no-br")
+		BR="--no-br"
 		;;
 
 	"-O"|"--optimize")
@@ -273,7 +284,7 @@ case "${SHOW}" in
 	;;
 
 "convert")
-	echo "${INTRO}m${TEXT}\033[m" | ../../BUILD/Debug/contrib/snaplogger/tools/convert-ansi "${OUTPUT_STYLE}" "${OPTIMIZE}" && echo
+	echo "${INTRO}m${TEXT}\033[m" | ../../BUILD/Debug/contrib/snaplogger/tools/convert-ansi "${OUTPUT_STYLE}" "${OPTIMIZE}" "${BR}" && echo
 	;;
 
 esac

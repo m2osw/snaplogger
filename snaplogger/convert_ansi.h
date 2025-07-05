@@ -69,6 +69,8 @@ public:
     ansi_output_t               get_type() const;
     void                        set_optimize(bool optimize = true);
     bool                        get_optimize() const;
+    void                        set_br(bool br = true);
+    bool                        get_br() const;
 
     void                        write(std::string const & in);
     std::string                 read();
@@ -133,6 +135,7 @@ private:
     bool                        f_conceal = false;
     bool                        f_span_open = false;
     bool                        f_optimize = false;
+    bool                        f_br = true;
     bool                        f_invalid_input = false;
 };
 

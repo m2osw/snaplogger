@@ -69,17 +69,11 @@ advgetopt::option const g_options[] =
     // OPTIONS
     //
     advgetopt::define_option(
-          advgetopt::Name("optimize")
-        , advgetopt::ShortName('O')
+          advgetopt::Name("br")
+        , advgetopt::ShortName('b')
         , advgetopt::Flags(advgetopt::standalone_all_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
-        , advgetopt::Help("use smaller HTML tag whenever possible.")
-    ),
-    advgetopt::define_option(
-          advgetopt::Name("output-style-tag")
-        , advgetopt::Flags(advgetopt::standalone_all_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
-        , advgetopt::Help("first output the style tag, then the converted data (HTML only).")
+        , advgetopt::Help("use <br/> along \\n characters (default).")
     ),
     advgetopt::define_option(
           advgetopt::Name("html")
@@ -89,18 +83,25 @@ advgetopt::option const g_options[] =
         , advgetopt::Help("generate HTML (default).")
     ),
     advgetopt::define_option(
-          advgetopt::Name("text")
-        , advgetopt::ShortName('T')
-        , advgetopt::Flags(advgetopt::standalone_all_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
-        , advgetopt::Help("generate plain text.")
-    ),
-    advgetopt::define_option(
           advgetopt::Name("markdown")
         , advgetopt::ShortName('M')
         , advgetopt::Flags(advgetopt::standalone_all_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
         , advgetopt::Help("generate Markdown.")
+    ),
+    advgetopt::define_option(
+          advgetopt::Name("no-br")
+        , advgetopt::ShortName('B')
+        , advgetopt::Flags(advgetopt::standalone_all_flags<
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+        , advgetopt::Help("do NOT use <br/> along \\n characters.")
+    ),
+    advgetopt::define_option(
+          advgetopt::Name("optimize")
+        , advgetopt::ShortName('O')
+        , advgetopt::Flags(advgetopt::standalone_all_flags<
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+        , advgetopt::Help("use smaller HTML tag whenever possible.")
     ),
     advgetopt::define_option(
           advgetopt::Name("output")
@@ -110,6 +111,19 @@ advgetopt::option const g_options[] =
                     , advgetopt::GETOPT_FLAG_REQUIRED>())
         , advgetopt::DefaultValue("-")
         , advgetopt::Help("filename to output to or '-' for stdout.")
+    ),
+    advgetopt::define_option(
+          advgetopt::Name("output-style-tag")
+        , advgetopt::Flags(advgetopt::standalone_all_flags<
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+        , advgetopt::Help("first output the style tag, then the converted data (HTML only).")
+    ),
+    advgetopt::define_option(
+          advgetopt::Name("text")
+        , advgetopt::ShortName('T')
+        , advgetopt::Flags(advgetopt::standalone_all_flags<
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+        , advgetopt::Help("generate plain text.")
     ),
 
     // FILENAMES
@@ -244,6 +258,11 @@ int converter::run()
     if(f_opt.is_defined("optimize"))
     {
         f_converter->set_optimize();
+    }
+
+    if(f_opt.is_defined("br"))
+    {
+        f_converter->set_br();
     }
 
     // read input and save it in the converter

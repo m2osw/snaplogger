@@ -1554,6 +1554,10 @@ CATCH_TEST_CASE("convert_ansi", "[converter]")
         CATCH_REQUIRE_FALSE(html_converter->get_optimize());
         CATCH_REQUIRE_FALSE(markdown_converter->get_optimize());
 
+        CATCH_REQUIRE(plain_text_converter->get_br());
+        CATCH_REQUIRE(html_converter->get_br());
+        CATCH_REQUIRE(markdown_converter->get_br());
+
         // save cursor; we assume that the longest string will wrap one line
         //
         std::cout << "\n\n\033[s";
@@ -1600,6 +1604,20 @@ CATCH_TEST_CASE("convert_ansi", "[converter]")
             result = html_converter->read();
             CATCH_REQUIRE_FALSE(html_converter->has_invalid_data());
             CATCH_REQUIRE(convert.f_html == result);
+
+            // no br html
+            //
+            html_converter->set_br(false);
+            CATCH_REQUIRE_FALSE(html_converter->get_br());
+
+            html_converter->write(convert.f_input);
+            result = html_converter->read();
+            CATCH_REQUIRE_FALSE(html_converter->has_invalid_data());
+            std::string const html_without_br(snapdev::string_replace_many(std::string(convert.f_html), {{"<br/>", ""}}));
+            CATCH_REQUIRE(html_without_br == result);
+
+            html_converter->set_br(true);
+            CATCH_REQUIRE(html_converter->get_br());
 
             // clean html (to verify styles)
             //

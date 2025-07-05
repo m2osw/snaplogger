@@ -132,6 +132,18 @@ bool convert_ansi::get_optimize() const
 }
 
 
+void convert_ansi::set_br(bool br)
+{
+    f_br = br;
+}
+
+
+bool convert_ansi::get_br() const
+{
+    return f_br;
+}
+
+
 void convert_ansi::write(std::string const & in)
 {
     f_data.push_back(in);
@@ -218,7 +230,11 @@ std::string convert_ansi::read()
                         break;
 
                     case U'\n':
-                        f_result += "<br/>\n";
+                        if(f_br)
+                        {
+                            f_result += "<br/>";
+                        }
+                        f_result += '\n';
                         break;
 
                     default:
