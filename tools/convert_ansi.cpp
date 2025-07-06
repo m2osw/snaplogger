@@ -264,6 +264,10 @@ int converter::run()
     {
         f_converter->set_br();
     }
+    else if(f_opt.is_defined("no-br"))
+    {
+        f_converter->set_br(false);
+    }
 
     // read input and save it in the converter
     //
