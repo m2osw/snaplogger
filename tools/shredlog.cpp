@@ -182,8 +182,9 @@ advgetopt::option const g_options[] =
     ),
     advgetopt::define_option(
           advgetopt::Name("mode")
-        , advgetopt::Flags(advgetopt::standalone_all_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+        , advgetopt::Flags(advgetopt::all_flags<
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS
+                    , advgetopt::GETOPT_FLAG_REQUIRED>())
         , advgetopt::Help("select shredding mode: auto, delete, shred, both.")
     ),
     advgetopt::define_option(
@@ -271,19 +272,12 @@ advgetopt::group_description const g_group_descriptions[] =
 };
 
 
-// until we have C++20, remove warnings this way
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
 advgetopt::options_environment const g_options_environment =
 {
-    .f_project_name = "snaplogger",
-    .f_group_name = nullptr,
+    .f_project_name = "shredlog",
+    .f_group_name = "snaplogger",
     .f_options = g_options,
-    .f_options_files_directory = nullptr,
     .f_environment_variable_name = "SHREDLOG",
-    .f_environment_variable_intro = nullptr,
-    .f_section_variables_name = nullptr,
-    .f_configuration_files = nullptr,
     .f_configuration_filename = "shredlog.conf",
     .f_configuration_directories = g_configuration_directories,
     .f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_PROCESS_SYSTEM_PARAMETERS,
@@ -295,11 +289,9 @@ advgetopt::options_environment const g_options_environment =
     .f_copyright = "Copyright (c) 2013-"
                    SNAPDEV_STRINGIZE(UTC_BUILD_YEAR)
                    " by Made to Order Software Corporation -- All Rights Reserved",
-    .f_build_date = UTC_BUILD_DATE,
-    .f_build_time = UTC_BUILD_TIME,
     .f_groups = g_group_descriptions
 };
-#pragma GCC diagnostic pop
+
 
 
 

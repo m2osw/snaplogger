@@ -104,7 +104,7 @@ advgetopt::option const g_options[] =
         , advgetopt::Help("one or more paths separated by colons (:) to snaplogger plugins.")
     ),
 
-    // DIRECT SELECT
+    // OUTPUT SELECTION
     //
     advgetopt::define_option(
           advgetopt::Name("no-log")
@@ -140,20 +140,6 @@ advgetopt::option const g_options[] =
         , advgetopt::Flags(advgetopt::standalone_command_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
         , advgetopt::Help("print the logs out to the console.")
-    ),
-    advgetopt::define_option(
-          advgetopt::Name("logger-show-banner")
-        , advgetopt::Flags(advgetopt::standalone_command_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS
-                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
-        , advgetopt::Help("show a banner on startup with the program name and version.")
-    ),
-    advgetopt::define_option(
-          advgetopt::Name("logger-hide-banner")
-        , advgetopt::Flags(advgetopt::standalone_command_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS
-                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
-        , advgetopt::Help("do not show the banner (--logger-show-banner has priority if specified).")
     ),
 
     // ALTERNATIVE CONFIG FILES
@@ -209,6 +195,30 @@ advgetopt::option const g_options[] =
                     , advgetopt::GETOPT_FLAG_REQUIRED
                     , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("filter logs by component, use ! in front of a name to prevent those logs.")
+    ),
+
+    // AUTO-LOGGING
+    //
+    advgetopt::define_option(
+          advgetopt::Name("logger-show-banner")
+        , advgetopt::Flags(advgetopt::standalone_command_flags<
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
+        , advgetopt::Help("show a banner on startup with the program name and version.")
+    ),
+    advgetopt::define_option(
+          advgetopt::Name("logger-hide-banner")
+        , advgetopt::Flags(advgetopt::standalone_command_flags<
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
+        , advgetopt::Help("do not show the banner (--logger-show-banner has priority if specified).")
+    ),
+    advgetopt::define_option(
+          advgetopt::Name("log-environment")
+        , advgetopt::Flags(advgetopt::standalone_command_flags<
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
+        , advgetopt::Help("log the entire environment just after the banner (requires a severity of at least CONFIGURATION, try --debug for example).")
     ),
 
     // LIBEXCEPT EXTENSION
@@ -776,6 +786,26 @@ bool process_logger_options(advgetopt::getopt & opts
                 << opts.get_options_environment().f_version
                 << " started."
                 << SNAP_LOG_SEND;
+    }
+
+    if(opts.is_defined("log-environment"))
+    {
+        if(environ != nullptr)
+        {
+            for(char ** e(environ); *e != nullptr; ++e)
+            {
+                SNAP_LOG_CONFIGURATION
+                        << "ENV: "
+                        << *e
+                        << SNAP_LOG_SEND;
+            }
+        }
+        else
+        {
+            SNAP_LOG_CONFIGURATION_WARNING
+                    << "no environment defined."
+                    << SNAP_LOG_SEND;
+        }
     }
 
     return result;
