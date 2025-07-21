@@ -1,8 +1,21 @@
 snaplogger (1.0.55.0~jammy) jammy; urgency=high
 
+  * Added the --log-environment option.
+  * Fixed the shredlog --mode command line option (from type/require missing).
+  * Added an ANSI codes to HTML/markdown/plain text converter.
   * Replaced some throw with a return to avoid crashing an app. over an
     invalid format string.
   * Verify that input parameters in the debian helper script.
+  * Better compute whether 1 min. passed for bitrate handling.
+  * Allow forcing color to console even if output is not a tty.
+  * Added nested diagnostic for our tests to know when we enter/exit sections.
+  * Make sure plugins are loaded only once.
+  * Use new C++ std::source_location instead of __FILE__ and __LINE__.
+  * Various cleans up of the severity list.
+  * The default format now uses ${tid} instead of ${pid} (thread ID).
+  * Moved the debian/compat version to a debian/control dependency.
+  * Removed some last references to boost.
+  * Enhanced documentation.
 
  -- Alexis Wilke <alexis@m2osw.com>  Sat, 27 Jan 2024 09:40:58 -0800
 
