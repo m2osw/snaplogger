@@ -1,4 +1,4 @@
-snaplogger (1.0.55.0~jammy) jammy; urgency=high
+snaplogger (1.0.55.0~noble) noble; urgency=high
 
   * Added the --log-environment option.
   * Fixed the shredlog --mode command line option (from type/require missing).
