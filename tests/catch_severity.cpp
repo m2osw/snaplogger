@@ -346,6 +346,75 @@ CATCH_TEST_CASE("severity", "[severity]")
                     found.insert(n);
                 }
             }
+
+            // verify mismatches in other parameters if defined
+            //
+            std::string const description_name(s + "::description");
+            if(severity_ini->has_parameter(description_name))
+            {
+                std::string const description(severity_ini->get_parameter(description_name));
+                CATCH_REQUIRE(severity->get_description() == description);
+            }
+
+            std::string const styles_name(s + "::styles");
+            if(severity_ini->has_parameter(styles_name))
+            {
+                std::string const styles(severity_ini->get_parameter(styles_name));
+                CATCH_REQUIRE(severity->get_styles() == styles);
+            }
+
+            std::string const default_name(s + "::default");
+            if(severity_ini->has_parameter(default_name))
+            {
+                std::string const default_value(severity_ini->get_parameter(default_name));
+                bool const valid_default(advgetopt::is_true(default_value) || advgetopt::is_false(default_value));
+                CATCH_REQUIRE(valid_default);
+            }
+        }
+
+        // make sure all the parameters are known
+        // (for our file, that's best in case we misspell something)
+        //
+        std::string default_severity;
+        for(auto const & p : severity_ini->get_parameters())
+        {
+            advgetopt::string_list_t names;
+            advgetopt::split_string(p.first, names, {"::"});
+
+            // first of all, we do not support global definition in the
+            // severity.ini file so we should only have names within a
+            // section and no sub-section thus two names exactly
+            //
+            CATCH_REQUIRE(names.size() == 2);
+
+            if(names[1] == "default")
+            {
+                if(advgetopt::is_true(p.second))
+                {
+                    // there can be only one default
+                    //
+                    if(!default_severity.empty())
+                    {
+                        std::cerr
+                            << "--- found more than one default: \""
+                            << default_severity
+                            << "\" and \""
+                            << names[0]
+                            << "\"\n";
+                    }
+                    CATCH_REQUIRE(default_severity.empty());
+
+                    default_severity = names[0];
+                }
+            }
+            else if(names[1] != "aliases"
+                 && names[1] != "description"
+                 && names[1] != "severity"
+                 && names[1] != "styles")
+            {
+                std::cerr << "--- found unknown parameter \"" << names[1] << "\"\n";
+                CATCH_REQUIRE(!"parameter not known");
+            }
         }
 
         // further, make sure that all system severities defined in the
@@ -358,13 +427,17 @@ CATCH_TEST_CASE("severity", "[severity]")
         {
             if(s.second->is_system())
             {
-                std::cout
-                    << "--- verifying that \""
-                    << s.first
-                    << "\" severity is defined in "
-                    <<severity_ini_filename
-                    << "\n";
-                CATCH_REQUIRE(found.contains(s.first));
+                bool const contained(found.contains(s.first));
+                if(!contained)
+                {
+                    std::cout
+                        << "--- system severity \""
+                        << s.first
+                        << "\" is not defined in \""
+                        << severity_ini_filename
+                        << "\" file.\n";
+                }
+                CATCH_REQUIRE(contained);
             }
         }
     }

@@ -138,7 +138,7 @@ CATCH_TEST_CASE("appender", "[appender]")
 
         CATCH_REQUIRE(std::dynamic_pointer_cast<snaplogger::buffer_appender>(buffer)->str()
                 == "fatal: Appender created by name\n"
-                   "appender[uncompleted task]:" + std::to_string(line + 1) + ": Complete the tests to 100%.\n");
+                   "appender[incomplete task]:" + std::to_string(line + 1) + ": Complete the tests to 100%.\n");
 
         safe.reset();
         CATCH_REQUIRE(buffer->get_format() == f);
