@@ -1,3 +1,9 @@
+snaplogger (1.0.57.0~noble) noble; urgency=high
+
+  * Fix two more levels in severity.ini file.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sat, 26 Jul 2025 08:43:55 -0700
+
 snaplogger (1.0.56.0~noble) noble; urgency=high
 
   * Fix severity.ini file (an entry was not added yet).
