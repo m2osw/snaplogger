@@ -84,8 +84,6 @@ struct system_severity
     char const *        f_styles        = nullptr;
 };
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
 constexpr system_severity g_system_severity[] =
 {
     {
@@ -93,28 +91,28 @@ constexpr system_severity g_system_severity[] =
         .f_name         = "all",
         .f_alias        = "everything",
         .f_description  = "all",
-        .f_styles       = nullptr
+        .f_styles       = "italic"
     },
     {
         .f_severity     = severity_t::SEVERITY_TRACE,
         .f_name         = "trace",
         .f_alias        = nullptr,
         .f_description  = "trace",
-        .f_styles       = nullptr
+        .f_styles       = "italic"
     },
     {
         .f_severity     = severity_t::SEVERITY_NOISY,
         .f_name         = "noisy",
         .f_alias        = "noise",
         .f_description  = "noisy",
-        .f_styles       = nullptr
+        .f_styles       = "italic"
     },
     {
         .f_severity     = severity_t::SEVERITY_DEBUG,
         .f_name         = "debug",
         .f_alias        = "dbg",
         .f_description  = "debug",
-        .f_styles       = nullptr
+        .f_styles       = "italic"
     },
     {
         .f_severity     = severity_t::SEVERITY_NOTICE,
@@ -233,35 +231,35 @@ constexpr system_severity g_system_severity[] =
         .f_name         = "exception",
         .f_alias        = nullptr,
         .f_description  = "exception",
-        .f_styles       = "red"
+        .f_styles       = "bold,red"
     },
     {
         .f_severity     = severity_t::SEVERITY_CRITICAL,
         .f_name         = "critical",
         .f_alias        = "crit",
         .f_description  = "critical",
-        .f_styles       = "red"
+        .f_styles       = "bold,red"
     },
     {
         .f_severity     = severity_t::SEVERITY_ALERT,
         .f_name         = "alert",
         .f_alias        = nullptr,
         .f_description  = "alert",
-        .f_styles       = "red"
+        .f_styles       = "bold,red"
     },
     {
         .f_severity     = severity_t::SEVERITY_EMERGENCY,
         .f_name         = "emergency",
         .f_alias        = "emerg",
         .f_description  = "emergency",
-        .f_styles       = "red"
+        .f_styles       = "bold,red"
     },
     {
         .f_severity     = severity_t::SEVERITY_FATAL,
         .f_name         = "fatal",
         .f_alias        = "fatal-error",
         .f_description  = "fatal",
-        .f_styles       = "red"
+        .f_styles       = "bold,red"
     },
     {
         .f_severity     = severity_t::SEVERITY_OFF,
@@ -283,27 +281,10 @@ constexpr char const * const g_configuration_directories[] = {
 advgetopt::options_environment g_config_option =
 {
     .f_project_name = "logger",
-    .f_group_name = nullptr,
-    .f_options = nullptr,
-    .f_options_files_directory = nullptr,
-    .f_environment_variable_name = nullptr,
-    .f_environment_variable_intro = nullptr,
-    .f_section_variables_name = nullptr,
-    .f_configuration_files = nullptr,
     .f_configuration_filename = "severity.ini",
     .f_configuration_directories = g_configuration_directories,
     .f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_DYNAMIC_PARAMETERS
-
-    //.f_help_header = nullptr,
-    //.f_help_footer = nullptr,
-    //.f_version = nullptr,
-    //.f_license = nullptr,
-    //.f_copyright = nullptr,
-    //.f_build_date = UTC_BUILD_DATE,
-    //.f_build_time = UTC_BUILD_TIME,
-    //.f_groups = nullptr
 };
-#pragma GCC diagnostic pop
 
 
 
@@ -370,8 +351,8 @@ void auto_add_severities()
     advgetopt::option_info::pointer_t const sections(config->get_option(advgetopt::CONFIGURATION_SECTIONS));
     if(sections != nullptr)
     {
-        size_t const max(sections->size());
-        for(size_t idx(0); idx < max; ++idx)
+        std::size_t const max(sections->size());
+        for(std::size_t idx(0); idx < max; ++idx)
         {
             std::string const section_name(sections->get_value(idx));
 

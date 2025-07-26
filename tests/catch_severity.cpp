@@ -34,6 +34,12 @@
 #include    <snaplogger/version.h>
 
 
+// advgetopt
+//
+#include    <advgetopt/conf_file.h>
+#include    <advgetopt/validator_integer.h>
+
+
 // snapdev
 //
 #include    <snapdev/enum_class_math.h>
@@ -279,6 +285,87 @@ CATCH_TEST_CASE("severity", "[severity]")
         {
             CATCH_REQUIRE(s.second->get_severity() > previous_severity);
             previous_severity = s.second->get_severity();
+        }
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("severity: severity.ini file matches")
+    {
+        // whenever I make an edit to the list of severity levels, I have to
+        // keep the severity.ini up to date or the system won't be able to
+        // load the file properly; this test verifies the one found in the
+        // source tree against the severity levels defined in the header
+        //
+        std::string severity_ini_filename(SNAP_CATCH2_NAMESPACE::g_source_dir());
+        severity_ini_filename += "/conf/severity.ini";
+        advgetopt::conf_file_setup setup(severity_ini_filename);
+        CATCH_REQUIRE(setup.is_valid());
+
+        advgetopt::conf_file::pointer_t severity_ini(advgetopt::conf_file::get_conf_file(setup));
+        CATCH_REQUIRE(severity_ini != nullptr);
+
+        std::set<std::string> found;
+
+        advgetopt::conf_file::sections_t sections(severity_ini->get_sections());
+        for(auto const & s : sections)
+        {
+            snaplogger::severity::pointer_t severity(snaplogger::get_severity(s));
+
+            // the default severity.ini file only defines system severities
+            //
+            CATCH_REQUIRE(severity->is_system());
+
+            // make sure the entry includes a severity=... value
+            //
+            std::string const level_name(s + "::severity");
+            CATCH_REQUIRE(severity_ini->has_parameter(level_name));
+
+            std::string const level(severity_ini->get_parameter(level_name));
+
+            // the level must be a valid integer
+            //
+            std::int64_t value(0);
+            CATCH_REQUIRE(advgetopt::validator_integer::convert_string(level, value));
+
+            // the .ini level must match the internal (library) level
+            //
+            CATCH_REQUIRE(severity->get_severity() == static_cast<snaplogger::severity_t>(value));
+
+            found.insert(s);
+
+            // severities may have aliases which needs to be added to `found`
+            //
+            std::string const aliases_name(s + "::aliases");
+            if(severity_ini->has_parameter(aliases_name))
+            {
+                std::string const aliases(severity_ini->get_parameter(aliases_name));
+                advgetopt::string_list_t names;
+                advgetopt::split_string(aliases, names, {","});
+                for(auto const & n : names)
+                {
+                    found.insert(n);
+                }
+            }
+        }
+
+        // further, make sure that all system severities defined in the
+        // library are found in the .ini file
+        //
+        // with aliases, this is not 100% true, maybe we should check
+        // with the by_severity() list instead...
+        //
+        for(auto const & s : snaplogger::get_severities_by_name())
+        {
+            if(s.second->is_system())
+            {
+                std::cout
+                    << "--- verifying that \""
+                    << s.first
+                    << "\" severity is defined in "
+                    <<severity_ini_filename
+                    << "\n";
+                CATCH_REQUIRE(found.contains(s.first));
+            }
         }
     }
     CATCH_END_SECTION()

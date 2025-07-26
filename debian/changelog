@@ -1,3 +1,12 @@
+snaplogger (1.0.58.0~noble) noble; urgency=high
+
+  * There were a few more errors in the severity.ini file.
+  * Make use of bold and italic.
+  * Added a test to verify the severity.ini file.
+  * Various clean ups.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sat, 26 Jul 2025 09:46:10 -0700
+
 snaplogger (1.0.57.0~noble) noble; urgency=high
 
   * Fix two more levels in severity.ini file.
