@@ -1,3 +1,9 @@
+snaplogger (1.0.56.0~noble) noble; urgency=high
+
+  * Fix severity.ini file (an entry was not added yet).
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sat, 26 Jul 2025 07:56:05 -0700
+
 snaplogger (1.0.55.0~noble) noble; urgency=high
 
   * Added the --log-environment option.
