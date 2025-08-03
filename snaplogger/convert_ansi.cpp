@@ -1138,7 +1138,7 @@ void convert_ansi::end_markdown()
  *
  * \return Styles that can be added inside your main \<style> tag.
  */
-std::string convert_ansi::get_styles(bool apply_to_detauls) const
+std::string convert_ansi::get_styles(bool apply_to_defaults) const
 {
     std::string styles;
 
@@ -1146,7 +1146,7 @@ std::string convert_ansi::get_styles(bool apply_to_detauls) const
     {
         if((f_graphical_state_for_styles & GRAPHICAL_STATE_BOLD) != 0)
         {
-            if(apply_to_detauls && f_optimize)
+            if(apply_to_defaults && f_optimize)
             {
                 styles += "b,";
             }
@@ -1160,7 +1160,7 @@ std::string convert_ansi::get_styles(bool apply_to_detauls) const
 
         if((f_graphical_state_for_styles & GRAPHICAL_STATE_ITALIC) != 0)
         {
-            if(apply_to_detauls && f_optimize)
+            if(apply_to_defaults && f_optimize)
             {
                 styles += "i,";
             }
@@ -1189,7 +1189,7 @@ std::string convert_ansi::get_styles(bool apply_to_detauls) const
 
         if((f_graphical_state_for_styles & GRAPHICAL_STATE_SUPERSCRIPT) != 0)
         {
-            if(apply_to_detauls && f_optimize)
+            if(apply_to_defaults && f_optimize)
             {
                 styles += "sup,";
             }
@@ -1198,7 +1198,7 @@ std::string convert_ansi::get_styles(bool apply_to_detauls) const
 
         if((f_graphical_state_for_styles & GRAPHICAL_STATE_SUBSCRIPT) != 0)
         {
-            if(apply_to_detauls && f_optimize)
+            if(apply_to_defaults && f_optimize)
             {
                 styles += "sub,";
             }
@@ -1218,7 +1218,7 @@ std::string convert_ansi::get_styles(bool apply_to_detauls) const
 
             // CROSS OUT on its own
             //
-            if(apply_to_detauls && f_optimize)
+            if(apply_to_defaults && f_optimize)
             {
                 styles += "s,";
             }
@@ -1226,7 +1226,7 @@ std::string convert_ansi::get_styles(bool apply_to_detauls) const
 
             // UNDERLINE on its own
             //
-            if(apply_to_detauls && f_optimize)
+            if(apply_to_defaults && f_optimize)
             {
                 styles += "u,";
             }

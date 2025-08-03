@@ -505,12 +505,33 @@ severity::severity(severity_t sev, std::string const & name, bool system)
 }
 
 
+/** \brief Get the severity level.
+ *
+ * A severity object has a level from 0 to 255. This function returns that
+ * level.
+ *
+ * Since a severity can have an alias, multiple severity objects can
+ * have the exact same severity level.
+ *
+ * \return The severity level of this severity object.
+ */
 severity_t severity::get_severity() const
 {
     return f_severity;
 }
 
 
+/** \brief Check whether this severity is a system defined severity.
+ *
+ * The snaplogger let you add severity levels at runtime or within
+ * configuration files. This function lets you know whether that
+ * severity was added by your software or was internally defined
+ * by the library.
+ *
+ * A system severity cannot be deleted.
+ *
+ * \return true if the severity is considered a system severity.
+ */
 bool severity::is_system() const
 {
     return f_system;
