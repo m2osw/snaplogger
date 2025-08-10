@@ -250,7 +250,7 @@ message::pointer_t create_message(
 
 void send_message(std::basic_ostream<char> & msg);
 
-void send_stack_trace(libexcept::exception_base_t const & e);
+void send_stack_trace(std::exception const & e);
 
 std::uint32_t get_last_message_id();
 

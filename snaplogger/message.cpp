@@ -522,14 +522,18 @@ void send_message(std::basic_ostream<char> & out)
 }
 
 
-void send_stack_trace(libexcept::exception_base_t const & e)
+void send_stack_trace(std::exception const & e)
 {
-    libexcept::stack_trace_t const & stack(e.get_stack_trace());
-    for(auto const & s : stack)
+    libexcept::exception_base_t const * b(dynamic_cast<libexcept::exception_base_t const *>(&e));
+    if(b != nullptr)
     {
-        SNAP_LOG_EXCEPTION
-            << s
-            << SNAP_LOG_SEND;
+        libexcept::stack_trace_t const & stack(b->get_stack_trace());
+        for(auto const & s : stack)
+        {
+            SNAP_LOG_EXCEPTION
+                << s
+                << SNAP_LOG_SEND;
+        }
     }
 }
 
