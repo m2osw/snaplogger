@@ -45,7 +45,7 @@ namespace snaplogger
 {
 
 
-constexpr size_t const      DIAG_TRACE_SIZE = 10;
+constexpr std::size_t const             DIAG_TRACE_SIZE = 10;
 
 
 typedef std::deque<std::string>        trace_diagnostics_t;
@@ -56,5 +56,5 @@ trace_diagnostics_t get_trace_diagnostics();
 
 
 
-} // snaplogger namespace
+} // namespace snaplogger
 // vim: ts=4 sw=4 et

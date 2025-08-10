@@ -94,8 +94,7 @@ DEFINE_LOGGER_VARIABLE(direct)
 
     // insert all our parameters as is
     //
-    auto const & params(get_params());
-    for(auto const & p : params)
+    for(auto const & p : get_params())
     {
         // TODO: should we add a space too? or can we have spaces in the params?
         value += p->get_value();

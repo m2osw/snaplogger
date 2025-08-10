@@ -53,7 +53,9 @@ namespace snaplogger
 
 
 
+component::pointer_t        g_as2js_component(get_component(COMPONENT_AS2JS));
 component::pointer_t        g_cppthread_component(get_component(COMPONENT_CPPTHREAD));
+component::pointer_t        g_clog_component(get_component(COMPONENT_CLOG));
 component::pointer_t        g_debug_component(get_component(COMPONENT_DEBUG));
 component::pointer_t        g_normal_component(get_component(COMPONENT_NORMAL));
 component::pointer_t        g_secure_component(get_component(COMPONENT_SECURE, { g_normal_component }));

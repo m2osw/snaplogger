@@ -565,6 +565,7 @@ bool logger::set_default_severity(severity_t severity_level)
     if(severity_level == severity_t::SEVERITY_ALL)
     {
         // reset to default
+        //
         l->set_default_severity(severity::pointer_t());
     }
     else

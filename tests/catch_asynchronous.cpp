@@ -92,6 +92,8 @@ CATCH_TEST_CASE("example", "[example]")
         //       to retrieve the tid of the async. thread
         //
         CATCH_REQUIRE(buffer->str() == "async-unittest: warning: Sent through thread... (1.0)\n");
+
+        l->remove_component_to_ignore(snaplogger::g_cppthread_component);
     }
     CATCH_END_SECTION()
 }

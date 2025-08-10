@@ -83,6 +83,7 @@ enum class system_field_t
     SYSTEM_FIELD_MESSAGE,
     SYSTEM_FIELD_TIMESTAMP,
     SYSTEM_FIELD_SEVERITY,
+    SYSTEM_FIELD_ID,
     SYSTEM_FIELD_FILENAME,
     SYSTEM_FIELD_FUNCTION_NAME,
     SYSTEM_FIELD_LINE,
@@ -251,6 +252,8 @@ void send_message(std::basic_ostream<char> & msg);
 
 void send_stack_trace(libexcept::exception_base_t const & e);
 
+std::uint32_t get_last_message_id();
+
 
 #define SNAP_LOG_FATAL                  ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_FATAL))
 #define SNAP_LOG_EMERG                  ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_EMERGENCY))
@@ -260,9 +263,9 @@ void send_stack_trace(libexcept::exception_base_t const & e);
 #define SNAP_LOG_CRITICAL               ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_CRITICAL))
 #define SNAP_LOG_EXCEPTION              ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_EXCEPTION))
 #define SNAP_LOG_SEVERE                 ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_SEVERE))
+#define SNAP_LOG_NOISY_ERROR            ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_NOISY_ERROR))
 #define SNAP_LOG_ERR                    ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_ERROR))
 #define SNAP_LOG_ERROR                  ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_ERROR))
-#define SNAP_LOG_NOISY_ERROR            ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_NOISY_ERROR))
 #define SNAP_LOG_RECOVERABLE_ERROR      ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_RECOVERABLE_ERROR))
 #define SNAP_LOG_MAJOR                  ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_MAJOR))
 #define SNAP_LOG_WARN                   ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_WARNING))

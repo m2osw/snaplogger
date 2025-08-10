@@ -18,9 +18,10 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 /** \file
- * \brief Appenders are used to append data to somewhere.
+ * \brief A message object is used to build a log message.
  *
- * This file declares the base appender class.
+ * This file implements the message class used to create objects that
+ * hold log messages with all their fields.
  */
 
 // self
@@ -62,17 +63,19 @@ constexpr char const * const g_system_field_names[] =
     [static_cast<std::size_t>(system_field_t::SYSTEM_FIELD_MESSAGE      )] = "_message",
     [static_cast<std::size_t>(system_field_t::SYSTEM_FIELD_TIMESTAMP    )] = "_timestamp",
     [static_cast<std::size_t>(system_field_t::SYSTEM_FIELD_SEVERITY     )] = "_severity",
+    [static_cast<std::size_t>(system_field_t::SYSTEM_FIELD_ID           )] = "id", // do not use the '_' introducer so it shows publicly
     [static_cast<std::size_t>(system_field_t::SYSTEM_FIELD_FILENAME     )] = "_filename",
     [static_cast<std::size_t>(system_field_t::SYSTEM_FIELD_FUNCTION_NAME)] = "_function_name",
     [static_cast<std::size_t>(system_field_t::SYSTEM_FIELD_LINE         )] = "_line",
+    [static_cast<std::size_t>(system_field_t::SYSTEM_FIELD_COLUMN       )] = "_column",
 };
 #pragma GCC diagnostic pop
 
 
-int         g_message_id = 0;
+std::uint32_t         g_message_id = 0U;
 
 
-int get_next_id()
+std::uint32_t get_next_id()
 {
     guard g;
 
@@ -80,6 +83,7 @@ int get_next_id()
     if(g_message_id == 0)
     {
         // never use 0 as the id; of course, it's very unlikely that this happens
+        //
         g_message_id = 1;
     }
     return g_message_id;
@@ -381,6 +385,13 @@ system_field_t message::get_system_field_from_name(std::string const & name)
             }
             break;
 
+        case 'c':
+            if(name == "_column")
+            {
+                return system_field_t::SYSTEM_FIELD_COLUMN;
+            }
+            break;
+
         case 'l':
             if(name == "_line")
             {
@@ -410,6 +421,11 @@ system_field_t message::get_system_field_from_name(std::string const & name)
             break;
 
         }
+    }
+
+    if(name == "id")
+    {
+        return system_field_t::SYSTEM_FIELD_ID;
     }
 
     return system_field_t::SYSTEM_FIELD_UNDEFINED;
@@ -516,6 +532,39 @@ void send_stack_trace(libexcept::exception_base_t const & e)
             << SNAP_LOG_SEND;
     }
 }
+
+
+/** \brief Retrieve the last message identifier used.
+ *
+ * Each time a message is created, it is assigned a new identifier.
+ * The first message is assigned identifier 1. The second message
+ * is assigned identifier 2. Etc.
+ *
+ * This function returns the last assigned identifier. This is
+ * useful pretty much just within tests where the identifier
+ * may appear in the message being verified.
+ *
+ * If the identifier returned is 0, then no log message was sent
+ * so far.
+ *
+ * This identifier is a field. It can be shown in your log messages
+ * using the following:
+ *
+ * \code
+ *     ${field:name=id}
+ * \endcode
+ *
+ * Note that this "id" field is considered to be a system field
+ * (and has its named defined that way), but you may change its
+ * value (which is not recommended, of course).
+ *
+ * \return The last message identifier used.
+ */
+std::uint32_t get_last_message_id()
+{
+    return g_message_id;
+}
+
 
 
 } // snaplogger namespace

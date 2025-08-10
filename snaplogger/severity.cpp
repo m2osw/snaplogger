@@ -584,11 +584,12 @@ void severity::add_alias(std::string const & name)
     auto it(std::find(f_names.begin(), f_names.end(), name));
     if(it != f_names.end())
     {
-        throw duplicate_error("severity \""
-                            + f_names[0]
-                            + "\" already has an alias \""
-                            + name
-                            + "\".");
+        throw duplicate_error(
+              "severity \""
+            + f_names[0]
+            + "\" already has an alias \""
+            + name
+            + "\".");
     }
 
     f_names.push_back(name);

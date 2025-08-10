@@ -16,6 +16,66 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
+/** \file
+ * \brief Logger command line tool.
+ *
+ * This tool is mainly used to verify the logger configuration files.
+ * These are fairly simple but it is still much better to verify
+ * before you run your software (that way you can verify at compile
+ * time instead of later when you may already have shipped your
+ * software).
+ *
+ * \code
+ *     snaploggerchecker \
+ *         --verify \
+ *         --config <filename> \
+ *         ... (not implemented yet) ...
+ * \endcode
+ *
+ * The tool can also log messages using any available configuration
+ * file. This is practical to log messages from scripts or other
+ * languages which do not support the snaplogger library.
+ *
+ * Here is an example:
+ *
+ * \code
+ *     snaploggerchecker \
+ *        --log \
+ *        --console \
+ *        --message "this sends a log to appenders" \
+ *        --severity debug \
+ *        --filename "my-script.sh" \
+ *        --function "foo_bar()" \
+ *        --line 123 \
+ *        --column 34 \
+ *        --trace
+ * \endcode
+ *
+ * The \c --log means you want to send a log message.
+ *
+ * Here we show \c --console which sets up an appender to send the log to
+ * the console (std::cerr).
+ *
+ * The \c --message defines the message to be logged.
+ *
+ * The \c --severity option is used to define the name or level number of
+ * the severity to use to send that log message. Note that will be checked
+ * against the logger severity level. If lower then the log will not happen.
+ *
+ * The \c --trace option is to lower the logger severity level so that way
+ * the message gets through.
+ *
+ * To help with determining some of the parameters, you can use the list
+ * commands:
+ *
+ * \li \c --list-appenders -- list known appenders
+ * \li \c --list-components -- list available components
+ * \li \c --list-formats -- list formats used to generate the string to output
+ * \li \c --list-severities -- list all the available severity levels
+ */
+
+
 // snaplogger
 //
 #include    <snaplogger/exception.h>
@@ -46,20 +106,6 @@
 
 
 
-/** \file
- * \brief Logger command line tool.
- *
- * This tool is mainly used to verify the logger configuration files.
- * These are fairly simple but it is still much better to verify
- * before you run your software (that way you can verify at compile
- * time instead of later when you may already have shipped your
- * software.)
- *
- * The tool can also log messages using any available configuration
- * file. This is practical to log messages from script or other
- * languages which do not support the snaplogger.
- */
-
 namespace
 {
 
@@ -82,7 +128,7 @@ advgetopt::option const g_command_line_options[] =
           advgetopt::Name("log")
         , advgetopt::ShortName('l')
         , advgetopt::Flags(advgetopt::standalone_command_flags<advgetopt::GETOPT_FLAG_GROUP_COMMANDS>())
-        , advgetopt::Help("send a log to a set of appenders.")
+        , advgetopt::Help("send a log to a set of appenders (make sure to use --trace if you want to send logs with any severity).")
     ),
     advgetopt::define_option(
           advgetopt::Name("verify")
@@ -91,6 +137,12 @@ advgetopt::option const g_command_line_options[] =
     ),
 
     // OPTIONS
+    advgetopt::define_option(
+          advgetopt::Name("column")
+        , advgetopt::Flags(advgetopt::command_flags<advgetopt::GETOPT_FLAG_GROUP_OPTIONS
+                                                  , advgetopt::GETOPT_FLAG_REQUIRED>())
+        , advgetopt::Help("column number the log is being generated from.")
+    ),
     advgetopt::define_option(
           advgetopt::Name("config")
         , advgetopt::ShortName('c')
@@ -181,20 +233,11 @@ advgetopt::group_description const g_group_descriptions[] =
 
 
 // until we have C++20, remove warnings this way
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
 advgetopt::options_environment const g_options_environment =
 {
     .f_project_name = "snaploggerchecker",
     .f_group_name = "snaplogger",
     .f_options = g_command_line_options,
-    .f_options_files_directory = nullptr,
-    .f_environment_variable_name = nullptr,
-    .f_environment_variable_intro = nullptr,
-    .f_section_variables_name = nullptr,
-    .f_configuration_files = nullptr,
-    .f_configuration_filename = nullptr,
-    .f_configuration_directories = nullptr,
     .f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_PROCESS_SYSTEM_PARAMETERS,
     .f_help_header = "Usage: %p [--<opt>] <config-name> ...\n"
                      "where --<opt> is one or more of:",
@@ -204,8 +247,6 @@ advgetopt::options_environment const g_options_environment =
     .f_copyright = "Copyright (c) 2013-"
                    SNAPDEV_STRINGIZE(UTC_BUILD_YEAR)
                    " by Made to Order Software Corporation -- All Rights Reserved",
-    .f_build_date = UTC_BUILD_DATE,
-    .f_build_time = UTC_BUILD_TIME,
     .f_groups = g_group_descriptions
 };
 #pragma GCC diagnostic pop
@@ -360,11 +401,66 @@ int tool::list_formats()
 
 int tool::log()
 {
-    SNAP_LOG_FATAL
-        << snaplogger::section(snaplogger::g_normal_component)
-        << snaplogger::section(snaplogger::g_not_implemented_component)
-        << "The --log command is not yet implemented."
-        << SNAP_LOG_SEND;
+    // get severity
+    //
+    snaplogger::severity_t sev(snaplogger::severity_t::SEVERITY_ERROR);
+    if(f_opts.is_defined("severity"))
+    {
+        std::string const severity_name(f_opts.get_string("severity"));
+        if(!severity_name.empty())
+        {
+            snaplogger::severity::pointer_t severity(snaplogger::get_severity(severity_name));
+            if(severity == nullptr)
+            {
+                SNAP_LOG_RECOVERABLE_ERROR
+                    << "the severity name \""
+                    << severity_name
+                    << "\" is not defined."
+                    << SNAP_LOG_SEND;
+            }
+            else
+            {
+                sev = severity->get_severity();
+            }
+        }
+    }
+
+    // get the actual message
+    //
+    std::string message_string(f_opts.get_string("message"));
+    if(message_string.empty())
+    {
+        SNAP_LOG_RECOVERABLE_ERROR
+            << "the --message (-m) option is mandatory with the --log command."
+            << SNAP_LOG_SEND;
+        message_string = "default message";
+    }
+
+    snaplogger::message msg(sev);
+
+    if(f_opts.is_defined("filename"))
+    {
+        msg.set_filename(f_opts.get_string("filename"));
+    }
+    if(f_opts.is_defined("function"))
+    {
+        msg.set_function(f_opts.get_string("function"));
+    }
+    if(f_opts.is_defined("line"))
+    {
+        msg.set_line(f_opts.get_long("line"));
+    }
+    if(f_opts.is_defined("column"))
+    {
+        msg.set_column(f_opts.get_long("column"));
+    }
+
+    msg << message_string;
+
+    snaplogger::logger::pointer_t lg(snaplogger::logger::get_instance());
+
+    lg->log_message(msg);
+
     return 0;
 }
 

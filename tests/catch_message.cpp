@@ -27,6 +27,16 @@
 #include    "catch_main.h"
 
 
+// cppthread
+//
+#include    <cppthread/log.h>
+
+
+// as2js
+//
+#include    <as2js/message.h>
+
+
 // snaplogger
 //
 #include    <snaplogger/buffer_appender.h>
@@ -754,6 +764,600 @@ CATCH_TEST_CASE("message_component_filter", "[message][component]")
 }
 
 
+CATCH_TEST_CASE("message_cppthread", "[message][cppthread]")
+{
+    CATCH_START_SECTION("message: send log messages through cppthreadd with all levels")
+    {
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("cppthread-buffer"));
+
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(std::size(cargv) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>(
+                "${message} (${severity:format=number})"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+        l->set_severity(snaplogger::severity_t::SEVERITY_ALL);
+
+        cppthread::log
+            << cppthread::log_level_t::debug
+            << "a perfectly fine debug message here."
+            << cppthread::end;
+
+        std::string expected;
+        expected = "a perfectly fine debug message here. (";
+        expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_DEBUG));
+        expected += ")\n";
+        CATCH_REQUIRE(buffer->str() == expected);
+        buffer->clear();
+
+        cppthread::log
+            << cppthread::log_level_t::info
+            << "a good old info message there."
+            << cppthread::end;
+
+        expected = "a good old info message there. (";
+        expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_INFORMATION));
+        expected += ")\n";
+        CATCH_REQUIRE(buffer->str() == expected);
+        buffer->clear();
+
+        cppthread::log
+            << cppthread::log_level_t::warning
+            << "a funny warning message here."
+            << cppthread::end;
+
+        expected = "a funny warning message here. (";
+        expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_WARNING));
+        expected += ")\n";
+        CATCH_REQUIRE(buffer->str() == expected);
+        buffer->clear();
+
+        cppthread::log
+            << cppthread::log_level_t::error
+            << "a real error message here."
+            << cppthread::end;
+
+        expected = "a real error message here. (";
+        expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_ERROR));
+        expected += ")\n";
+        CATCH_REQUIRE(buffer->str() == expected);
+        buffer->clear();
+
+        cppthread::log
+            << cppthread::log_level_t::fatal
+            << "an ending fatal message here."
+            << cppthread::end;
+
+        expected = "an ending fatal message here. (";
+        expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_FATAL));
+        expected += ")\n";
+        CATCH_REQUIRE(buffer->str() == expected);
+        buffer->clear();
+
+        // try again when the CPPTHREAD component is turned off
+        //
+        l->add_component_to_ignore(snaplogger::g_cppthread_component);
+
+        cppthread::log
+            << cppthread::log_level_t::debug
+            << "a perfectly fine debug message here."
+            << cppthread::end;
+
+        CATCH_REQUIRE(buffer->empty());
+        buffer->clear();
+
+        cppthread::log
+            << cppthread::log_level_t::info
+            << "a good old info message there."
+            << cppthread::end;
+
+        CATCH_REQUIRE(buffer->empty());
+        buffer->clear();
+
+        cppthread::log
+            << cppthread::log_level_t::warning
+            << "a funny warning message here."
+            << cppthread::end;
+
+        CATCH_REQUIRE(buffer->empty());
+        buffer->clear();
+
+        cppthread::log
+            << cppthread::log_level_t::error
+            << "a real error message here."
+            << cppthread::end;
+
+        CATCH_REQUIRE(buffer->empty());
+        buffer->clear();
+
+        cppthread::log
+            << cppthread::log_level_t::fatal
+            << "an ending fatal message here."
+            << cppthread::end;
+
+        CATCH_REQUIRE(buffer->empty());
+        buffer->clear();
+
+        l->remove_component_to_ignore(snaplogger::g_cppthread_component);
+        l->reset();
+    }
+    CATCH_END_SECTION()
+}
+
+
+CATCH_TEST_CASE("message_as2js", "[message][as2js]")
+{
+    CATCH_START_SECTION("message: send log messages through as2js with all levels")
+    {
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("as2js-buffer"));
+
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(std::size(cargv) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>(
+                "${message} (${severity:format=number})"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+        l->set_severity(snaplogger::severity_t::SEVERITY_ALL);
+
+        as2js::set_message_level(as2js::message_level_t::MESSAGE_LEVEL_TRACE);
+
+        {
+            {
+                as2js::position pos;
+                pos.set_filename("trace-me.as");
+                pos.set_function("getUs");
+                pos.reset_counters(15);
+                as2js::message msg(as2js::message_level_t::MESSAGE_LEVEL_TRACE, as2js::err_code_t::AS_ERR_NONE, pos);
+                msg << "as2js supports tracing too.";
+            }
+
+            std::string expected;
+            expected = "trace-me.as:15: as2js supports tracing too. (";
+            expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_TRACE));
+            expected += ")\n";
+            CATCH_REQUIRE(buffer->str() == expected);
+            buffer->clear();
+        }
+
+        {
+            {
+                as2js::position pos;
+                pos.set_filename("debug.as");
+                pos.set_function("getFluff");
+                pos.reset_counters(5);
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                as2js::message msg(as2js::message_level_t::MESSAGE_LEVEL_DEBUG, as2js::err_code_t::AS_ERR_INVALID_EXPRESSION, pos);
+                msg << "This is the debug message.";
+            }
+
+            std::string expected;
+            expected = "debug.as:5:4:err:";
+            expected += std::to_string(static_cast<int>(as2js::err_code_t::AS_ERR_INVALID_EXPRESSION));
+            expected += ": This is the debug message. (";
+            expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_DEBUG));
+            expected += ")\n";
+            CATCH_REQUIRE(buffer->str() == expected);
+            buffer->clear();
+        }
+
+        {
+            {
+                as2js::position pos;
+                pos.set_filename("info.as");
+                pos.set_function("marvelous");
+                pos.reset_counters(33);
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                as2js::message msg(as2js::message_level_t::MESSAGE_LEVEL_INFO, as2js::err_code_t::AS_ERR_ABSTRACT, pos);
+                msg << "This is the info message.";
+            }
+
+            std::string expected;
+            expected = "info.as:33:6:err:";
+            expected += std::to_string(static_cast<int>(as2js::err_code_t::AS_ERR_ABSTRACT));
+            expected += ": This is the info message. (";
+            expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_INFORMATION));
+            expected += ")\n";
+            CATCH_REQUIRE(buffer->str() == expected);
+            buffer->clear();
+        }
+
+        {
+            {
+                as2js::position pos;
+                pos.set_filename("warning.as");
+                pos.set_function("getWarningSigns");
+                pos.reset_counters(3);
+                pos.new_column();
+                pos.new_column();
+                as2js::message msg(as2js::message_level_t::MESSAGE_LEVEL_WARNING, as2js::err_code_t::AS_ERR_FINAL, pos);
+                msg << "This is the warning message.";
+            }
+
+            std::string expected;
+            expected = "warning.as:3:3:err:";
+            expected += std::to_string(static_cast<int>(as2js::err_code_t::AS_ERR_FINAL));
+            expected += ": This is the warning message. (";
+            expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_WARNING));
+            expected += ")\n";
+            CATCH_REQUIRE(buffer->str() == expected);
+            buffer->clear();
+        }
+
+        {
+            {
+                as2js::position pos;
+                pos.set_filename("error.as");
+                pos.set_function("gotMade");
+                pos.reset_counters(65);
+                pos.new_column();
+                pos.new_column();
+                as2js::message msg(as2js::message_level_t::MESSAGE_LEVEL_ERROR, as2js::err_code_t::AS_ERR_DIVIDE_BY_ZERO, pos);
+                msg << "we got a real error here.";
+            }
+
+            std::string expected;
+            expected = "error.as:65:3:err:";
+            expected += std::to_string(static_cast<int>(as2js::err_code_t::AS_ERR_DIVIDE_BY_ZERO));
+            expected += ": we got a real error here. (";
+            expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_ERROR));
+            expected += ")\n";
+            CATCH_REQUIRE(buffer->str() == expected);
+            buffer->clear();
+        }
+
+        {
+            {
+                as2js::position pos;
+                pos.set_filename("fatal.as");
+                pos.set_function("done");
+                pos.reset_counters(789);
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                as2js::message msg(as2js::message_level_t::MESSAGE_LEVEL_FATAL, as2js::err_code_t::AS_ERR_NOT_SUPPORTED, pos);
+                msg << "this is not yet implemented.";
+            }
+
+            std::string expected;
+            expected = "fatal.as:789:7:err:";
+            expected += std::to_string(static_cast<int>(as2js::err_code_t::AS_ERR_NOT_SUPPORTED));
+            expected += ": this is not yet implemented. (";
+            expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_FATAL));
+            expected += ")\n";
+            CATCH_REQUIRE(buffer->str() == expected);
+            buffer->clear();
+        }
+
+
+        // try again when the AS2JS component is turned off
+        //
+        l->add_component_to_ignore(snaplogger::g_as2js_component);
+
+        {
+            {
+                as2js::position pos;
+                pos.set_filename("trace-me.as");
+                pos.set_function("getUs");
+                pos.reset_counters(15);
+                as2js::message msg(as2js::message_level_t::MESSAGE_LEVEL_TRACE, as2js::err_code_t::AS_ERR_NOT_SUPPORTED, pos);
+                msg << "as2js supports tracing too.";
+            }
+
+            CATCH_REQUIRE(buffer->empty());
+            buffer->clear();
+        }
+
+        {
+            {
+                as2js::position pos;
+                pos.set_filename("debug.as");
+                pos.set_function("getFluff");
+                pos.reset_counters(5);
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                as2js::message msg(as2js::message_level_t::MESSAGE_LEVEL_DEBUG, as2js::err_code_t::AS_ERR_INVALID_EXPRESSION, pos);
+                msg << "This is the debug message.";
+            }
+
+            CATCH_REQUIRE(buffer->empty());
+            buffer->clear();
+        }
+
+        {
+            {
+                as2js::position pos;
+                pos.set_filename("info.as");
+                pos.set_function("marvelous");
+                pos.reset_counters(33);
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                as2js::message msg(as2js::message_level_t::MESSAGE_LEVEL_INFO, as2js::err_code_t::AS_ERR_ABSTRACT, pos);
+                msg << "This is the info message.";
+            }
+
+            CATCH_REQUIRE(buffer->empty());
+            buffer->clear();
+        }
+
+        {
+            {
+                as2js::position pos;
+                pos.set_filename("warning.as");
+                pos.set_function("getWarningSigns");
+                pos.reset_counters(3);
+                pos.new_column();
+                pos.new_column();
+                as2js::message msg(as2js::message_level_t::MESSAGE_LEVEL_WARNING, as2js::err_code_t::AS_ERR_FINAL, pos);
+                msg << "This is the warning message.";
+            }
+
+            CATCH_REQUIRE(buffer->empty());
+            buffer->clear();
+        }
+
+        {
+            {
+                as2js::position pos;
+                pos.set_filename("error.as");
+                pos.set_function("gotMade");
+                pos.reset_counters(65);
+                pos.new_column();
+                pos.new_column();
+                as2js::message msg(as2js::message_level_t::MESSAGE_LEVEL_ERROR, as2js::err_code_t::AS_ERR_DIVIDE_BY_ZERO, pos);
+                msg << "we got a real error here.";
+            }
+
+            CATCH_REQUIRE(buffer->empty());
+            buffer->clear();
+        }
+
+        {
+            {
+                as2js::position pos;
+                pos.set_filename("fatal.as");
+                pos.set_function("done");
+                pos.reset_counters(789);
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                as2js::message msg(as2js::message_level_t::MESSAGE_LEVEL_FATAL, as2js::err_code_t::AS_ERR_NOT_SUPPORTED, pos);
+                msg << "this is not yet implemented.";
+            }
+
+            CATCH_REQUIRE(buffer->empty());
+            buffer->clear();
+        }
+
+        l->remove_component_to_ignore(snaplogger::g_as2js_component);
+
+
+        {
+            snaplogger::format::pointer_t j(std::make_shared<snaplogger::format>(
+                    "{\"message\":\"${message}\"${fields:format=json:json=start_comma}}"));
+            buffer->set_format(j);
+
+            {
+                as2js::position pos;
+                pos.set_filename("json.as");
+                pos.set_function("convoluted");
+                pos.reset_counters(11);
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                pos.new_column();
+                as2js::message msg(as2js::message_level_t::MESSAGE_LEVEL_ERROR, as2js::err_code_t::AS_ERR_DYNAMIC, pos);
+                msg << "verify fields using JSON.";
+            }
+
+            std::string expected;
+            expected = "{\"message\":\"json.as:11:5:err:15: verify fields using JSON.\",\"error_code\":\"";
+            expected += std::to_string(static_cast<int>(as2js::err_code_t::AS_ERR_DYNAMIC));
+            expected += "\",\"id\":\"";
+            expected += std::to_string(snaplogger::get_last_message_id());
+            expected += "\",\"position\":\"json.as:11:5:\"";
+            expected += "}\n";
+            CATCH_REQUIRE(buffer->str() == expected);
+            buffer->clear();
+        }
+
+
+        l->reset();
+    }
+    CATCH_END_SECTION()
+}
+
+
+CATCH_TEST_CASE("message_clog", "[message][clog]")
+{
+    CATCH_START_SECTION("message: send log messages through std::clog with all supported levels")
+    {
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("clog-buffer"));
+
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(std::size(cargv) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>(
+                "${message} (${severity:format=number})"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+        l->set_severity(snaplogger::severity_t::SEVERITY_ALL);
+
+        as2js::set_message_level(as2js::message_level_t::MESSAGE_LEVEL_TRACE);
+
+        // debug
+        //
+        std::clog << "debug: check with a debug message.\n";
+        std::string expected;
+        expected = "check with a debug message. (";
+        expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_DEBUG));
+        expected += ")\n";
+        CATCH_REQUIRE(buffer->str() == expected);
+        buffer->clear();
+
+        std::clog << "Debug: nice upper to start word.\n";
+        expected = "nice upper to start word. (";
+        expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_DEBUG));
+        expected += ")\n";
+        CATCH_REQUIRE(buffer->str() == expected);
+        buffer->clear();
+
+        std::clog << "DEBUG: check that case is ignored.\n";
+        expected = "check that case is ignored. (";
+        expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_DEBUG));
+        expected += ")\n";
+        CATCH_REQUIRE(buffer->str() == expected);
+        buffer->clear();
+
+        // info
+        //
+        std::clog << "info: check with an informational message.\n";
+        expected = "check with an informational message. (";
+        expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_INFORMATION));
+        expected += ")\n";
+        CATCH_REQUIRE(buffer->str() == expected);
+        buffer->clear();
+
+        std::clog << "advanced information: word just needs to appear.\n";
+        expected = "word just needs to appear. (";
+        expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_INFORMATION));
+        expected += ")\n";
+        CATCH_REQUIRE(buffer->str() == expected);
+        buffer->clear();
+
+        std::clog << "INFO: like with debug, case does not matter.\n";
+        expected = "like with debug, case does not matter. (";
+        expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_INFORMATION));
+        expected += ")\n";
+        CATCH_REQUIRE(buffer->str() == expected);
+        buffer->clear();
+
+        // warning
+        //
+        std::clog << "warning: verify warnings too.\n";
+        expected = "verify warnings too. (";
+        expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_WARNING));
+        expected += ")\n";
+        CATCH_REQUIRE(buffer->str() == expected);
+        buffer->clear();
+
+        std::clog << "warn: word can be shorten.\n";
+        expected = "word can be shorten. (";
+        expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_WARNING));
+        expected += ")\n";
+        CATCH_REQUIRE(buffer->str() == expected);
+        buffer->clear();
+
+        // error
+        //
+        std::clog << "error: this just doesn't work, does it?\n";
+        expected = "this just doesn't work, does it? (";
+        expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_ERROR));
+        expected += ")\n";
+        CATCH_REQUIRE(buffer->str() == expected);
+        buffer->clear();
+
+        // fatal
+        //
+        std::clog << "fatal error: this one is tricky, we have to test fatal first.\n";
+        expected = "this one is tricky, we have to test fatal first. (";
+        expected += std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_FATAL));
+        expected += ")\n";
+        CATCH_REQUIRE(buffer->str() == expected);
+        buffer->clear();
+
+        // empty line
+        //
+        std::clog << "\n";
+        CATCH_REQUIRE(buffer->empty());
+        buffer->clear();
+
+
+        // try again when the CLOG component is turned off
+        //
+        l->add_component_to_ignore(snaplogger::g_clog_component);
+
+
+        // error
+        //
+        std::clog << "error: clog can be filtered out.\n";
+        CATCH_REQUIRE(buffer->empty());
+        buffer->clear();
+
+
+        l->remove_component_to_ignore(snaplogger::g_clog_component);
+
+        l->reset();
+    }
+    CATCH_END_SECTION()
+}
+
+
 
 CATCH_TEST_CASE("message_exception", "[message][exception]")
 {
@@ -767,7 +1371,7 @@ CATCH_TEST_CASE("message_exception", "[message][exception]")
             "/usr/bin/daemon",
             nullptr
         };
-        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        int const argc(std::size(cargv) - 1);
         char ** argv = const_cast<char **>(cargv);
 
         advgetopt::options_environment environment_options;

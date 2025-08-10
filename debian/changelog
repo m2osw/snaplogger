@@ -1,3 +1,12 @@
+snaplogger (1.0.60.0~noble) noble; urgency=high
+
+  * Capture logs from the as2js environment.
+  * Capture logs from the std::clog stream.
+  * Implement the --log option of the snaploggerchecker.
+  * Various clean ups.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Sat, 09 Aug 2025 18:36:20 -0700
+
 snaplogger (1.0.59.0~noble) noble; urgency=high
 
   * Further tests to verify all the fields. It should be complete now.

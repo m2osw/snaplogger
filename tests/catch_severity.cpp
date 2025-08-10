@@ -56,159 +56,123 @@
 
 CATCH_TEST_CASE("severity", "[severity]")
 {
-    CATCH_START_SECTION("severity: Create Severity")
+    CATCH_START_SECTION("severity: create severity")
     {
-        snaplogger::severity_t const err_plus_one(static_cast<snaplogger::severity_t>(static_cast<int>(snaplogger::severity_t::SEVERITY_ERROR) + 1));
+        CATCH_REQUIRE(snaplogger::get_severity("bad-error") == nullptr);
+        CATCH_REQUIRE(snaplogger::get_severity("big-error") == nullptr);
 
-        // user severity by name
-        {
-            snaplogger::severity::pointer_t s(std::make_shared<snaplogger::severity>(err_plus_one, "error"));
+        snaplogger::severity_t const level(static_cast<snaplogger::severity_t>(205));
+        snaplogger::severity::pointer_t s(std::make_shared<snaplogger::severity>(level, "bad-error"));
 
-            CATCH_REQUIRE_THROWS_MATCHES(
-                      snaplogger::add_severity(s)
-                    , snaplogger::duplicate_error
-                    , Catch::Matchers::ExceptionMessage(
-                              "logger_error: a system severity (error) cannot be replaced (same name)."));
-        }
+        CATCH_REQUIRE(s->get_severity() == level);
+        CATCH_REQUIRE(s->get_name() == "bad-error");
 
-        // system severity by name
-        {
-            snaplogger::severity::pointer_t s(std::make_shared<snaplogger::severity>(err_plus_one, "error", true));
+        CATCH_REQUIRE(s->get_all_names().size() == 1);
+        CATCH_REQUIRE(s->get_all_names()[0] == "bad-error");
 
-            CATCH_REQUIRE_THROWS_MATCHES(
-                      snaplogger::add_severity(s)
-                    , snaplogger::duplicate_error
-                    , Catch::Matchers::ExceptionMessage(
-                              "logger_error: a system severity (error) cannot be replaced (same name)."));
-        }
+        CATCH_REQUIRE(snaplogger::get_severity("bad-error") == nullptr);
+        CATCH_REQUIRE(snaplogger::get_severity("big-error") == nullptr);
 
-        // user severity by severity
-        {
-            snaplogger::severity::pointer_t s(std::make_shared<snaplogger::severity>(snaplogger::severity_t::SEVERITY_ERROR, "bad-error"));
+        // duplicates (a.k.a. self) are not allowed
+        //
+        CATCH_REQUIRE_THROWS_MATCHES(
+                  s->add_alias("bad-error")
+                , snaplogger::duplicate_error
+                , Catch::Matchers::ExceptionMessage(
+                          "logger_error: severity \""
+                          "bad-error"
+                          "\" already has an alias \""
+                          "bad-error"
+                          "\"."));
 
-            CATCH_REQUIRE_THROWS_MATCHES(
-                      snaplogger::add_severity(s)
-                    , snaplogger::duplicate_error
-                    , Catch::Matchers::ExceptionMessage(
-                                "logger_error: a system severity ("
-                              + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_ERROR))
-                              + ") cannot be replaced (same severity level: "
-                              + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_ERROR))
-                              + ")."));
-        }
+        snaplogger::add_severity(s);
 
-        // user severity by severity
-        {
-            snaplogger::severity::pointer_t s(std::make_shared<snaplogger::severity>(snaplogger::severity_t::SEVERITY_ERROR, "bad-error", true));
+        CATCH_REQUIRE(snaplogger::get_severity("bad-error") == s);
+        CATCH_REQUIRE(snaplogger::get_severity("big-error") == nullptr);
 
-            CATCH_REQUIRE_THROWS_MATCHES(
-                      snaplogger::add_severity(s)
-                    , snaplogger::duplicate_error
-                    , Catch::Matchers::ExceptionMessage(
-                                    "logger_error: a system severity ("
-                                  + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_ERROR))
-                                  + ") cannot be replaced (same severity level: "
-                                  + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_ERROR))
-                                  + ")."));
-        }
+        s->add_alias("big-error");
 
-        // actually create a valid severity
-        {
-            CATCH_REQUIRE(snaplogger::get_severity("bad-error") == nullptr);
-            CATCH_REQUIRE(snaplogger::get_severity("big-error") == nullptr);
+        // duplicates of an alias are not allowed
+        //
+        CATCH_REQUIRE_THROWS_MATCHES(
+                  s->add_alias("big-error")
+                , snaplogger::duplicate_error
+                , Catch::Matchers::ExceptionMessage(
+                          "logger_error: severity \""
+                          "bad-error"
+                          "\" already has an alias \""
+                          "big-error"
+                          "\"."));
 
-            snaplogger::severity_t const level(static_cast<snaplogger::severity_t>(205));
-            snaplogger::severity::pointer_t s(std::make_shared<snaplogger::severity>(level, "bad-error"));
+        CATCH_REQUIRE(s->get_all_names().size() == 2);
+        CATCH_REQUIRE(s->get_all_names()[0] == "bad-error");
+        CATCH_REQUIRE(s->get_all_names()[1] == "big-error");
 
-            CATCH_REQUIRE(s->get_severity() == level);
-            CATCH_REQUIRE(s->get_name() == "bad-error");
+        CATCH_REQUIRE(s->get_description() == "bad-error");
 
-            CATCH_REQUIRE(s->get_all_names().size() == 1);
-            CATCH_REQUIRE(s->get_all_names()[0] == "bad-error");
+        s->set_description("bad error");
+        CATCH_REQUIRE(s->get_description() == "bad error");
 
-            CATCH_REQUIRE(snaplogger::get_severity("bad-error") == nullptr);
-            CATCH_REQUIRE(snaplogger::get_severity("big-error") == nullptr);
+        s->set_description(std::string());
+        CATCH_REQUIRE(s->get_description() == "bad-error");
 
-            // duplicates are not allowed
-            //
-            CATCH_REQUIRE_THROWS_MATCHES(
-                      s->add_alias("bad-error")
-                    , snaplogger::duplicate_error
-                    , Catch::Matchers::ExceptionMessage(
-                              "logger_error: severity \""
-                              "bad-error"
-                              "\" already has an alias \""
-                              "bad-error"
-                              "\"."));
+        CATCH_REQUIRE(snaplogger::get_severity("bad-error") == s);
+        CATCH_REQUIRE(snaplogger::get_severity("big-error") == s);
+        CATCH_REQUIRE(snaplogger::get_severity(level) == s);
 
-            snaplogger::add_severity(s);
+        s->set_styles("orange");
+        CATCH_REQUIRE(s->get_styles() == "orange");
 
-            CATCH_REQUIRE(snaplogger::get_severity("bad-error") == s);
-            CATCH_REQUIRE(snaplogger::get_severity("big-error") == nullptr);
+        snaplogger::severity_t const level_plus_one(static_cast<snaplogger::severity_t>(static_cast<int>(level) + 1));
+        CATCH_REQUIRE(snaplogger::get_severity(level_plus_one) == nullptr);
 
-            s->add_alias("big-error");
-
-            // duplicates are not allowed
-            //
-            CATCH_REQUIRE_THROWS_MATCHES(
-                      s->add_alias("big-error")
-                    , snaplogger::duplicate_error
-                    , Catch::Matchers::ExceptionMessage(
-                              "logger_error: severity \""
-                              "bad-error"
-                              "\" already has an alias \""
-                              "big-error"
-                              "\"."));
-
-            CATCH_REQUIRE(s->get_all_names().size() == 2);
-            CATCH_REQUIRE(s->get_all_names()[0] == "bad-error");
-            CATCH_REQUIRE(s->get_all_names()[1] == "big-error");
-
-            CATCH_REQUIRE(s->get_description() == "bad-error");
-
-            s->set_description("bad error");
-            CATCH_REQUIRE(s->get_description() == "bad error");
-
-            s->set_description(std::string());
-            CATCH_REQUIRE(s->get_description() == "bad-error");
-
-            CATCH_REQUIRE(snaplogger::get_severity("bad-error") == s);
-            CATCH_REQUIRE(snaplogger::get_severity("big-error") == s);
-            CATCH_REQUIRE(snaplogger::get_severity(level) == s);
-
-            s->set_styles("orange");
-            CATCH_REQUIRE(s->get_styles() == "orange");
-
-            snaplogger::severity_t const level_plus_one(static_cast<snaplogger::severity_t>(static_cast<int>(level) + 1));
-            CATCH_REQUIRE(snaplogger::get_severity(level_plus_one) == nullptr);
-
-            snaplogger::message msg(::snaplogger::severity_t::SEVERITY_ERROR);
-            CATCH_REQUIRE(snaplogger::get_severity(msg, "bad-error") == s);
-            CATCH_REQUIRE(snaplogger::get_severity(msg, "big-error") == s);
-        }
-
-        // verify that the "<name>"_sev syntax works as expected
-        {
-            snaplogger::severity_t const level(static_cast<snaplogger::severity_t>(25));
-            snaplogger::severity::pointer_t s(std::make_shared<snaplogger::severity>(level, "remark"));
-
-            snaplogger::add_severity(s);
-
-            CATCH_REQUIRE(s->get_severity() == level);
-            CATCH_REQUIRE(s->get_name() == "remark");
-
-#if SNAPDEV_CHECK_GCC_VERSION(7, 5, 0)
-            snaplogger::severity::pointer_t r("remark"_sev);
-            CATCH_REQUIRE(r == s);
-
-            CATCH_REQUIRE(r->get_severity() == level);
-            CATCH_REQUIRE(r->get_name() == "remark");
-#endif
-        }
+        snaplogger::message msg(::snaplogger::severity_t::SEVERITY_ERROR);
+        CATCH_REQUIRE(snaplogger::get_severity(msg, "bad-error") == s);
+        CATCH_REQUIRE(snaplogger::get_severity(msg, "big-error") == s);
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("severity: Print Severity")
+    CATCH_START_SECTION("severity: test \"<name>\"_sev support")
+    {
+        snaplogger::severity_t const level(static_cast<snaplogger::severity_t>(25));
+        snaplogger::severity::pointer_t s(std::make_shared<snaplogger::severity>(level, "remark"));
+
+        snaplogger::add_severity(s);
+
+        CATCH_REQUIRE(s->get_severity() == level);
+        CATCH_REQUIRE(s->get_name() == "remark");
+
+        snaplogger::severity::pointer_t r("remark"_sev);
+        CATCH_REQUIRE(r == s);
+
+        CATCH_REQUIRE(r->get_severity() == level);
+        CATCH_REQUIRE(r->get_name() == "remark");
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("severity: set/get default")
+    {
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::severity_t const level(static_cast<snaplogger::severity_t>(57));
+        snaplogger::severity::pointer_t s(std::make_shared<snaplogger::severity>(level, "default"));
+
+        snaplogger::add_severity(s);
+
+        CATCH_REQUIRE(l->set_default_severity(s->get_severity()));
+        CATCH_REQUIRE(l->get_default_severity() == s->get_severity());
+
+        // non-existent, the set fails
+        //
+        CATCH_REQUIRE_FALSE(l->set_default_severity(static_cast<snaplogger::severity_t>(58)));
+
+        // reset to default
+        //
+        CATCH_REQUIRE(l->set_default_severity(snaplogger::severity_t::SEVERITY_ALL));
+        CATCH_REQUIRE(l->get_default_severity() == snaplogger::severity_t::SEVERITY_DEFAULT);
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("severity: print severity")
     {
         struct level_and_name_t
         {
@@ -260,14 +224,22 @@ CATCH_TEST_CASE("severity", "[severity]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("severity: Severity by Level or Name")
+    CATCH_START_SECTION("severity: severity by level or name")
     {
         snaplogger::severity_by_severity_t severities(snaplogger::get_severities_by_severity());
         snaplogger::severity_by_name_t names(snaplogger::get_severities_by_name());
 
-        // this is not true, there are more names than severity levels
+        // count names that are not aliases
         //
-        //CATCH_REQUIRE(severities.size() == names.size());
+        std::size_t count(0);
+        for(auto const & s : names)
+        {
+            if(s.second->get_name() == s.first)
+            {
+                ++count;
+            }
+        }
+        CATCH_REQUIRE(count == severities.size());
 
 // this does not hold true, that is, the map is properly sorted, but for
 // entries with an alias, the s->get_name() returns the base name, not the
@@ -447,6 +419,80 @@ CATCH_TEST_CASE("severity", "[severity]")
 
 CATCH_TEST_CASE("severity_error", "[severity][error]")
 {
+    CATCH_START_SECTION("severity: severity by name using an existing system severity name (\"error\")")
+    {
+        snaplogger::severity_t const err_plus_one(static_cast<snaplogger::severity_t>(static_cast<int>(snaplogger::severity_t::SEVERITY_ERROR) + 1));
+
+        // user severity by name
+        {
+            snaplogger::severity::pointer_t s(std::make_shared<snaplogger::severity>(err_plus_one, "error"));
+
+            CATCH_REQUIRE_THROWS_MATCHES(
+                      snaplogger::add_severity(s)
+                    , snaplogger::duplicate_error
+                    , Catch::Matchers::ExceptionMessage(
+                              "logger_error: a system severity (error) cannot be replaced (same name)."));
+        }
+
+        // system severity by name
+        {
+            snaplogger::severity::pointer_t s(std::make_shared<snaplogger::severity>(err_plus_one, "error", true));
+
+            CATCH_REQUIRE_THROWS_MATCHES(
+                      snaplogger::add_severity(s)
+                    , snaplogger::duplicate_error
+                    , Catch::Matchers::ExceptionMessage(
+                              "logger_error: a system severity (error) cannot be replaced (same name)."));
+        }
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("severity: severity by severity using an existing system severity")
+    {
+        // user severity by severity
+        {
+            snaplogger::severity::pointer_t s(std::make_shared<snaplogger::severity>(snaplogger::severity_t::SEVERITY_ERROR, "duplicate-error"));
+
+            CATCH_REQUIRE_THROWS_MATCHES(
+                      snaplogger::add_severity(s)
+                    , snaplogger::duplicate_error
+                    , Catch::Matchers::ExceptionMessage(
+                                "logger_error: a system severity ("
+                              + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_ERROR))
+                              + ") cannot be replaced (same severity level: "
+                              + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_ERROR))
+                              + ")."));
+        }
+
+        // system severity by severity
+        {
+            snaplogger::severity::pointer_t s(std::make_shared<snaplogger::severity>(snaplogger::severity_t::SEVERITY_ERROR, "duplicate-error", true));
+
+            CATCH_REQUIRE_THROWS_MATCHES(
+                      snaplogger::add_severity(s)
+                    , snaplogger::duplicate_error
+                    , Catch::Matchers::ExceptionMessage(
+                                    "logger_error: a system severity ("
+                                  + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_ERROR))
+                                  + ") cannot be replaced (same severity level: "
+                                  + std::to_string(static_cast<int>(snaplogger::severity_t::SEVERITY_ERROR))
+                                  + ")."));
+        }
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("severity: severity alias cannot be an existing system severity")
+    {
+        snaplogger::severity::pointer_t fatal("fatal"_sev);
+
+        CATCH_REQUIRE_THROWS_MATCHES(
+                  fatal->add_alias("emerg")
+                , snaplogger::duplicate_error
+                , Catch::Matchers::ExceptionMessage(
+                                "logger_error: a system severity (emerg) cannot be replaced (same name)."));
+    }
+    CATCH_END_SECTION()
+
     CATCH_START_SECTION("severity: too small")
     {
         CATCH_REQUIRE_THROWS_MATCHES(

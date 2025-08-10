@@ -187,8 +187,7 @@ DEFINE_LOGGER_VARIABLE_IGNORED_ON_NO_REPEAT(fields)
     format_t format(format_t::FORMAT_JSON);
     json_t json(json_t::OBJECT);
 
-    auto params(get_params());
-    for(auto p : params)
+    for(auto const & p : get_params())
     {
         auto const v(p->get_value());
         if(p->get_name() == "format")
@@ -211,11 +210,11 @@ DEFINE_LOGGER_VARIABLE_IGNORED_ON_NO_REPEAT(fields)
         }
         else if(p->get_name() == "json")
         {
-            if(v == "start-comma")
+            if(v == "start_comma")
             {
                 json = json_t::START_COMMA;
             }
-            else if(v == "end-comma")
+            else if(v == "end_comma")
             {
                 json = json_t::END_COMMA;
             }
@@ -226,7 +225,7 @@ DEFINE_LOGGER_VARIABLE_IGNORED_ON_NO_REPEAT(fields)
             else
             {
                 throw invalid_variable(
-                              "the ${fields:json=start-comma|end-comma|object} variable cannot be set to \""
+                              "the ${fields:json=start_comma|end_comma|object} variable cannot be set to \""
                             + v
                             + "\".");
             }

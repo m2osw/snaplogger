@@ -740,15 +740,21 @@ all the fields in a list like so:
 
     ${fields:format=json:json=object}
 
-The JSON format supports three objects `json=start-comma`,
-`json=end-comma`, and `json=object`. The `start-comma` option means
+The JSON format supports three objects `json=start_comma`,
+`json=end_comma`, and `json=object`. The `start_comma` option means
 that if any field is output, then a comma is added before the first
-value. `end-comma` means that a comma gets added at the end, no matter
+value. `end_comma` means that a comma gets added at the end, no matter
 what. `object` means that the values are defined within `{...}`. This
 gives you the ability to add these fields after or before your own
 fields. Here is an example using the `object` feature:
 
     {"id":"123","color":"blue"}
+
+In general, you want to create a JSON object with the message, some
+other fields such as the location (filename, line number), and
+then add the fields as JSON like so:
+
+    {"message":"${message}","filename":"${filename}","line":${line},"fields":${fields:format=json:json=object}}
 
 We also offer a Shell format:
 

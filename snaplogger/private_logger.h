@@ -147,7 +147,7 @@ private:
     severity::pointer_t         f_default_severity = severity::pointer_t();
     map_diagnostics_t           f_map_diagnostics = map_diagnostics_t();
     trace_diagnostics_t         f_trace_diagnostics = trace_diagnostics_t();
-    size_t                      f_maximum_trace_diagnostics = DIAG_TRACE_SIZE;
+    std::size_t                 f_maximum_trace_diagnostics = DIAG_TRACE_SIZE;
     string_vector_t             f_nested_diagnostics = string_vector_t();
     function_map_t              f_functions = function_map_t();
     variable_factory_map_t      f_variable_factories = variable_factory_map_t();

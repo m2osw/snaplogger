@@ -18,9 +18,20 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 /** \file
- * \brief Appenders are used to append data to somewhere.
+ * \brief The private_logger class is the main logger object.
  *
- * This file declares the base appender class.
+ * This file implements the private_logger class which manages the messages
+ * and process them as expected.
+ *
+ * This class also intercept messages that it can intercept from lower
+ * level projects (projects the snaplogger depends on and therefore projects
+ * that cannot make use of the logger).
+ *
+ * At the moment, it intercepts:
+ *
+ * \li messages using the cppthread interface
+ * \li messages using the as2js interface
+ * \li messages sent to the std::clog buffer
  */
 
 // self
@@ -33,6 +44,17 @@
 #include    "snaplogger/guard.h"
 #include    "snaplogger/logger.h"
 #include    "snaplogger/syslog_appender.h"
+
+
+// as2js
+//
+#include    <as2js/message.h>
+#include    <as2js/position.h>
+
+
+// snapdev
+//
+#include    <snapdev/trim_string.h>
 
 
 // cppthread
@@ -56,7 +78,17 @@ namespace
 
 
 
-void getopt_logs(cppthread::log_level_t l, std::string const & m)
+/** \brief Capture logs emitted by the cppthread log interface.
+ *
+ * This function implements a callback which gets called whenever the
+ * cppthread log interface emits a log. It converts that level and
+ * message in a snaplogger message with a corresponding severity and
+ * then send the log to the appenders.
+ *
+ * \param[in] l  The log level as defined in the cppthread log interface.
+ * \param[in] m  The human readable log message.
+ */
+void cppthread_logs(cppthread::log_level_t l, std::string const & m)
 {
     severity_t sev(severity_t::SEVERITY_ERROR);
     switch(l)
@@ -103,6 +135,257 @@ void getopt_logs(cppthread::log_level_t l, std::string const & m)
 }
 
 
+/** \brief Implementation of the as2js message_callback interface.
+ *
+ * This implementation allows the snaplogger to capture errors emitted
+ * in the as2js environment and redirect them to its appenders.
+ */
+class as2js_message_callback
+    : public as2js::message_callback
+{
+public:
+    /** \brief Implement the as2js::message_callback::output() function.
+     *
+     * This function captures the output of any log messages produced by
+     * the as2js interface.
+     *
+     * \todo
+     * The as2js library does not yet offer a function to convert the
+     * error_code to a string.
+     *
+     * \param[in] message_level  The level of the message (a.k.a severity)
+     * \param[in] error_code  If not NONE, then an error occurred.
+     * \param[in] pos  The location where this error occurred in the source file.
+     * \param[in] m  The log message.
+     */
+    virtual void output(
+          as2js::message_level_t message_level
+        , as2js::err_code_t error_code
+        , as2js::position const & pos
+        , std::string const & m) override
+    {
+        severity_t sev(severity_t::SEVERITY_ERROR);
+        switch(message_level)
+        {
+        case as2js::message_level_t::MESSAGE_LEVEL_TRACE:
+            sev = severity_t::SEVERITY_TRACE;
+            break;
+
+        case as2js::message_level_t::MESSAGE_LEVEL_DEBUG:
+            sev = severity_t::SEVERITY_DEBUG;
+            break;
+
+        case as2js::message_level_t::MESSAGE_LEVEL_INFO:
+            sev = severity_t::SEVERITY_INFORMATION;
+            break;
+
+        case as2js::message_level_t::MESSAGE_LEVEL_WARNING:
+            sev = severity_t::SEVERITY_WARNING;
+            break;
+
+        case as2js::message_level_t::MESSAGE_LEVEL_FATAL:
+            sev = severity_t::SEVERITY_FATAL;
+            break;
+
+        //case as2js::message_level_t::MESSAGE_LEVEL_ERROR:
+        default:
+            // anything else, keep SEVERITY_ERROR
+            break;
+
+        }
+
+        message msg(sev);
+
+        // we do not use the g_... names in case they were not yet allocated
+        //
+        msg.add_component(get_component(COMPONENT_NORMAL));
+        msg.add_component(get_component(COMPONENT_AS2JS));
+
+        std::stringstream p;
+        p << pos;
+        msg.add_field("position", p.str());
+        msg.add_field("error_code", std::to_string(static_cast<int>(error_code)));
+
+        msg << p.str();
+        if(error_code != as2js::err_code_t::AS_ERR_NONE)
+        {
+            msg << "err:" << static_cast<int>(error_code) << ':';
+        }
+        msg << ' ' << m;
+
+        // this call cannot create a loop, if the creation of the logger
+        // generates an cppthread log, then the second call will generate
+        // an exception (see get_instance() in snaplogger/logger.cpp)
+        //
+        logger::pointer_t lg(logger::get_instance());
+
+        lg->log_message(msg);
+    }
+};
+
+
+/** \brief An instance of the as2js message callback implementation.
+ *
+ * This variable holds one instance of the as2js message callback. It
+ * is allocated whenever the private_logger is created.
+ */
+as2js_message_callback * g_as2js_message_callback = nullptr;
+
+
+/** \brief Class used to capture clog output.
+ *
+ * Some libraries are very low level and do not implement their own
+ * log mechanism. This is used to capture their logs that we expected
+ * them to emit. We do so by redirecting std::clog to a buffer and
+ * then send it to our appenders.
+ */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
+class clog_capture
+{
+private:
+    /** \brief Implement our own buffer to capture the clog output.
+     *
+     * This implements a way for us to capture clog messages and
+     * convert them in a snaplogger message which we then send
+     * to our appenders.
+     */
+    class capture_log
+        : public std::streambuf
+    {
+    public:
+        capture_log()
+        {
+            f_captured_output.reserve(1024);
+        }
+
+        capture_log(capture_log const &) = delete;
+        capture_log & operator = (capture_log const &) = delete;
+
+    protected:
+        virtual int_type overflow(int_type c = EOF) override
+        {
+            if(c != EOF)
+            {
+                if(c == '\n')
+                {
+                    snapdev::NOT_USED(sync());
+                }
+                else
+                {
+                    f_captured_output += static_cast<char>(c);
+                }
+            }
+
+            return c;
+        }
+
+        virtual int sync() override
+        {
+            if(f_captured_output.empty())
+            {
+                return 0;
+            }
+
+            // Process the message
+            //
+            severity_t sev(severity_t::SEVERITY_INFORMATION);
+            std::string::size_type const pos(f_captured_output.find(':'));
+            if(pos > 0)
+            {
+                bool reduce(false);
+                std::string level(f_captured_output.substr(0, pos));
+                std::transform(level.begin(), level.end(), level.begin(), std::towlower);
+                if(level.find("debug") != std::string::npos)
+                {
+                    sev = severity_t::SEVERITY_DEBUG;
+                    reduce = true;
+                }
+                else if(level.find("info") != std::string::npos)
+                {
+                    sev = severity_t::SEVERITY_INFORMATION;
+                    reduce = true;
+                }
+                else if(level.find("warn") != std::string::npos)
+                {
+                    sev = severity_t::SEVERITY_WARNING;
+                    reduce = true;
+                }
+                else if(level.find("fatal") != std::string::npos)
+                {
+                    sev = severity_t::SEVERITY_FATAL;
+                    reduce = true;
+                }
+                else if(level.find("error") != std::string::npos)
+                {
+                    sev = severity_t::SEVERITY_ERROR;
+                    reduce = true;
+                }
+                if(reduce)
+                {
+                    // remove that introducer since snaplogger will likely
+                    // re-add it
+                    //
+                    f_captured_output = snapdev::trim_string(f_captured_output.substr(pos + 1));
+                }
+            }
+            // anything else, keep SEVERITY_INFORMATION
+
+            message msg(sev);
+
+            // we do not use the g_... names in case they were not yet allocated
+            //
+            msg.add_component(get_component(COMPONENT_NORMAL));
+            msg.add_component(get_component(COMPONENT_CLOG));
+
+            msg << f_captured_output;
+
+            // this call cannot create a loop, if the creation of the logger
+            // generates an cppthread log, then the second call will generate
+            // an exception (see get_instance() in snaplogger/logger.cpp)
+            //
+            logger::pointer_t lg(logger::get_instance());
+
+            lg->log_message(msg);
+
+            f_captured_output.clear();
+            f_captured_output.reserve(1024);
+
+            return 0;
+        }
+
+    private:
+        std::string     f_captured_output = std::string();
+    };
+
+public:
+    clog_capture()
+        : f_original_buffer(std::clog.rdbuf())
+    {
+        std::clog.rdbuf(&f_buffer);
+    }
+
+    ~clog_capture()
+    {
+        std::clog.rdbuf(f_original_buffer);
+    }
+
+private:
+    std::streambuf *    f_original_buffer = nullptr;
+    capture_log         f_buffer = capture_log();
+};
+#pragma GCC diagnostic pop
+
+
+
+/** \brief An instance of the clog_capture class.
+ *
+ * This variable holds one instance of the clog_capture class. It
+ * is allocated whenever the private_logger is created.
+ */
+clog_capture * g_clog_capture = nullptr;
+
+
 
 }
 // no name namespace
@@ -110,7 +393,6 @@ void getopt_logs(cppthread::log_level_t l, std::string const & m)
 
 namespace detail
 {
-
 
 
 
@@ -162,13 +444,44 @@ private_logger::private_logger()
     //
     f_normal_component = get_component(COMPONENT_NORMAL);
 
-    cppthread::set_log_callback(getopt_logs);
+    // capture logs emitted by cppthread and libraries that make use of
+    // that logger (a.k.a. advgetopt)
+    //
+    cppthread::set_log_callback(cppthread_logs);
+
+    // capture logs emitted by as2js
+    //
+    if(g_as2js_message_callback == nullptr)
+    {
+        g_as2js_message_callback = new as2js_message_callback();
+    }
+    as2js::set_message_callback(g_as2js_message_callback);
+
+    // capture logs emitted on the std::clog channel
+    //
+    if(g_clog_capture == nullptr)
+    {
+        g_clog_capture = new clog_capture();
+    }
 }
 
 
 private_logger::~private_logger()
 {
     delete_thread();
+
+    if(g_as2js_message_callback != nullptr)
+    {
+        as2js::set_message_callback(nullptr);
+        delete g_as2js_message_callback;
+        g_as2js_message_callback = nullptr;
+    }
+
+    if(g_clog_capture != nullptr)
+    {
+        delete g_clog_capture;
+        g_clog_capture = nullptr;
+    }
 }
 
 
@@ -274,18 +587,18 @@ component::pointer_t private_logger::get_component(std::string const & name)
                 throw invalid_parameter(
                           "a component name cannot start with a digits ("
                         + name
-                        + ")");
+                        + ").");
             }
             n += *s;
         }
         else
         {
             throw invalid_parameter(
-                      "a component name cannot include a '"
+                      std::string("a component name cannot include a '")
                     + *s
-                    + ("' character ("
+                    + "' character ("
                     + name
-                    + ")"));
+                    + ").");
         }
     }
 
@@ -436,9 +749,10 @@ void private_logger::add_alias(severity::pointer_t sev, std::string const & name
     auto it(f_severity_by_severity.find(sev->get_severity()));
     if(it == f_severity_by_severity.end())
     {
-        throw duplicate_error("to register an alias the corresponding main severity must already be registered. We could not find a severity with level "
-                            + std::to_string(static_cast<long>(sev->get_severity()))
-                            + ".");
+        throw duplicate_error(                                                                                                              // LCOV_EXCL_LINE
+              "to register an alias the corresponding main severity must already be registered. We could not find a severity with level "   // LCOV_EXCL_LINE
+            + std::to_string(static_cast<long>(sev->get_severity()))                                                                        // LCOV_EXCL_LINE
+            + ".");                                                                                                                         // LCOV_EXCL_LINE
     }
 
     auto s(f_severity_by_name.find(name));
@@ -449,9 +763,10 @@ void private_logger::add_alias(severity::pointer_t sev, std::string const & name
             // note that any severity can be partially edited, just not
             // added more than once
             //
-            throw duplicate_error("a system severity ("
-                                + name
-                                + ") cannot be replaced (same name).");
+            throw duplicate_error(
+                  "a system severity ("
+                + name
+                + ") cannot be replaced (same name).");
         }
     }
 
@@ -570,7 +885,7 @@ map_diagnostics_t private_logger::get_map_diagnostics()
 }
 
 
-void private_logger::set_maximum_trace_diagnostics(size_t max)
+void private_logger::set_maximum_trace_diagnostics(std::size_t max)
 {
     f_maximum_trace_diagnostics = max;
 }
@@ -736,7 +1051,7 @@ void private_logger::create_thread()
         f_asynchronous_logger.reset();      // LCOV_EXCL_LINE
         f_fifo.reset();                     // LCOV_EXCL_LINE
         throw;                              // LCOV_EXCL_LINE
-    }
+    }                                       // LCOV_EXCL_LINE
 }
 
 

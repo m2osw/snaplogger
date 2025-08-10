@@ -107,7 +107,9 @@ component::pointer_t            get_component(std::string const & name, componen
 component::pointer_t            get_component(message const & msg, std::string const & name);
 
 
+constexpr char const            COMPONENT_AS2JS[]           = "as2js";
 constexpr char const            COMPONENT_CPPTHREAD[]       = "cppthread";
+constexpr char const            COMPONENT_CLOG[]            = "clog";
 constexpr char const            COMPONENT_DEBUG[]           = "debug";
 constexpr char const            COMPONENT_NORMAL[]          = "normal";
 constexpr char const            COMPONENT_SECURE[]          = "secure";
@@ -115,7 +117,9 @@ constexpr char const            COMPONENT_SELF[]            = "self"; // for the
 constexpr char const            COMPONENT_BANNER[]          = "banner";
 constexpr char const            COMPONENT_NOT_IMPLEMENTED[] = "not_implemented";
 
+extern component::pointer_t     g_as2js_component;
 extern component::pointer_t     g_cppthread_component;
+extern component::pointer_t     g_clog_component;
 extern component::pointer_t     g_debug_component;
 extern component::pointer_t     g_normal_component;
 extern component::pointer_t     g_secure_component;

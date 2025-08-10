@@ -64,6 +64,7 @@ add_library(${PROJECT_NAME} SHARED
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${ADVGETOPT_INCLUDE_DIRS}
+        ${AS2JS_INCLUDE_DIRS}
         ${CPPTHREAD_INCLUDE_DIRS}
         ${LIBEXCEPT_INCLUDE_DIRS}
         ${LIBUTF8_INCLUDE_DIRS}
@@ -72,6 +73,7 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
     ${ADVGETOPT_LIBRARIES}
+    ${AS2JS_LIBRARIES}
     ${CPPTHREAD_LIBRARIES}
     ${LIBEXCEPT_LIBRARIES}
     ${LIBUTF8_LIBRARIES}

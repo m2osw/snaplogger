@@ -46,7 +46,7 @@
 
 CATCH_TEST_CASE("appender", "[appender]")
 {
-    CATCH_START_SECTION("appender: Create")
+    CATCH_START_SECTION("appender: create")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "appender");
 

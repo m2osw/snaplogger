@@ -30,6 +30,7 @@
 // snaplogger
 //
 #include    <snaplogger/buffer_appender.h>
+#include    <snaplogger/exception.h>
 #include    <snaplogger/format.h>
 #include    <snaplogger/logger.h>
 #include    <snaplogger/message.h>
@@ -131,6 +132,49 @@ CATCH_TEST_CASE("component", "[component]")
     }
     CATCH_END_SECTION()
 
+    CATCH_START_SECTION("component: Make sure creating component generates unique entries")
+    {
+        // this worked from the start since the private logger instance
+        // uses a map to store the components
+        //
+        struct name_ptr
+        {
+            typedef std::vector<name_ptr>   vector_t;
+
+            std::string     f_name = std::string();
+            snaplogger::component::pointer_t
+                            f_component = snaplogger::component::pointer_t();
+        };
+        name_ptr::vector_t names =
+        {
+            { "component1", },
+            { "component2", },
+            { "component3", },
+            { "component4", },
+            { "component5", },
+            { "Component6", },
+            { "component7", },
+            { "component8", },
+            { "component9", },
+            { "component10", },
+        };
+
+        // create the components
+        //
+        for(auto & p : names)
+        {
+            p.f_component = snaplogger::get_component(p.f_name);
+        }
+
+        // verify the component pointers
+        //
+        for(auto & p : names)
+        {
+            CATCH_REQUIRE(p.f_component == snaplogger::get_component(p.f_name));
+        }
+    }
+    CATCH_END_SECTION()
+
     CATCH_START_SECTION("component: Send a component via the macros and << operator")
     {
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
@@ -182,6 +226,66 @@ CATCH_TEST_CASE("component", "[component]")
         buffer->clear();
 
         l->reset();
+    }
+    CATCH_END_SECTION()
+}
+
+
+CATCH_TEST_CASE("component_errors", "[component][error]")
+{
+    CATCH_START_SECTION("component: component name cannot start with a digit")
+    {
+        for(int d(0); d < 10; ++d)
+        {
+            std::string bad_name(std::to_string(d) + "name");
+            CATCH_REQUIRE_THROWS_MATCHES(
+                      snaplogger::get_component(bad_name)
+                    , snaplogger::invalid_parameter
+                    , Catch::Matchers::ExceptionMessage(
+                              "logger_error: a component name cannot start with a digits ("
+                            + bad_name
+                            + ")."));
+        }
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("component: component name cannot include certain characters")
+    {
+        for(int count(0); count < 10; ++count)
+        {
+            std::string bad_name;
+            int const max(rand() & 31 + 3);
+            bool bad_added(false);
+            char bad_char('\0');
+            for(int idx(0); idx < max || !bad_added; ++idx)
+            {
+                char c(rand() % 95 + ' ');
+                while(idx == 0 && c >= '0' && c <= '9')
+                {
+                    c = rand() % 95 + ' ';
+                }
+                bad_name += c;
+                if((c < '0' || c > '9')
+                && (c < 'A' || c > 'Z')
+                && (c < 'a' || c > 'z')
+                && c != '-'
+                && c != '_'
+                && !bad_added)
+                {
+                    bad_added = true;
+                    bad_char = c;
+                }
+            }
+            CATCH_REQUIRE_THROWS_MATCHES(
+                      snaplogger::get_component(bad_name)
+                    , snaplogger::invalid_parameter
+                    , Catch::Matchers::ExceptionMessage(
+                              std::string("logger_error: a component name cannot include a '")
+                            + bad_char
+                            + "' character ("
+                            + bad_name
+                            + ")."));
+        }
     }
     CATCH_END_SECTION()
 }
