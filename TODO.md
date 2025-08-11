@@ -1,7 +1,7 @@
 
 * Verify that data passed by app. is valid UTF-8 (especially the message)
   If some bytes do not represent a valid UTF-8 character, replace with '?'.
-  We should be able to use a function in libutf8 for that purpose.
+  Use the `make_u8string_valid()` function in libutf8 for that purpose.
 
 * Parameter, not format. Look into whether there would be a way to
   detect that a string within a message is a parameter that may include
@@ -53,7 +53,7 @@
 
   I think that if the parsing fails at any step we should not throw but just
   ignore that as being a variable. I could also help debugging in case you
-  misstype a variable.
+  mistype a variable.
 
 * Review the `field` extension
 
@@ -126,8 +126,7 @@
 * Document all the fields of the existing appenders.
 
 
-* Actually implement the snaploggerchecker tool.
-  (i.e. verify .conf files & allow for scripts to send logs)
+* Actually implement the --verify of the snaploggerchecker tool.
 
 
 * Severities have the `mark_as_registered()` function and the constructor
@@ -158,12 +157,12 @@
       syslog-tls      6514/tcp
 
 
-* Allow a form of subcription to the logs
+* Allow a form of subscription to the logs
 
   This should be a pubsub type of a thing. However, the logger is below the
   eventdispatcher so it has no network abilities at all (to avoid code
   duplication--see the snaplogger network extension in eventdispatcher).
-  (The snapcommunicator will have a pubsub, but I'm not so sure I'd want to
+  (The communicatord will have a pubsub, but I'm not so sure I'd want to
   use that because this would be way too much traffic!)
 
   However, since we can implement any type of appender, we can have one which
@@ -174,7 +173,7 @@
   log dedicated machines which allow for subscriptions).
 
   The subscription can then be used by a tool which would replace fail2ban.
-  (i.e. a form of extension to the snapwatchdog service)
+  (i.e. a form of extension to the sitter service)
 
 
 * Add support for sealing (encrypting) the logs
@@ -196,5 +195,5 @@
   Right now, each appender can apply their own filter. I'm thinking that
   we may want to have a filter mechanism which runs ahead of the appenders
   to filter out some messages (maybe because of number/sec.--i.e. throttle;
-  or maybe some types of messages depending on component info, etc.)
+  or maybe some type of messages depending on component info, etc.)
 

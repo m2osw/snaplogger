@@ -1119,7 +1119,7 @@ a drive. For example:
 # License
 
 The project is covered by the
-[GPL 2.0 license](https://github.com/m2osw/snaplogger/blob/master/LICENSE.txt).
+[GPL 3.0 license](https://github.com/m2osw/snaplogger/blob/master/LICENSE.txt).
 
 
 # Bugs

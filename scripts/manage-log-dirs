@@ -1,4 +1,22 @@
 #!/bin/sh -e
+#
+# Copyright (c) 2023-2025  Made to Order Software Corp.  All Rights Reserved.
+#
+# https://snapwebsites.org/project/snaplogger
+# contact@m2osw.com
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 # Create log directories and files for the specified package.
 #
@@ -39,7 +57,7 @@ create_log_dirs() {
 
     if test -z "${PACKAGE_NAME}"
     then
-        echo "error: environment name is a mandatory variable in create_log_dirs()."
+        echo "error: package name is a mandatory variable in create_log_dirs()."
         return
     fi
 
@@ -51,7 +69,7 @@ create_log_dirs() {
 
     if test -z "${GROUP_NAME}"
     then
-        echo "error: user name is a mandatory variable in create_log_dirs()."
+        echo "error: group name is a mandatory variable in create_log_dirs()."
         return
     fi
 
@@ -63,7 +81,7 @@ create_log_dirs() {
     chown ${USER_NAME}:${GROUP_NAME} ${LOG_FILE}
     chmod "u=rw,g=r,o=,ug-s" ${LOG_FILE}
 
-    if test -n "${SECURE}" && ${SECURE}
+    if test "${SECURE}" = "true"
     then
         SECURE_LOG_DIR=${LOG_DIR}/secure
         install --owner ${USER_NAME} --group ${GROUP_NAME} --mode="ug=rwx,o=" --directory ${SECURE_LOG_DIR}
@@ -107,7 +125,7 @@ create_log_dirs() {
 # The "shred mode" parameter defaults to "none" if not specified. Here are
 # the supported modes:
 #
-# * "node" -- do not attempt to shred log files
+# * "none" -- do not attempt to shred log files
 # * "secure" -- only attempt to shred secure log files
 # * "all" -- attempt to shred all the log files
 #
