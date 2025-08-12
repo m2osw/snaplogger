@@ -333,12 +333,12 @@ variable::pointer_t get_variable(std::string const & type)
 // FUNCTION DATA
 //
 
-void function_data::set_value(std::string value)
+void function_data::set_value(std::string const & value)
 {
     f_value = libutf8::to_u32string(value);
 }
 
-void function_data::set_value(std::u32string value)
+void function_data::set_value(std::u32string const & value)
 {
     f_value = value;
 }

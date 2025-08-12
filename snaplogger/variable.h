@@ -286,8 +286,8 @@ variable::pointer_t     get_variable(std::string const & type);
 class function_data
 {
 public:
-    void                set_value(std::string value);
-    void                set_value(std::u32string value);
+    void                set_value(std::string const & value);
+    void                set_value(std::u32string const & value);
     std::u32string &    get_value();
     void                set_param(std::string const & name, std::string const & value);
     void                set_param(std::string const & name, std::u32string const & value);

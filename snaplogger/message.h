@@ -146,7 +146,7 @@ public:
     static char const *         get_system_field_name(system_field_t field);
     static system_field_t       get_system_field_from_name(std::string const & name);
     std::string                 get_field(std::string const & name) const;
-    field_map_t                 get_fields() const;
+    field_map_t const &         get_fields() const;
 
 private:
     std::shared_ptr<logger>     f_logger = std::shared_ptr<logger>(); // make sure it does not go away under our feet

@@ -495,7 +495,7 @@ std::string message::get_field(std::string const & name) const
 }
 
 
-field_map_t message::get_fields() const
+field_map_t const & message::get_fields() const
 {
     return f_fields;
 }
