@@ -1,8 +1,4 @@
 
-* Verify that data passed by app. is valid UTF-8 (especially the message)
-  If some bytes do not represent a valid UTF-8 character, replace with '?'.
-  Use the `make_u8string_valid()` function in libutf8 for that purpose.
-
 * Parameter, not format. Look into whether there would be a way to
   detect that a string within a message is a parameter that may include
   "${" which will not represent a snaplogger format and maybe support
