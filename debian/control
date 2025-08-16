@@ -1,7 +1,7 @@
 Source: snaplogger
 Priority: extra
 Maintainer: Alexis Wilke <alexis@m2osw.com>
-Build-Depends: as2js (>= 0.1.41.0~noble),
+Build-Depends: as2js-dev (>= 0.1.41.0~noble),
     cmake,
     cppthread-dev (>= 1.0.0.0~noble),
     debhelper-compat (= 13),
