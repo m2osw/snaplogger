@@ -1,14 +1,14 @@
 Source: snaplogger
 Priority: extra
 Maintainer: Alexis Wilke <alexis@m2osw.com>
-Build-Depends: as2js-dev (>= 0.1.41.0~noble),
-    cmake,
+Build-Depends: cmake,
     cppthread-dev (>= 1.0.0.0~noble),
     debhelper-compat (= 13),
     dh-sysuser,
     doxygen,
     graphviz,
     libadvgetopt-dev (>= 2.0.4.0~noble),
+    libas2js-dev (>= 0.1.41.0~noble),
     libexcept-dev (>= 1.1.4.0~noble),
     libutf8-dev (>= 1.0.6.0~noble),
     serverplugins-dev (>= 2.0.4.0~noble),
