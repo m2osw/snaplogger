@@ -77,6 +77,16 @@ std::source_location get_other_loc()
 } // no name namespace
 
 
+CATCH_TEST_CASE("message_is_final", "[message]")
+{
+    CATCH_START_SECTION("message: make sure message is final")
+    {
+        CATCH_REQUIRE(std::is_final_v<snaplogger::message>);
+    }
+    CATCH_END_SECTION()
+}
+
+
 CATCH_TEST_CASE("not_a_message", "[message]")
 {
     CATCH_START_SECTION("message: Call send_message() with wrong ostream")
@@ -89,7 +99,7 @@ CATCH_TEST_CASE("not_a_message", "[message]")
     }
     CATCH_END_SECTION()
 
-    CATCH_START_SECTION("message: Print snaplogger::secure to wrong ostream")
+    CATCH_START_SECTION("message: Print snaplogger::secure to ostream")
     {
         std::stringstream buffer;
         std::streambuf * old(std::cout.rdbuf(buffer.rdbuf()));
