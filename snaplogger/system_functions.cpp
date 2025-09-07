@@ -26,7 +26,7 @@
  *
  * Parameters can be passed to these functions by adding `:<param>`
  * to those definitions. These are named parameters and their default
- * value is "present" or not. A specific value can be assignd using
+ * value is "present" or not. A specific value can be assigned using
  * the equal sign as in `:param=<value>`.
  *
  * For example, the date function can be called as follow:

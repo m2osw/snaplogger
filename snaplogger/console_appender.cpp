@@ -295,7 +295,7 @@ void console_appender::process_message(message const & msg, std::string const & 
 
         if(!f_is_a_tty && f_tty)
         {
-            // the user require to use the console only if it is a TTY
+            // the user wants to use the console only if it is a TTY
             // void the fd if that's not the case
             //
             f_console.reset();  // in case it was a console
