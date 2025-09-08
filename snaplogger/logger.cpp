@@ -362,8 +362,6 @@ appender::pointer_t logger::add_console_appender()
     advgetopt::getopt opts(opt_env);
     a->set_config(opts);
 
-    guard g;
-
     add_appender(a);
 
     return a;
@@ -394,8 +392,6 @@ appender::pointer_t logger::add_syslog_appender(std::string const & identity)
     }
     a->set_config(opts);
 
-    guard g;
-
     add_appender(a);
 
     return a;
@@ -425,8 +421,6 @@ appender::pointer_t logger::add_file_appender(std::string const & filename)
         opts.get_option("file::filename")->set_value(0, filename);
     }
     a->set_config(opts);
-
-    guard g;
 
     add_appender(a);
 
