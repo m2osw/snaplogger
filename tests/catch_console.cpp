@@ -230,6 +230,7 @@ CATCH_TEST_CASE("console_appender", "[appender]")
             // appender and the message above and the severity
             //
             std::string const & received(pc->get_received());
+std::cerr << "--- received = [" << received << "]\n";
             CATCH_REQUIRE(received.find("Test the console.") != std::string::npos);
             CATCH_REQUIRE(received.find(console->get_name()) != std::string::npos);
             CATCH_REQUIRE(received.find("error") != std::string::npos);
