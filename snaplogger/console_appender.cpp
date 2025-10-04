@@ -276,6 +276,7 @@ void console_appender::process_message(message const & msg, std::string const & 
     {
         f_initialized = true;
 
+std::cerr << "--- initialize file descriptor using = [" << f_output << "] and f_tty = [" << std::boolalpha << f_tty << "]\n";
         if(f_output == "stderr")
         {
             f_fd = fileno(stderr);
@@ -300,11 +301,13 @@ void console_appender::process_message(message const & msg, std::string const & 
             //
             f_console.reset();  // in case it was a console
             f_fd = -1;
+std::cerr << "--- but we clear it because it's not a TTY\n";
         }
     }
 
     if(f_fd == -1)
     {
+std::cerr << "--- no fd (-1) to output to console\n";
         return;
     }
 

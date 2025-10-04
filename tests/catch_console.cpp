@@ -224,7 +224,7 @@ CATCH_TEST_CASE("console_appender", "[appender]")
 
             std::swap(*fout, *stderr);
             fclose(fout);
-            close(fifo[0]);
+            close(fifo[0]); // only close fifo[0], fifo[1] was managed by FILE* in fout
 
             // we expect the default format to include the name of the
             // appender and the message above and the severity
