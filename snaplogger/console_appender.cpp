@@ -276,7 +276,7 @@ void console_appender::process_message(message const & msg, std::string const & 
     {
         f_initialized = true;
 
-std::cerr << "--- initialize file descriptor using = [" << f_output << "] and f_tty = [" << std::boolalpha << f_tty << "]\n";
+//std::cerr << "--- initialize file descriptor using = [" << f_output << "] and f_tty = [" << std::boolalpha << f_tty << "]\n";
         if(f_output == "stderr")
         {
             f_fd = fileno(stderr);
