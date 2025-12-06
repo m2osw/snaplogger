@@ -2,3 +2,5 @@
 tmp
 *.sw?
 seed.txt
+err.txt
+out.txt
