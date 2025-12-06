@@ -192,7 +192,7 @@ void appender::set_config(advgetopt::getopt const & opts)
 {
     guard g;
 
-    // ENABLE
+    // ENABLED
     //
     {
         std::string const specialized_enabled(f_name + "::enabled");
@@ -318,6 +318,48 @@ void appender::set_config(advgetopt::getopt const & opts)
         {
             add_component(get_component(name));
         }
+    }
+
+    // FALLBACK_APPENDERS
+    //
+    std::string fallback_appenders;
+    std::string const fallback_appenders_field(f_name + "::fallback_appenders");
+    if(opts.is_defined(fallback_appenders_field))
+    {
+        fallback_appenders = opts.get_string(fallback_appenders_field);
+    }
+    else if(opts.is_defined("fallback_appenders"))
+    {
+        fallback_appenders = opts.get_string("fallback_appenders");
+    }
+    if(!fallback_appenders.empty())
+    {
+        advgetopt::string_list_t appender_names;
+        advgetopt::split_string(comp, appender_names, {","});
+        for(auto const & name : appender_names)
+        {
+            add_fallback_appender(name);
+        }
+    }
+
+    // FALLBACK_ONLY
+    //
+    std::string const fallback_only_field(f_name + "::fallback_only");
+    if(opts.is_defined(fallback_only_field))
+    {
+        f_fallback_only = advgetopt::is_true(opts.get_string(fallback_only_field));
+    }
+    else if(opts.is_defined("fallback_only"))
+    {
+        f_fallback_only = advgetopt::is_true(opts.get_string("fallback_only"));
+    }
+    if(f_fallback_only
+    && !f_fallback_appenders.empty())
+    {
+        throw invalid_variable(
+                      "appender \""
+                    + f_name
+                    + "\" cannot be a fallback-only appender and itself have fallbacks.");
     }
 
     // FILTER
@@ -478,6 +520,56 @@ void appender::add_component(component::pointer_t comp)
 }
 
 
+bool appender::add_fallback_appender(std::string const & name)
+{
+    guard g;
+
+    auto it(std::find(
+          f_fallback_appenders.begin()
+        , f_fallback_appenders.end()
+        , name));
+    if(it == f_fallback_appenders.end())
+    {
+        f_fallback_appenders.push_back(name);
+        return true;
+    }
+
+    return false;
+}
+
+
+bool appender::remove_fallback_appender(std::string const & name)
+{
+    guard g;
+
+    auto it(std::find(
+          f_fallback_appenders.begin()
+        , f_fallback_appenders.end()
+        , name));
+    if(it != f_fallback_appenders.end())
+    {
+        f_fallback_appenders.erase(it);
+        return true;
+    }
+
+    return false;
+}
+
+
+advgetopt::string_list_t appender::get_fallback_appenders() const
+{
+    guard g;
+
+    return f_fallback_appenders;
+}
+
+
+bool appender::is_fallback_only() const
+{
+    return f_fallback_only;
+}
+
+
 format::pointer_t appender::get_format() const
 {
     guard g;
@@ -530,14 +622,26 @@ std::size_t appender::get_bitrate_dropped_messages() const
 }
 
 
-void appender::send_message(message const & msg)
+/** \brief Send a message to the appender output.
+ *
+ * The function processes the message, including formatting as
+ * per this appender format. It also filters out messages that
+ * have too low a severity, components, regex match, etc.
+ *
+ * Note that when the function filters out a message, it is
+ * considered that it worked. In other words, the function
+ * returns true.
+ *
+ * \return true if the message was successfully processed.
+ */
+bool appender::send_message(message const & msg)
 {
     guard g;
 
     if(!is_enabled()
     || msg.get_severity() < f_severity)
     {
-        return;
+        return true;
     }
 
     component::set_t const & components(msg.get_components());
@@ -549,27 +653,27 @@ void appender::send_message(message const & msg)
         if(!f_components.empty()
         && f_components.find(f_normal_component) == f_components.end())
         {
-            return;
+            return true;
         }
     }
     else
     {
         if(snapdev::empty_set_intersection(f_components, components))
         {
-            return;
+            return true;
         }
     }
 
     std::string formatted_message(f_format->process_message(msg));
     if(formatted_message.empty())
     {
-        return;
+        return true;
     }
 
     if(f_filter != nullptr
     && !std::regex_match(formatted_message, *f_filter))
     {
-        return;
+        return true;
     }
 
     if(formatted_message.back() != '\n'
@@ -600,7 +704,7 @@ void appender::send_message(message const & msg)
             // `f_bytes_per_minute` bitrate
             //
             ++f_bitrate_dropped_messages;
-            return;
+            return true;
         }
         f_bytes_received += formatted_message.length();
     }
@@ -632,7 +736,7 @@ void appender::send_message(message const & msg)
             //       the current implementation helps, but it's weak in
             //       its results... (the results look weird)
             //
-            return;
+            return true;
         }
         f_last_messages.push_back(non_changing_message);
         if(f_last_messages.size() > f_no_repeat_size)
@@ -641,14 +745,16 @@ void appender::send_message(message const & msg)
         }
     }
 
-    process_message(msg, formatted_message);
+    return process_message(msg, formatted_message);
 }
 
 
-void appender::process_message(message const & msg, std::string const & formatted_message)
+bool appender::process_message(message const & msg, std::string const & formatted_message)
 {
-    // the default is a "null appender" -- do nothing
+    // the default is a "null appender" -- do nothing, always successful
     snapdev::NOT_USED(msg, formatted_message);
+
+    return true;
 }
 
 
@@ -707,10 +813,6 @@ safe_format::~safe_format()
 {
     snapdev::NOT_USED(f_appender->set_format(f_old_format));
 }
-
-
-
-
 
 
 

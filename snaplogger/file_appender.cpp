@@ -175,6 +175,15 @@ void file_appender::set_config(advgetopt::getopt const & opts)
     {
         f_fallback_to_console = advgetopt::is_true(opts.get_string(fallback_to_console_field));
     }
+    std::string const severity_considered_an_error_field(get_name() + "::severity_considered_an_error");
+    if(opts.is_defined(severity_considered_an_error_field))
+    {
+        severity::pointer_t sev(snaplogger::get_severity(opts.get_string(severity_considered_an_error_field)));
+        if(sev != nullptr)
+        {
+            f_severity_considered_an_error = sev->get_severity();
+        }
+    }
 
     // FALLBACK TO SYSLOG
     //
@@ -207,7 +216,7 @@ void file_appender::set_filename(std::string const & filename)
 }
 
 
-void file_appender::process_message(message const & msg, std::string const & formatted_message)
+bool file_appender::process_message(message const & msg, std::string const & formatted_message)
 {
     guard g;
 
@@ -229,14 +238,17 @@ void file_appender::process_message(message const & msg, std::string const & for
             {
                 f_limit_reached = true;
 
-                // TODO: look at properly formatting this message
+                // ignore the result of this call; if it fails, it's
+                // less important than the user's message
                 //
-                output_message(msg, "-- file size limit reached, this will be the last message --", false);
+                // TODO: look at properly formatting this message (missing date/time, pid, file:line, etc.)
+                //
+                snapdev::NOT_USED(output_message(msg, "-- file size limit reached, this will be the last message --", false));
             }
 
             if(f_on_overflow == "skip")
             {
-                return;
+                return true;
             }
 
             if(f_on_overflow == "fatal")
@@ -270,16 +282,14 @@ void file_appender::process_message(message const & msg, std::string const & for
                 {
                     // assume our rotation failed
                     //
-                    return;
+                    return false;
                 }
             }
             else
             {
-                // act like "skip" (we could also throw an error, but that
-                // would then act like "fatal" which may not be the best
-                // default action)
+                // act like "failed" to let fallback take over
                 //
-                return;
+                return false;
             }
 
             // force a reopen as when we do a logrotate with an event
@@ -305,11 +315,11 @@ void file_appender::process_message(message const & msg, std::string const & for
             auto const it(map.find("progname"));
             if(it == map.end())
             {
-                return;
+                return false;
             }
             if(it->second.empty())
             {
-                return;
+                return false;
             }
 
             f_filename = f_path + '/';
@@ -337,7 +347,7 @@ void file_appender::process_message(message const & msg, std::string const & for
         if(access(f_filename.c_str(), R_OK | W_OK) != 0
         && errno != ENOENT)
         {
-            return;
+            return false;
         }
 
         int flags(O_CREAT | O_WRONLY | O_APPEND | O_CLOEXEC | O_LARGEFILE | O_NOCTTY);
@@ -351,24 +361,28 @@ void file_appender::process_message(message const & msg, std::string const & for
 
         // verify that the file isn't already too big
         //
+        // TODO: we may want to look at making the code above that verifies
+        //       the size and allow rotation to run here too if the file
+        //       is already too large?
+        //
         struct stat s = {};
         int const r(fstat(f_fd.get(), &s));
         if(r != 0
         || s.st_size >= f_maximum_size)
         {
-            return;
+            return false;
         }
     }
 
-    output_message(msg, formatted_message, true);
+    return output_message(msg, formatted_message, true);
 }
 
 
-void file_appender::output_message(message const & msg, std::string const & formatted_message, bool allow_fallbacks)
+bool file_appender::output_message(message const & msg, std::string const & formatted_message, bool allow_fallbacks)
 {
     if(!f_fd)
     {
-        return;
+        return false;
     }
 
     std::unique_ptr<snapdev::lockfd> lock_file;
@@ -378,26 +392,48 @@ void file_appender::output_message(message const & msg, std::string const & form
     }
 
     ssize_t const l(write(f_fd.get(), formatted_message.c_str(), formatted_message.length()));
-    if(static_cast<size_t>(l) != formatted_message.length())
+    if(static_cast<size_t>(l) == formatted_message.length())
     {
-        // how could we report that? we are the logger...
+        // writing to file worked
         //
-        if(allow_fallbacks)
+        return true;
+    }
+
+    if(!allow_fallbacks)
+    {
+        return false;
+    }
+
+    // caller allows fallbacks
+    //
+    if(f_fallback_to_console)
+    {
+        severity_t const sev(msg.get_severity());
+        if(sev >= f_severity_considered_an_error)
         {
-            if(f_fallback_to_console
-            && isatty(fileno(stdout)))
+            if(isatty(fileno(stderr)))
             {
-                std::cout << formatted_message.c_str();
-            }
-            else if(f_fallback_to_syslog)
-            {
-                // in this case we skip on the openlog() call...
-                //
-                int const priority(syslog_appender::message_severity_to_syslog_priority(msg.get_severity()));
-                syslog(priority, "%s", formatted_message.c_str());
+                std::cerr << formatted_message;
+                return true;
             }
         }
+        if(isatty(fileno(stdout)))
+        {
+            std::cout << formatted_message;
+            return true;
+        }
     }
+
+    if(f_fallback_to_syslog)
+    {
+        // in this case we skip on the openlog() call...
+        //
+        int const priority(syslog_appender::message_severity_to_syslog_priority(msg.get_severity()));
+        syslog(priority, "%s", formatted_message.c_str());
+        return true;
+    }
+
+    return false;
 }
 
 

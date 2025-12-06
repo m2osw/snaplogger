@@ -60,6 +60,7 @@ class appender
 public:
     typedef std::shared_ptr<appender>       pointer_t;
     typedef std::vector<pointer_t>          vector_t;
+    typedef std::set<pointer_t>             set_t;
 
                                 appender(std::string const & name, std::string const & type = "null");
     virtual                     ~appender();
@@ -80,6 +81,10 @@ public:
     virtual void                set_config(advgetopt::getopt const & params);
     virtual void                reopen();
     void                        add_component(component::pointer_t comp);
+    bool                        add_fallback_appender(std::string const & name);
+    bool                        remove_fallback_appender(std::string const & name);
+    advgetopt::string_list_t    get_fallback_appenders() const;
+    bool                        is_fallback_only() const;
 
     format::pointer_t           get_format() const;
     virtual format::pointer_t   set_format(format::pointer_t new_format);
@@ -87,10 +92,10 @@ public:
     long                        get_bytes_per_minute() const;
     std::size_t                 get_bitrate_dropped_messages() const;
 
-    void                        send_message(message const & msg);
+    bool                        send_message(message const & msg);
 
 protected:
-    virtual void                process_message(message const & msg, std::string const & formatted_message);
+    virtual bool                process_message(message const & msg, std::string const & formatted_message);
 
 private:
     std::string const           f_type;
@@ -100,6 +105,7 @@ private:
     severity_t                  f_severity = severity_t::SEVERITY_DEFAULT;
     component::pointer_t        f_normal_component = component::pointer_t();
     component::set_t            f_components = component::set_t();
+    advgetopt::string_list_t    f_fallback_appenders = advgetopt::string_list_t();
     regex_pointer_t             f_filter = regex_pointer_t();
     std::size_t                 f_no_repeat_size = NO_REPEAT_OFF;
     std::deque<std::string>     f_last_messages = {};
@@ -107,6 +113,7 @@ private:
     long                        f_bytes_received = 0;
     time_t                      f_bytes_minute = 0;
     std::size_t                 f_bitrate_dropped_messages = 0;
+    bool                        f_fallback_only = false;
 };
 
 

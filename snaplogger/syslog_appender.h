@@ -48,7 +48,7 @@ public:
     static int          message_severity_to_syslog_priority(severity_t const sev);
 
 protected:
-    virtual void        process_message(message const & msg, std::string const & formatted_message) override;
+    virtual bool        process_message(message const & msg, std::string const & formatted_message) override;
 
 private:
     std::string         f_identity = std::string("snaplogger");

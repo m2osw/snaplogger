@@ -54,7 +54,7 @@ public:
     void                    set_force_style(bool force_style = true);
 
 protected:
-    virtual void            process_message(message const & msg, std::string const & formatted_message) override;
+    virtual bool            process_message(message const & msg, std::string const & formatted_message) override;
 
 private:
     std::string             f_filename = std::string();

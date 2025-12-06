@@ -53,16 +53,17 @@ public:
     void                set_filename(std::string const & filename);
 
 protected:
-    virtual void        process_message(message const & msg, std::string const & formatted_message) override;
+    virtual bool        process_message(message const & msg, std::string const & formatted_message) override;
 
 private:
-    void                output_message(message const & msg, std::string const & formatted_message, bool allow_fallback);
+    bool                output_message(message const & msg, std::string const & formatted_message, bool allow_fallback);
 
     std::string         f_path = std::string("/var/log/snaplogger");
     std::string         f_filename = std::string();
     snapdev::raii_fd_t  f_fd = snapdev::raii_fd_t();
     std::int64_t        f_maximum_size = 10 * 1024 * 1024;  // 10Mb by default
     std::string         f_on_overflow = std::string();
+    severity_t          f_severity_considered_an_error = severity_t::SEVERITY_WARNING;
     bool                f_initialized = false;
     bool                f_lock = true;
     bool                f_flush = true;

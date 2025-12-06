@@ -454,6 +454,38 @@ The simple _simple rotateion_ is equivalent to:
 A form of logrotate without the compression or more than one backup.
 Note that the existing `my-app.log.1` is overwritten (somewhat on purpose).
 
+    fallback_to_console=true
+    fallback_to_syslog=true
+    fallback_appenders=console,syslog,tcp,some_file
+    fallback_only=false
+    severity_considered_an_error=WARNING
+
+The fallback feature allows for messages to be sent to another appender if
+the normal appender is failing (i.e. disk is full, network is not reachable,
+etc.)
+
+The file type supports a `fallback_to_console` and `fallback_to_syslog`.
+These are implemented directly within the file appender. They do not
+require another appender. The console has priority. Also, if the severity
+is equal or larger than `severity_considered_an_error`, then it sends the
+message to stderr instead of stdout.
+
+The `fallback_appenders` is a list of appender names. This parameter works
+in all appenders. The name must be specified as defined in the `[...]` name.
+There is no limit to the number of fallbacks although in most cases you
+probably do not want more than one or two. It is also suggested that you
+use `fallback_only=true` for those definitions since it would always be
+sent to that appender anyway.
+
+So the fallback order in the file appender is:
+
+1. try the console (stderr or stdout--internally implemented)
+2. try the syslog (internally implemented)
+3. try each appender as defined in the `fallback_appenders` parameter
+
+Note that to avoid (1) and (2), just keep the corresponding variables
+set to false, which is the default.
+
 #### Additional Appenders
 
 We have additional appenders in other projects. There are in these projects
@@ -465,7 +497,7 @@ because that way they can make use of projects that depend on the snaplogger.
 
     The TCP allows for the logs to be sent via TCP to a remote log daemon.
 
-    The UDP allows for the logs to be sent vai UDP to a remote log daemon.
+    The UDP allows for the logs to be sent via UDP to a remote log daemon.
     This type should use a bitrate parameter to avoid sending too many
     messages and lose many of them.
 

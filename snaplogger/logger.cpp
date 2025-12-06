@@ -192,6 +192,8 @@ bool logger::has_appender(std::string const & type) const
 
 appender::pointer_t logger::get_appender(std::string const & name) const
 {
+    guard g;
+
     auto it(std::find_if(
           f_appenders.begin()
         , f_appenders.end()
@@ -787,7 +789,8 @@ void logger::process_message(message const & msg)
 
         if(f_appenders.empty())
         {
-            if(isatty(fileno(stdout)))
+            if(isatty(fileno(stderr))
+            || isatty(fileno(stdout)))
             {
                 add_console_appender();
             }
@@ -802,9 +805,65 @@ void logger::process_message(message const & msg)
         appenders = f_appenders;
     }
 
+    appender::set_t processed;
     for(auto a : appenders)
     {
-        a->send_message(msg);
+        // appender created just as a fallback?
+        //
+        if(a->is_fallback_only())
+        {
+            continue;
+        }
+
+        // make sure each appender is sent the message only once
+        //
+        auto result(processed.insert(a));
+        if(result.second)
+        {
+            continue;
+        }
+
+        if(a->send_message(msg))
+        {
+            // it worked, just go on with the next appender
+            //
+            continue;
+        }
+
+        // this appender failed, try its fallbacks
+        //
+        advgetopt::string_list_t const fallback_appenders(a->get_fallback_appenders());
+        for(auto const & name : fallback_appenders)
+        {
+            appender::pointer_t f(get_appender(name));
+            if(f == nullptr)
+            {
+                // could not find that apoender, ignore error
+                //
+                continue;
+            }
+
+            // just like with the main list, we want to make sure we
+            // only call the appender once per message
+            //
+            result = processed.insert(f);
+            if(result.second)
+            {
+                // since the message was sent to that appender (or
+                // some appender fallback) then we consider that we
+                // are done and exit the loop
+                //
+                break;
+            }
+
+            if(f->send_message(msg))
+            {
+                // exit the loop immediately once we found one
+                // working fallback
+                //
+                break;
+            }
+        }
     }
 }
 
@@ -942,7 +1001,6 @@ bool configure_config(std::string const & config_filename)
 
     return result;
 }
-
 
 
 

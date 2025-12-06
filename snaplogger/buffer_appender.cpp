@@ -72,13 +72,14 @@ buffer_appender::buffer_appender(std::string const name)
 }
 
 
-void buffer_appender::process_message(message const & msg, std::string const & formatted_message)
+bool buffer_appender::process_message(message const & msg, std::string const & formatted_message)
 {
     snapdev::NOT_USED(msg);
 
     guard g;
 
     *this << formatted_message;
+    return true;
 }
 
 
@@ -99,7 +100,7 @@ void buffer_appender::clear(bool keep_buffer)
     }
     else
     {
-        std::stringstream::str(std::string());             // buffer
+        std::stringstream::str(std::string());
     }
 }
 

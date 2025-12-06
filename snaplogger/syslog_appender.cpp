@@ -30,6 +30,7 @@
 // snapdev
 //
 #include    <snapdev/not_reached.h>
+#include    <snapdev/to_lower.h>
 
 
 // C++
@@ -128,9 +129,9 @@ void syslog_appender::set_config(advgetopt::getopt const & opts)
     std::string const facility_field(get_name() + "::facility");
     if(opts.is_defined(facility_field))
     {
-        std::string const facility_name(opts.get_string(facility_field));
+        std::string const facility_name(snapdev::to_lower(opts.get_string(facility_field)));
         int i(0);
-        int j(sizeof(g_facility_by_name) / sizeof(g_facility_by_name[0]));
+        int j(std::size(g_facility_by_name));
         while(i < j)
         {
             int const p(i + (j - i) / 2);
@@ -215,16 +216,16 @@ int syslog_appender::message_severity_to_syslog_priority(severity_t const sev)
 }
 
 
-void syslog_appender::process_message(message const & msg, std::string const & formatted_message)
+bool syslog_appender::process_message(message const & msg, std::string const & formatted_message)
 {
     int const priority(message_severity_to_syslog_priority(msg.get_severity()));
 
     syslog(priority, "%s", formatted_message.c_str());
+
+    return true;
 }
 
 
 
-
-
-} // snaplogger namespace
+} // namespace snaplogger
 // vim: ts=4 sw=4 et

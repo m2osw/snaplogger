@@ -20,10 +20,10 @@
  * \brief Implemented the console appender.
  *
  * This file implements the console appender. This appender directly writes
- * to the console (std::cout).
+ * to the console (std::cerr, std::cout, or /dev/console).
  *
- * Since most console support color, this appender uses color to highlight
- * more important messages.
+ * Since most consoles support color and other formatting, this appender
+ * uses color to highlight more important messages.
  */
 
 // self
@@ -268,7 +268,7 @@ void console_appender::set_force_style(bool force_style)
 }
 
 
-void console_appender::process_message(message const & msg, std::string const & formatted_message)
+bool console_appender::process_message(message const & msg, std::string const & formatted_message)
 {
     guard g;
 
@@ -276,7 +276,6 @@ void console_appender::process_message(message const & msg, std::string const & 
     {
         f_initialized = true;
 
-//std::cerr << "--- initialize file descriptor using = [" << f_output << "] and f_tty = [" << std::boolalpha << f_tty << "]\n";
         if(f_output == "stderr")
         {
             f_fd = fileno(stderr);
@@ -301,14 +300,12 @@ void console_appender::process_message(message const & msg, std::string const & 
             //
             f_console.reset();  // in case it was a console
             f_fd = -1;
-std::cerr << "--- but we clear it because it's not a TTY\n";
         }
     }
 
     if(f_fd == -1)
     {
-std::cerr << "--- no fd (-1) to output to console\n";
-        return;
+        return false;
     }
 
     std::unique_ptr<snapdev::lockfd> lock_file;
@@ -406,15 +403,16 @@ std::cerr << "--- no fd (-1) to output to console\n";
             ssize_t const l3(write(f_fd, unstyle.c_str(), unstyle.length()));
             if(static_cast<size_t>(l3) == unstyle.length())
             {
-                return;
+                return true;
             }
         }
     }
 
     // an error occurred, what can we do about it?!
+    // we can let the system use a fallback
+    //
+    return false;
 }
-
-
 
 
 

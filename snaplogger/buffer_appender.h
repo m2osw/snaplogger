@@ -53,7 +53,7 @@ public:
     void                    str(std::string const & buf);
 
 protected:
-    virtual void            process_message(message const & msg, std::string const & formatted_message) override;
+    virtual bool            process_message(message const & msg, std::string const & formatted_message) override;
 };
 
 
