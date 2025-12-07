@@ -17,7 +17,7 @@ files, the syslog, and the console.
 
 The following are the main features of this logger:
 
-* Messages using `std::stringstream`
+* Create Log Messages using `std::stringstream`
 
     Sending log messages uses an `std::stringstream`. When creating a
     `message` object, it can be used just like any `std::basic_ostream<char>`.
@@ -31,8 +31,9 @@ The following are the main features of this logger:
 * Severity
 
     The logs use a severity level. Whenever you create a message you assign
-    a severity to it such as DEBUG, INFO, ERROR, etc. We offer 19 severity
-    levels by default. You can dynamically add more, either in your software
+    a severity to it such as DEBUG, INFO, ERROR, etc. We offer
+    [26 severity levels](https://github.com/m2osw/snaplogger/blob/9d0d447df9dec4b2bd30f8a65a757cce134838d9/snaplogger/severity.h#L58-L90)
+    by default. You can dynamically add more, either in your software
     or in the `severity.conf` file.
 
     Appenders can be assigned a severity. When a message is logged with
@@ -45,7 +46,7 @@ The following are the main features of this logger:
 
     A set of classes used to declare the log sinks.
 
-    The library offers the following appenders:
+    This library offers the following appenders:
 
     - buffer
     - console
@@ -55,29 +56,30 @@ The following are the main features of this logger:
     It is very easy to develop your own appender. In most cases you want
     to override the `set_config()` (optional) and the `process_message()`.
 
-    The  project will add a log service. This has several
-    advantages over the direct appenders offered by the base library. The
-    main two are certainly:
+    The [eventdispatcher project](https://github.com/m2osw/eventdispatcher/tree/main/snaplogger)
+    adds a log service (a server you run separately). This has several
+    advantages over the direct appenders offered by the base library.
+    The main two are certainly:
 
     - It can access any files since the service can be running as root
     - It can do work in parallel on a separate computer.
 
-    The [#eventdispatcher] makes use of the base snaplogger library which
+    The eventdispatcher makes use of the base `snaplogger` library which
     is why this server extension is in a separate project.
 
 * Format
 
     Your log messages can be formatted in many different ways. The
-    `snaplogger` library supports many variables which support parameters
+    `snaplogger` library supports many variables supporting parameters
     and functions. All of this is very easily extensible.
 
     There are many variables supported by default, including displaying
     the timestamp of the message, environment variables, system information
     (i.e. hostname), and all the data from the message being logged.
 
-    Our tests verifies a standard one line text message and a JSON message
+    Our tests verify a standard one line text message and a JSON message
     to make sure that we support either format. You could also use a CSV
-    type of format.
+    or XML type of format.
 
 * Diagnostics
 
@@ -107,9 +109,9 @@ The following are the main features of this logger:
         SNAP_LOG_INFO
             << snaplogger::section(snaplogger::g_secure_component)
             << "My Message Here"
-            << SNAP_LOG_END;
+            << SNAP_LOG_SEND;
 
-    This means the log will only be sent to the appender's output if the
+    This means the log is sent to the appender's output only if the
     appender includes "secure" as one of its components. This allows us
     to very quickly prevent messages from going to the wrong place.
 
@@ -118,7 +120,7 @@ The following are the main features of this logger:
 
         SNAP_LOG_INFO
             << "My Secure Message"
-            << SNAP_LOG_END_SECURELY;
+            << SNAP_LOG_SEND_SECURELY;
 
     Finally, for the "secure" component, we have a special modifier you can
     use like this:
@@ -126,27 +128,28 @@ The following are the main features of this logger:
         SNAP_LOG_INFO
             << snaplogger::secure
             << "This is a secure message"
-            << SNAP_LOG_END;
+            << SNAP_LOG_SEND;
 
     This gives you examples on how to implement your own components.
 
     You can also make components mutually exclusive. For example, we do
     not allow you to add the "normal" and "secure" components to the same
     message. The network components (see the snaplogger network extension
-    in the eventdispatcher project) also include "local"/"remote" and
-    "tcp"/"udp" pairs, which can't be used simultaneously.
+    in the [eventdispatcher project](https://github.com/m2osw/eventdispatcher/tree/main/snaplogger))
+    also include "local"/"remote" and "tcp"/"udp" pairs, which can't be
+    used simultaneously.
 
     You can also create your own components using one of the
     `snaplogger::get_component()` functions.
 
     **WARNING:** When adding any one component, the default ("normal")
-    component will not automatically be added. If you want that component
+    component is not automatically added. If you want that component
     to be included, you have to do it explicitely:
 
         SNAP_LOG_INFO
             << snaplogger::section(snaplogger::get_component("electric-fence"))
             << "My message here"
-            << SNAP_LOG_END;
+            << SNAP_LOG_SEND;
 
     In this last example, the only component added to the message is
     "electric-fence". If you also want to have the "normal" component,
@@ -156,16 +159,17 @@ The following are the main features of this logger:
             << snaplogger::section(snaplogger::get_component("electric-fence"))
             << snaplogger::section(snaplogged::g_normal_component)
             << "My message here"
-            << SNAP_LOG_END;
+            << SNAP_LOG_SEND;
 
     **Note:** You should allocate your components once and then reuse their
     pointers for efficiency. Calling the get_component() function each time
     is considered slow.
 
     You can print the list of components attached to a message using the
-    `${components}` variable. This can be useful while debugging. Probably
-    less useful in production. It can help you find out why a message does
-    or does not make it through a given appender filter.
+    `${components}` variable in your message format. This can be useful
+    while debugging. Probably less useful in production. It can help you
+    find out why a message does or does not make it through a given
+    appender filter.
 
     Messages are also filtered from the set of components defined on the
     command line with the `--log-component` option. You can specify the
@@ -242,7 +246,8 @@ The following are the main features of this logger:
     The library is multi-thread safe. It can even be used with an
     asynchronous feature so you can send many logs and they are
     processed by a thread. That thread can easily be stopped in case
-    you want to `fork()` your application.
+    you want to `fork()` your application (i.e. threads & `fork()` are
+    not compatible).
 
 * advgetopt support
 
@@ -253,28 +258,43 @@ The following are the main features of this logger:
     and `--logger-configuration-filenames` options. You can always add
     more.
 
-    The library also is setup to capture logs from the `advgetopt` and
-    the cppthread libraries (both use the `advgetopt` log feature.)
+    The library also is setup to capture logs from the
+    [`advgetopt`](https://github.com/m2osw/advgetopt) and the
+    [`cppthread`](https://github.com/m2osw/cppthread)
+    libraries (both use the `advgetopt` log feature.)
+
+    Similarly, the library can be setup to capture the `std::clog`
+    stream, making it possible to write to your appenders from
+    libraries that do not ever reference the snaplogger itself.
+    This is done from [snapdev](https://github.com/m2osw/snapdev)
+    which is a really low level set of C++ header files used by many
+    of the [Snap! C++ environment](https://snapwebsites.org/).
 
 * Ordinal Indicator
 
     The library comes with the `ordinal_number` class which one can use to
     output numbers followed with the correct ordinal indicator (i.e. as in
-    1st, 2nd, 3rd, 4th, etc.)
+    1st, 2nd, 3rd, 4th, etc.).
+
+    This support all 28 languages that make use of such a notation.
 
 
 # Examples
 
-There is an examples folder in the eventdispatcher project where I have
-simple daemon & client implementations showing how the snaplogger and
-advgetopt libraries are used in a more complete environment.
+There is [an `examples` folder in the eventdispatcher project](https://github.com/m2osw/eventdispatcher/tree/main/examples)
+where I have simple client & server implementations showing how the
+`snaplogger` and [`advgetopt`](https://github.com/m2osw/advgetopt)
+libraries are used in a more complete environment.
 
 
 # Reasons Behind Having Our Own Library
 
 We want to be in control of the capabilities of our logger and we want
-to be able to use it in our `snap_child` objects in a thread. Many
-capabilities which are not readily available in `log4cplus`.
+to be able to use it in many different situations such as beyond of
+`fork()`, to generate different formats, etc.
+
+All of our capabilities are just not readily available in other loggers.
+
 
 # API
 
@@ -294,22 +314,30 @@ In the base library, We offer the following appenders:
 * console
 * file
 * syslog
+* alert ([eventdispatcher project](https://github.com/m2osw/eventdispatcher/tree/main/snaplogger))
+* tcp ([eventdispatcher project](https://github.com/m2osw/eventdispatcher/tree/main/snaplogger))
+* udp ([eventdispatcher project](https://github.com/m2osw/eventdispatcher/tree/main/snaplogger))
 
-TODO: A network appender (service) will be available through [#logserver].
-We want to have access to [#eventdispatcher] but [#eventdispatcher] depends
-on [#logserver] so we have to have another project to log to a remote
-server.
+**Note:** the last three are part of the `eventdispatcher` project which
+          offers network related appenders.
 
 ## Configuration Files
 
-You configure `snaplogger` via a set of configuration files.
+You configure the `snaplogger` library via a set of configuration files.
 
-These files are found under `/etc/snaplogger` by default, but the
-`snapwebsites` environment checks for these files under
-`/etc/snapwebsites/logger`.
+By default, the files are searched under `/etc/<project-name>/logger/...`
+and `/usr/share/<project-name>/logger/...` where your `<project-name >`
+is defined through the [`advgetopt`](https://github.com/m2osw/advgetopt)
+options.
 
-The configuration files include parameters that setup the log. These
-are:
+The `advgetopt` makes it easy for configuration files to be defined in
+many other places. Your project may or may not offer such. Yet it is
+easy to also support configuration files under the user configuration
+directory (`~/.config/<project-name>/logger/...`) and the project
+folder (`/var/log/<project-name>/logger/...`).
+
+The configuration files include parameters that setup the logger.
+These are described in the following list (incomplete at the moment).
 
 ### Appender
 
@@ -323,8 +351,11 @@ An appender is a name and then a set of parameters:
 * Filter
 * Format
 * No-Repeat
+* ...
 
 These are described below.
+
+Here is an example with a console and a file appender:
 
     # Global settings
     format=${date} ${time}: ${severity}: ${message}
@@ -343,8 +374,7 @@ These are described below.
     maximum_size=10Mb
     on_overflow=rotate
     lock=false
-    fallback_to_console=true
-    fallback_to_syslog=true
+    fallback_appenders=console, syslog
     secure=true
 
 **Note:** An appender defined in the main logger.conf file can be turned
@@ -519,18 +549,25 @@ We support the following levels:
 
 * `ALL`
 * `TRACE`
+* `NOISY`
 * `DEBUG`
 * `NOTICE`
 * `UNIMPORTANT`
 * `VERBOSE`
+* `CONFIGURATION`
+* `CONFIGURATION_WARNING`
 * `INFORMATION`
 * `IMPORTANT`
 * `MINOR`
+* `TODO`
 * `DEPRECATED`
 * `WARNING`
 * `MAJOR`
 * `RECOVERAL_ERROR`
 * `ERROR`
+* `NOISY_ERROR`
+* `SEVERE`
+* `EXCEPTION`
 * `CRITICAL`
 * `ALERT`
 * `EMERGENCY`
@@ -538,7 +575,7 @@ We support the following levels:
 * `OFF`
 
 The severity can also be changed dynamically (along the way, from command line
-arguments, etc.)
+arguments, etc.). Here is an example for a configuration file:
 
     [log]
     severity=DEBUG
@@ -553,23 +590,77 @@ application the ability to send the log to a specific component.
 
 In Snap!, we make use of the `normal` and `secure` components. The `secure`
 logs are better protected (more constrained `chmod`, sub-folder, etc.)
-than the logs sent via the `normal` component. These two components are
-already defined in the logger along a third one: `debug`.
+than the logs sent via the `normal` component. `snaplogger` defines all
+of the following components:
 
-The eventdispatcher defines a snaplogger network extension (to efficiently
-send the logs over the network) which defines five new components:
-`daemon` (the daemon generated that log), `remote` (that log comes from
-another computer), `local` (that log comes from a local process), `tcp`
-(that log was received via the TCP connection), and `udp` (that log
-was received via the UDP connection).
+    g_as2js_component
+    g_cppthread_component
+    g_clog_component
+    g_debug_component
+    g_normal_component
+    g_secure_component
+    g_self_component
+    g_banner_component
+    g_not_implemented_component
+
+The `as2js` component is used to mark messages coming from the as2js library.
+
+The `cppthread` component is used to mark messages coming from the cppthread
+library.
+
+The `clog` component is used to mark messages captured from the `std::clog`
+stream.
+
+The `self` component is used by the `snaplogger` library. So any log
+generated by the library will be marked by at least that one component.
+That does not apply to the `as2js`, `cppthread`, and `clog` streams which
+are handled by `snaplogger` but those logs are not considered as being
+generated by `snaplogger` itself.
+
+The `banner` component is used whenever sending banner like logs. This
+allows you to easily filter out banners (especially if your project
+generates many lines like a large logo in ASCII art).
+
+There are many parts of our Snap! C++ environment which is not yet
+implemented, so `not_implemented` component is often used by logs that
+mention hitting a line of code that is expected to do more in the future.
+
+The `debug`, `normal`, and `secure` are basic defaults that are used to
+mark messages are being used for debugging purposes, _normal_ logs,
+and secure logs. The secure logs are expected to be saved in secured
+files (files with permissions and ownership prevent most users from
+accessing them without using sudo or a similar Unix feature).
+
+The ([eventdispatcher project](https://github.com/m2osw/eventdispatcher/tree/main/snaplogger))
+defines a `snaplogger` network extension (to efficiently send the logs
+over the network). This extension includes several new components:
+
+    g_network_component;
+    g_daemon_component;
+    g_remote_component;
+    g_local_component;
+    g_tcp_component;
+    g_udp_component;
+
+The `daemon` component is similar to the `self` component. It indicates
+that the `snaplogger` daemon generated that log.
+
+The `remote` component is added to clearly mark logs that come from
+another computer,
+
+The `local` component is the opposite of the `remote` component. It
+marks messages that were created locally.
+
+The `tcp` and `udp` components are used by the respective appender.
+They are also mutually exclusive.
 
 Others can be added. Internally, the name is forced to lowercase. So `Normal`
 is the same as `normal`.
 
 Technically, when no component is specified in a log, `normal` is assumed.
-Otherwise, the appender must include that component or it will be ignored.
-(i.e. that log will not make it to that appender if none of its components
-match the ones in the log being processed.)
+Otherwise, the appender must include that component or the log message is
+ignored. (i.e. that log will not make it to that appender output if none
+of its components match the ones in the log message being processed.)
 
 ### Bitrate
 
