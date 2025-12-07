@@ -218,6 +218,25 @@ The following are the main features of this logger:
 
     Any name that starts with an underscore is reserved for the system.
 
+* Stack Trace
+
+    With the help of the libexcept library, `snaplogger` is also
+    capable of sending the stacktrace to the log appenders. This
+    is done automatically with the `SNAP_LOG_SEND_WITH_STACK_TRACE()`
+    macro:
+
+        ...
+        catch(std::exception const & e)
+        {
+            SNAP_LOG_ERROR
+                << "Some error happened..."
+                << SNAP_LOG_SEND_WITH_STACK_TRACE(e);
+        }
+        ...
+
+    The stack trace will be sent one line at a time, so this adds many
+    lines to your output.
+
 * Bitrate Limit
 
     By default, all log messages are forwarded to the appender processing
@@ -1046,14 +1065,16 @@ object in your blocks. That extra output can can added to your logs using the
         {
             snaplogger::nested_diagnostic sub_sectionA("sub-A");
 
-            SNAP_LOG_INFO("message");
+            SNAP_LOG_INFO
+                << "message"
+                << SNAP_LOG_SEND;
         }
     }
 
-When you call the `SNAP_LOG_INFO()` in this example, the `${diagnostic}`
-variable outputs "sec-1/sub-A". This gives you a very good idea of which
-block the log appears in (The filename and line number should be enough
-but with the nested diagnostic, it's even easier.)
+When you use the `${diagnostic}` format variable, it outputs "sec-1/sub-A".
+This gives you a very good idea of which block the log appears in.
+(The filename and line number should be enough but with the nested
+diagnostic, it's even easier).
 
 The mapped diagnostic is useful when you have one block with multiple
 states that change over time. You can reflect the current state in
@@ -1075,7 +1096,9 @@ the map.
                 diag("state", "normal");
             }
             ...
-            SNAP_LOG_INFO("message");
+            SNAP_LOG_INFO
+                << "message"
+                << SNAP_LOG_SEND;
         }
     }
 
