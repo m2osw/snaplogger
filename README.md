@@ -6,12 +6,13 @@ src="https://raw.githubusercontent.com/m2osw/snaplogger/master/doc/snaplogger.pn
 
 # Introduction
 
-The snaplogger started based on the functionality offered by the
+The `snaplogger` started based on the functionality offered by the
 `log.cpp/.h` from the **libsnapwebsites** and various features of the
 **log4cplus** library.
 
 The current version allows all our Snap! projects to log errors to
-files, the syslog, and the console.
+files, the syslog, and the console. An extension allows for the logs
+to be sent over the network (on top of the syslog capabilities).
 
 ## Features
 
