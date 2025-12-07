@@ -334,8 +334,15 @@ options.
 The `advgetopt` makes it easy for configuration files to be defined in
 many other places. Your project may or may not offer such. Yet it is
 easy to also support configuration files under the user configuration
-directory (`~/.config/<project-name>/logger/...`) and the project
+directory (`~/.config/<project-name>/logger/...`) and the project home
 folder (`/var/log/<project-name>/logger/...`).
+
+To list all the possible locations, use the following command line:
+
+    my-tool --logger-configuration-filenames
+
+More information about configuration files can be found in the
+[`advgetopt`](https://github.com/m2osw/advgetopt).
 
 The configuration files include parameters that setup the logger.
 These are described in the following list (incomplete at the moment).
