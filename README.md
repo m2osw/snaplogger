@@ -658,7 +658,7 @@ and secure logs. The secure logs are expected to be saved in secured
 files (files with permissions and ownership prevent most users from
 accessing them without using sudo or a similar Unix feature).
 
-The ([eventdispatcher project](https://github.com/m2osw/eventdispatcher/tree/main/snaplogger))
+The [eventdispatcher project](https://github.com/m2osw/eventdispatcher/tree/main/snaplogger)
 defines a `snaplogger` network extension (to efficiently send the logs
 over the network). This extension includes several new components:
 
