@@ -118,7 +118,7 @@ advgetopt::option const g_options[] =
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS
                     , advgetopt::GETOPT_FLAG_REQUIRED
                     , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
-        , advgetopt::Help("log messages to this specific log file.")
+        , advgetopt::Help("log messages to this specific log file (use ./name.log to avoid the default path).")
     ),
     advgetopt::define_option(
           advgetopt::Name("log-config")
@@ -365,7 +365,8 @@ void add_logger_options(advgetopt::getopt & opts)
  * output to the user. Defaults to `std::cout`.
  * \param[in] show_banner  Whether to show the banner. For CLI and GUI tools,
  * you may want to hide this banner. For daemons, it is customary to leave
- * the banner as it just goes to a log file.
+ * the banner as it just goes to a log file and clearly separate the previous
+ * session from the new session.
  *
  * \return true of success, false when an error occurs. You are expected to
  * stop your process immediately when this function returns false, but this

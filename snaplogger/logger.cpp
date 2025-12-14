@@ -378,7 +378,9 @@ appender::pointer_t logger::add_syslog_appender(std::string const & identity)
     {
         advgetopt::define_option(
               advgetopt::Name("syslog::identity")
-            , advgetopt::Flags(advgetopt::command_flags<advgetopt::GETOPT_FLAG_REQUIRED>())
+            , advgetopt::Flags(advgetopt::command_flags<
+                  advgetopt::GETOPT_FLAG_REQUIRED
+                , advgetopt::GETOPT_FLAG_DYNAMIC_CONFIGURATION>())
         ),
         advgetopt::end_options()
     };
@@ -408,7 +410,9 @@ appender::pointer_t logger::add_file_appender(std::string const & filename)
     {
         advgetopt::define_option(
               advgetopt::Name("file::filename")
-            , advgetopt::Flags(advgetopt::command_flags<advgetopt::GETOPT_FLAG_REQUIRED>())
+            , advgetopt::Flags(advgetopt::command_flags<
+                  advgetopt::GETOPT_FLAG_REQUIRED
+                , advgetopt::GETOPT_FLAG_DYNAMIC_CONFIGURATION>())
         ),
         advgetopt::end_options()
     };
@@ -818,7 +822,7 @@ void logger::process_message(message const & msg)
         // make sure each appender is sent the message only once
         //
         auto result(processed.insert(a));
-        if(result.second)
+        if(!result.second)
         {
             continue;
         }
