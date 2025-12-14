@@ -842,7 +842,7 @@ void logger::process_message(message const & msg)
             appender::pointer_t f(get_appender(name));
             if(f == nullptr)
             {
-                // could not find that apoender, ignore error
+                // could not find that appender, ignore error
                 //
                 continue;
             }
@@ -851,7 +851,7 @@ void logger::process_message(message const & msg)
             // only call the appender once per message
             //
             result = processed.insert(f);
-            if(result.second)
+            if(!result.second)
             {
                 // since the message was sent to that appender (or
                 // some appender fallback) then we consider that we

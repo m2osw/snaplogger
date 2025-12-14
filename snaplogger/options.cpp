@@ -489,6 +489,7 @@ bool process_logger_options(advgetopt::getopt & opts
         show_banner = false;
     }
 
+    bool auto_console(true);
     bool const show_logger_configuration_files(opts.is_defined("logger-configuration-filenames"));
     switch(log_config)
     {
@@ -578,22 +579,27 @@ bool process_logger_options(advgetopt::getopt & opts
 
     case OPTION_NO_LOG:
         // do nothing
+        auto_console = false;
         break;
 
     case OPTION_LOG_FILE:
         configure_file(opts.get_string("log-file"));
+        auto_console = false;
         break;
 
     case OPTION_LOG_CONFIG:
         configure_config(opts.get_string("log-config"));
+        auto_console = false;
         break;
 
     case OPTION_SYSLOG:
         configure_syslog(opts.get_string("syslog"));
+        auto_console = false;
         break;
 
     case OPTION_CONSOLE:
         configure_console();
+        auto_console = false;
         break;
 
     default:
@@ -649,12 +655,18 @@ bool process_logger_options(advgetopt::getopt & opts
         break;
 
     case OPTION_TRACE_SEVERITY:
-        configure_console(true);
+        if(auto_console)
+        {
+            configure_console(true);
+        }
         logger::get_instance()->reduce_severity(severity_t::SEVERITY_TRACE);
         break;
 
     case OPTION_DEBUG_SEVERITY:
-        configure_console(true);
+        if(auto_console)
+        {
+            configure_console(true);
+        }
         logger::get_instance()->reduce_severity(severity_t::SEVERITY_DEBUG);
         break;
 
