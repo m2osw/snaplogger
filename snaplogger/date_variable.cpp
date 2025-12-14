@@ -123,7 +123,7 @@ DEFINE_LOGGER_VARIABLE_IGNORED_ON_NO_REPEAT(date)
         }
         else
         {
-            throw invalid_variable("the ${hostbyname:...} variable first parameter must be its name parameter.");
+            throw invalid_variable("the ${date:...} variable first parameter must be its name parameter.");
         }
     }
 
@@ -253,7 +253,7 @@ DEFINE_LOGGER_VARIABLE_IGNORED_ON_NO_REPEAT(time)
         {
             clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &timestamp);
             gmtime_r(&timestamp.tv_sec, &t);
-            std::string ms(std::to_string(timestamp.tv_nsec / 1000000UL));
+            std::string ms(std::to_string(timestamp.tv_nsec / 1'000'000UL));
             if(ms.length() < 3)
             {
                 ms = std::string("000").substr(0, 3 - ms.length());
@@ -275,7 +275,7 @@ DEFINE_LOGGER_VARIABLE_IGNORED_ON_NO_REPEAT(time)
         }
         else
         {
-            throw invalid_variable("the ${hostbyname:...} variable first parameter must be its name parameter.");
+            throw invalid_variable("the ${time:...} variable first parameter must be its name parameter.");
         }
     }
 
