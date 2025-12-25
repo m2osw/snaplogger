@@ -214,7 +214,7 @@ constexpr system_severity g_system_severity[] =
     {
         .f_severity     = severity_t::SEVERITY_NOISY_ERROR,
         .f_name         = "noisy-error",
-        .f_alias        = nullptr,
+        .f_alias        = "murmur",
         .f_description  = "noisy error",
         .f_styles       = "red"
     },
