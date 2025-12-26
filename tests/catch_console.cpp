@@ -216,11 +216,23 @@ CATCH_TEST_CASE("console_appender", "[appender]")
             FILE * fout(fdopen(fifo[1], "w"));
             std::swap(*fout, *stderr);
 
+            // it looks like the pipe does not get the data because it does
+            // not properly flush it... adding these 1, 2, 3 before/after
+            // seems to help
+            //
+            std::cerr << "1" << std::endl;
+            std::cerr << "2" << std::endl;
+            std::cerr << "3" << std::endl;
+
             pipe_reader::pointer_t pc(std::make_shared<pipe_reader>(fifo[0]));
             cppthread::thread t("pipe-reader", pc.get());
             CATCH_REQUIRE(t.start());
 
             SNAP_LOG_ERROR << "Test the console." << SNAP_LOG_SEND;
+
+            std::cerr << "1" << std::endl;
+            std::cerr << "2" << std::endl;
+            std::cerr << "3" << std::endl;
 
             std::swap(*fout, *stderr);
             fclose(fout);
