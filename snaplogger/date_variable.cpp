@@ -287,7 +287,6 @@ DEFINE_LOGGER_VARIABLE_IGNORED_ON_NO_REPEAT(time)
         value += buf;
     }
 
-
     variable::process_value(msg, value);
 }
 

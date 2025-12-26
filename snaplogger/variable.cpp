@@ -201,12 +201,6 @@ variable::~variable()
 }
 
 
-bool variable::ignore_on_no_repeat() const
-{
-    return false;
-}
-
-
 void variable::add_param(param::pointer_t p)
 {
     guard g;

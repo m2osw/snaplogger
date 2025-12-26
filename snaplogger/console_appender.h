@@ -53,6 +53,8 @@ public:
     bool                    get_force_style() const;
     void                    set_force_style(bool force_style = true);
 
+    std::string const &     get_output_stream() const;
+
 protected:
     virtual bool            process_message(message const & msg, std::string const & formatted_message) override;
 

@@ -377,6 +377,8 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
 
         SNAP_LOG_ERROR << "Escape all \a\b\f\n\r\t\v\x1f\xC2\x88\xC2\x97 types" << SNAP_LOG_SEND;
         CATCH_REQUIRE(buffer->str() == std::string(host) + " Escape all \\a\\b\\f\\n\\r\\t\\v^_@H@W types\n");
+
+        l->reset();
     }
     CATCH_END_SECTION()
 
@@ -411,6 +413,8 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
 
         SNAP_LOG_ERROR << "this message words will get their FIRST-LETTER capitalized." << SNAP_LOG_SEND;
         CATCH_REQUIRE(buffer->str() == "This Message Words Will Get Their First-Letter Capitalized.\n");
+
+        l->reset();
     }
     CATCH_END_SECTION()
 
@@ -453,6 +457,8 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
 
         SNAP_LOG_ERROR << "This message words will get their FIRST-LETTER capitalized." << SNAP_LOG_SEND;
         CATCH_REQUIRE(buffer->str() == "THIS MESSAGE WORDS WILL GET THEIR FIRST-LETTER CAPITALIZED.\n");
+
+        l->reset();
     }
     CATCH_END_SECTION()
 
@@ -497,6 +503,8 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
 
         SNAP_LOG_ERROR << "<- first three letters of hostname" << SNAP_LOG_SEND;
         CATCH_REQUIRE(buffer->str() == aligned + " <- first three letters of hostname\n");
+
+        l->reset();
     }
     CATCH_END_SECTION()
 
@@ -557,6 +565,8 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
                                        "<5> <- severity tag for systemd/syslog (minor)\n"
                                        "<6> <- severity tag for systemd/syslog (information)\n"
                                        "<7> <- severity tag for systemd/syslog (debug)\n");
+
+        l->reset();
     }
     CATCH_END_SECTION()
 
@@ -597,6 +607,114 @@ CATCH_TEST_CASE("system_variable", "[variable][param]")
                       " variable cannot be set to \"invalid\"."));
 
         CATCH_REQUIRE(buffer->str() == "");
+
+        l->reset();
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("variable: bad UTF-8 in message")
+    {
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "case");
+
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
+
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            nullptr
+        };
+        int const argc(sizeof(cargv) / sizeof(cargv[0]) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("${message:caps}"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+
+        SNAP_LOG_ERROR << "Byte 0xFF is not UTF-8 \xFF so the string does not even compile?" << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == "Byte 0xFF is not UTF-8 \xFF so the string does not even compile?"
+                                        " {WARNING: your value has invalid UTF-8 characters; do you"
+                                        " use an std::int8_t or std::uint8_t variable as a parameter"
+                                        " to the log message? Those are often inserted as characters"
+                                        " instead of numbers; exception message:"
+                                        " \"libutf8_exception: to_u32string(): a UTF-8 character"
+                                        " could not be extracted.\"} \n");
+
+        l->reset();
+    }
+    CATCH_END_SECTION()
+
+    CATCH_START_SECTION("variable: time:process_ms")
+    {
+        snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "on_repeat");
+
+        snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+        snaplogger::buffer_appender::pointer_t buffer(std::make_shared<snaplogger::buffer_appender>("test-buffer"));
+
+        char const * cargv[] =
+        {
+            "/usr/bin/daemon",
+            "--no-repeat",
+            "20",
+            nullptr
+        };
+        int const argc(std::size(cargv) - 1);
+        char ** argv = const_cast<char **>(cargv);
+
+        advgetopt::option const options[] =
+        {
+            advgetopt::define_option(
+                  advgetopt::Name("no-repeat")
+                , advgetopt::Flags(advgetopt::all_flags<
+                              advgetopt::GETOPT_FLAG_REQUIRED
+                            , advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
+                , advgetopt::Help("Number of lines to not repeat.")
+                , advgetopt::DefaultValue("0")
+            ),
+            advgetopt::end_options()
+        };
+        advgetopt::options_environment environment_options;
+        environment_options.f_project_name = "test-logger";
+        environment_options.f_options = options;
+        environment_options.f_environment_flags = advgetopt::GETOPT_ENVIRONMENT_FLAG_SYSTEM_PARAMETERS;
+        advgetopt::getopt opts(environment_options);
+        opts.parse_program_name(argv);
+        opts.parse_arguments(argc, argv, advgetopt::option_source_t::SOURCE_COMMAND_LINE);
+
+        buffer->set_config(opts);
+
+        snaplogger::format::pointer_t f(std::make_shared<snaplogger::format>("process:${time:process_ms}: ${message}"));
+        buffer->set_format(f);
+
+        l->add_appender(buffer);
+
+        SNAP_LOG_FATAL << "We need a first message." << SNAP_LOG_SEND;
+        SNAP_LOG_ERROR << "This calls the on_repeat function." << SNAP_LOG_SEND;
+        // the time changes between runs so it's impossible to verify as is
+        //CATCH_REQUIRE(buffer->str() == "process:00:00:00.0: This calls the on_repeat function.\n");
+        std::string const result(buffer->str());
+        CATCH_REQUIRE(result.starts_with("process:"));
+        CATCH_REQUIRE(result.ends_with(": This calls the on_repeat function.\n"));
+
+        buffer->clear();
+
+        f = std::make_shared<snaplogger::format>("${message:upper}");
+        buffer->set_format(f);
+
+        SNAP_LOG_ERROR << "This message will get capitalized." << SNAP_LOG_SEND;
+        CATCH_REQUIRE(buffer->str() == "THIS MESSAGE WILL GET CAPITALIZED.\n");
+
+        l->reset();
     }
     CATCH_END_SECTION()
 }

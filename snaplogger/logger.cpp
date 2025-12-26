@@ -212,6 +212,7 @@ appender::pointer_t logger::get_appender(std::string const & name) const
 
 appender::vector_t logger::get_appenders() const
 {
+    guard g;
     return f_appenders;
 }
 

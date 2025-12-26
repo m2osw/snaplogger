@@ -268,6 +268,12 @@ void console_appender::set_force_style(bool force_style)
 }
 
 
+std::string const & console_appender::get_output_stream() const
+{
+    return f_output;
+}
+
+
 bool console_appender::process_message(message const & msg, std::string const & formatted_message)
 {
     guard g;

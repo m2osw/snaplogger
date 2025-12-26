@@ -183,6 +183,8 @@ CATCH_TEST_CASE("console_appender", "[appender]")
         CATCH_REQUIRE(console != nullptr);
         CATCH_REQUIRE(console->get_type() == "console");
         CATCH_REQUIRE(console->get_name() == "console");
+        CATCH_REQUIRE(std::dynamic_pointer_cast<snaplogger::console_appender>(console) != nullptr);
+        CATCH_REQUIRE(std::dynamic_pointer_cast<snaplogger::console_appender>(console)->get_output_stream() == "stderr");
 
         CATCH_REQUIRE(l->has_appender("console"));
         CATCH_REQUIRE(l->get_appender("console") == console);
@@ -200,6 +202,8 @@ CATCH_TEST_CASE("console_appender", "[appender]")
         CATCH_REQUIRE(second_console != nullptr);
         CATCH_REQUIRE(second_console->get_type() == "console");
         CATCH_REQUIRE(second_console->get_name() == "user-console");
+        CATCH_REQUIRE(std::dynamic_pointer_cast<snaplogger::console_appender>(second_console) != nullptr);
+        CATCH_REQUIRE(std::dynamic_pointer_cast<snaplogger::console_appender>(second_console)->get_output_stream() == "stderr");
         l->add_appender(second_console);
         appenders = l->get_appenders();
         CATCH_REQUIRE(appenders.size() == 1); // still 1!
@@ -216,33 +220,21 @@ CATCH_TEST_CASE("console_appender", "[appender]")
             FILE * fout(fdopen(fifo[1], "w"));
             std::swap(*fout, *stderr);
 
-            // it looks like the pipe does not get the data because it does
-            // not properly flush it... adding these 1, 2, 3 before/after
-            // seems to help
-            //
-            std::cerr << "1" << std::endl;
-            std::cerr << "2" << std::endl;
-            std::cerr << "3" << std::endl;
-
             pipe_reader::pointer_t pc(std::make_shared<pipe_reader>(fifo[0]));
             cppthread::thread t("pipe-reader", pc.get());
             CATCH_REQUIRE(t.start());
 
             SNAP_LOG_ERROR << "Test the console." << SNAP_LOG_SEND;
 
-            std::cerr << "1" << std::endl;
-            std::cerr << "2" << std::endl;
-            std::cerr << "3" << std::endl;
-
             std::swap(*fout, *stderr);
             fclose(fout);
             close(fifo[0]); // only close fifo[0], fifo[1] was managed by FILE* in fout
+            t.stop();
 
             // we expect the default format to include the name of the
             // appender and the message above and the severity
             //
             std::string const & received(pc->get_received());
-std::cerr << "--- received = [" << received << "]\n";
             CATCH_REQUIRE(received.find("Test the console.") != std::string::npos);
             CATCH_REQUIRE(received.find(console->get_name()) != std::string::npos);
             CATCH_REQUIRE(received.find("error") != std::string::npos);

@@ -723,10 +723,10 @@ bool appender::send_message(message const & msg)
             //       than X seconds prior, repeat it anyway (this can be
             //       a timeout of our cache as far as implementation is
             //       concerned) -- add option to define time and this check
-            //       could go "the other way around" where we cumulate messages
-            //       and if not repeat within X seconds, then send them out
+            //       could go "the other way around" where we accumulate messages
+            //       and if not repeated within X seconds, then send them out
             //       so here we would just push messages on a "stack" and
-            //       the thread would take care of send messages and if
+            //       the thread would take care of sending messages and if
             //       repeated then we can show a "count" in the message
             //       (i.e. something like "(message repeated N times in
             //       the last X seconds)") -- I think syslog sends the
