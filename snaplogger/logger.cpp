@@ -85,8 +85,15 @@ auto_delete_logger          g_logger_deleter = auto_delete_logger();
 
 
 
+SERVERPLUGINS_START_SERVER(logger)
+    , ::serverplugins::description("The logger plugin extensions.")
+    , ::serverplugins::help_uri("https://snapwebsites.org/help")
+    , ::serverplugins::categorization_tag("server")
+SERVERPLUGINS_END_SERVER(logger)
+
+
 logger::logger()
-    : server(serverplugins::get_id("logger"))
+    : server(g_logger_factory)
 {
 }
 
@@ -113,6 +120,7 @@ logger::pointer_t logger::get_instance()
         //
         g_instance = new logger::pointer_t();
         g_instance->reset(new private_logger());
+        (*g_instance)->complete_plugin_initialization();
     }
 
     return *g_instance;
@@ -165,7 +173,7 @@ void logger::load_plugins(std::string const & plugin_paths)
         names.find_plugins("snaplogger_");
 
         f_plugins = std::make_shared<serverplugins::collection>(names);
-        f_plugins->load_plugins(shared_from_this());
+        f_plugins->load_plugins(std::static_pointer_cast<serverplugins::server>(shared_from_this()));
     }
 }
 

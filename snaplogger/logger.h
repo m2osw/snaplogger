@@ -38,14 +38,18 @@
 namespace snaplogger
 {
 
+
+
 typedef std::vector<std::size_t>        severity_stats_t;
+
+
+SERVERPLUGINS_VERSION(logger, 1, 0)
 
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
 class logger
-    : public std::enable_shared_from_this<logger>
-    , public serverplugins::server
+    : public serverplugins::server
 {
 public:
     typedef std::shared_ptr<logger>     pointer_t;
