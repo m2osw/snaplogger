@@ -784,6 +784,11 @@ bool process_logger_options(advgetopt::getopt & opts
 
     if(show_banner)
     {
+        // try to place the banner first by swapping the logs
+        //
+        message::list_t save;
+        logger::get_instance()->swap_early_messages(save);
+
         SNAP_LOG_INFO
                 << section(g_normal_component)
                 << section(g_self_component)
@@ -799,6 +804,8 @@ bool process_logger_options(advgetopt::getopt & opts
                 << opts.get_options_environment().f_version
                 << " started."
                 << SNAP_LOG_SEND;
+
+        logger::get_instance()->add_early_messages(save);
     }
 
     if(opts.is_defined("log-environment"))
@@ -820,6 +827,8 @@ bool process_logger_options(advgetopt::getopt & opts
                     << SNAP_LOG_SEND;
         }
     }
+
+    logger::get_instance()->ready();
 
     return result;
 }

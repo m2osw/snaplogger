@@ -60,6 +60,7 @@ public:
     static logger::pointer_t    get_instance();
 
     void                        reset();
+    void                        ready();
     virtual void                shutdown();
     static std::string const &  default_plugin_paths();
     void                        load_plugins(std::string const & plugin_paths = default_plugin_paths());
@@ -99,6 +100,8 @@ public:
 
     bool                        is_asynchronous() const;
     void                        set_asynchronous(bool status);
+    void                        swap_early_messages(message::list_t & save);
+    void                        add_early_messages(message::list_t & messages);
     void                        log_message(message const & msg);
     void                        process_message(message const & msg);
     void                        set_fatal_error_severity(severity_t sev);
@@ -124,6 +127,8 @@ private:
     severity_array_t            f_lowest_replacements = severity_array_t();
     severity_t                  f_fatal_severity = severity_t::SEVERITY_OFF;
     std::function<void(void)>   f_fatal_error_callback = nullptr;
+    message::list_t             f_early_messages = message::list_t();
+    bool                        f_ready = false;
     bool                        f_asynchronous = false;
     severity_stats_t            f_severity_stats = severity_stats_t(static_cast<std::size_t>(severity_t::SEVERITY_MAX) - static_cast<std::size_t>(severity_t::SEVERITY_MIN) + 1);
     serverplugins::collection::pointer_t
@@ -156,6 +161,7 @@ public:
         logger::get_instance()->restore_lowest_severity();
     }
 };
+
 
 
 } // snaplogger namespace

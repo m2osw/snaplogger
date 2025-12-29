@@ -106,6 +106,7 @@ class message final
 {
 public:
     typedef std::shared_ptr<message>            pointer_t;
+    typedef std::list<pointer_t>                list_t;
 
                                 message(
                                           severity_t sev = default_severity()

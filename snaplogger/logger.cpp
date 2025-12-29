@@ -146,6 +146,18 @@ void logger::reset()
 }
 
 
+void logger::ready()
+{
+    f_ready = true;
+
+    while(!f_early_messages.empty())
+    {
+        log_message(*f_early_messages.front());
+        f_early_messages.pop_front();
+    }
+}
+
+
 void logger::shutdown()
 {
 }
@@ -723,6 +735,18 @@ void logger::set_asynchronous(bool status)
 }
 
 
+void logger::swap_early_messages(message::list_t & save)
+{
+    f_early_messages.swap(save);
+}
+
+
+void logger::add_early_messages(message::list_t & messages)
+{
+    f_early_messages.insert(f_early_messages.end(), messages.begin(), messages.end());
+}
+
+
 void logger::log_message(message const & msg)
 {
     if(const_cast<message &>(msg).tellp() > 0)
@@ -730,6 +754,21 @@ void logger::log_message(message const & msg)
         bool asynchronous(false);
         {
             guard g;
+
+            // intercept any messages sent before the logger is ready
+            // there should be few but it happens as in the initialization
+            // of the plugins which let us know which plugins get loaded
+            // and that is before we're done with the logger initialization
+            //
+            // also, if we are asked to show a value such as the logger
+            // version it's best if we never output those messages
+            //
+            if(!f_ready)
+            {
+                message::pointer_t m(std::make_shared<message>(static_cast<std::basic_stringstream<char> const &>(msg), msg));
+                f_early_messages.push_back(m);
+                return;
+            }
 
             if(f_asynchronous)
             {

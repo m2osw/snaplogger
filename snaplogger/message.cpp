@@ -55,6 +55,8 @@ namespace snaplogger
 namespace
 {
 
+
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 constexpr char const * const g_system_field_names[] =
@@ -570,5 +572,5 @@ std::uint32_t get_last_message_id()
 
 
 
-} // snaplogger namespace
+} // namespace snaplogger
 // vim: ts=4 sw=4 et
