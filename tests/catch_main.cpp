@@ -26,6 +26,7 @@
 
 // snaplogger
 //
+#include    <snaplogger/logger.h>
 #include    <snaplogger/version.h>
 
 
@@ -40,6 +41,18 @@
 
 
 
+void init_callback()
+{
+    libexcept::set_collect_stack(libexcept::collect_stack_t::COLLECT_STACK_NO);
+
+    // the ready() function never gets called if we don't do it because
+    // we do not currently initialize the logger using the opts
+    //
+    // see: snaplogger::process_logger_options()
+    //
+    snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
+    l->ready();
+}
 
 
 int main(int argc, char * argv[])
@@ -49,7 +62,7 @@ int main(int argc, char * argv[])
             , SNAPLOGGER_VERSION_STRING
             , argc
             , argv
-            , []() { libexcept::set_collect_stack(libexcept::collect_stack_t::COLLECT_STACK_NO); }
+            , &init_callback
         );
 }
 
