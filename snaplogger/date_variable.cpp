@@ -161,7 +161,7 @@ DEFINE_LOGGER_VARIABLE_IGNORED_ON_NO_REPEAT(time)
 {
     auto nanosec = [](timespec const & tp)
     {
-        std::string sec(std::to_string(tp.tv_sec));
+        std::string const sec(std::to_string(tp.tv_sec));
         std::string nsec(std::to_string(tp.tv_nsec));
         if(nsec.length() < 9)
         {
@@ -200,17 +200,38 @@ DEFINE_LOGGER_VARIABLE_IGNORED_ON_NO_REPEAT(time)
         }
         else if(p == "millisecond")
         {
-            value += std::to_string(timestamp.tv_nsec / 1000000LL);
+            std::string msec(std::to_string(timestamp.tv_nsec / 1000000LL));
+            if(msec.length() < 3
+            && (params[0]->get_value() == "leadingzeroes"
+                || params[0]->get_value() == "leadingzeros"))
+            {
+                msec = std::string("000").substr(0, 3  - msec.length()) + msec;
+            }
+            value += msec;
             time_format.clear();
         }
         else if(p == "microsecond")
         {
-            value += std::to_string(timestamp.tv_nsec / 1000LL);
+            std::string usec(std::to_string(timestamp.tv_nsec / 1000LL));
+            if(usec.length() < 6
+            && (params[0]->get_value() == "leadingzeroes"
+                || params[0]->get_value() == "leadingzeros"))
+            {
+                usec = std::string("000000").substr(0, 6  - usec.length()) + usec;
+            }
+            value += usec;
             time_format.clear();
         }
         else if(p == "nanosecond")
         {
-            value += std::to_string(timestamp.tv_nsec);
+            std::string nsec(std::to_string(timestamp.tv_nsec));
+            if(nsec.length() < 9
+            && (params[0]->get_value() == "leadingzeroes"
+                || params[0]->get_value() == "leadingzeros"))
+            {
+                nsec = std::string("000000000").substr(0, 9  - nsec.length()) + nsec;
+            }
+            value += nsec;
             time_format.clear();
         }
         else if(p == "unix")
@@ -256,7 +277,7 @@ DEFINE_LOGGER_VARIABLE_IGNORED_ON_NO_REPEAT(time)
             std::string ms(std::to_string(timestamp.tv_nsec / 1'000'000UL));
             if(ms.length() < 3)
             {
-                ms = std::string("000").substr(0, 3 - ms.length());
+                ms = std::string("000").substr(0, 3 - ms.length()) + ms;
             }
             time_format += ".";
             time_format += ms;
@@ -268,7 +289,7 @@ DEFINE_LOGGER_VARIABLE_IGNORED_ON_NO_REPEAT(time)
             std::string ms(std::to_string(timestamp.tv_nsec / 1000000UL));
             if(ms.length() < 3)
             {
-                ms = std::string("000").substr(0, 3 - ms.length());
+                ms = std::string("000").substr(0, 3 - ms.length()) + ms;
             }
             time_format += ".";
             time_format += ms;

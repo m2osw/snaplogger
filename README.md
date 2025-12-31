@@ -816,12 +816,16 @@ versatile. The following are parameters supported internally:
     ${date:month}               month as a number (1 to 12)
     ${date:year}                year as a number (i.e. "2020")
     ${time}                     hour:minute:second in 24 hour
-    ${time:hour=24|12}          hour number; (0 to 23 or 1 to 12)
+    ${time:hour=24|12}          hour number; (0 to 23 or 1 to 12; 24 is implied
+                                if not specified)
     ${time:minute}              minute number (0 to 59)
     ${time:second}              second number (0 to 60)
-    ${time:millisecond}         millisecond number (0 to 999)
-    ${time:macrosecond}         macrosecond number (0 to 999999)
-    ${time:nanosecond}          nanosecond number (0 to 999999999)
+    ${time:millisecond[=leadingzeroes]}
+                                millisecond number (0 to 999)
+    ${time:macrosecond[=leadingzeroes]}
+                                macrosecond number (0 to 999999)
+    ${time:nanosecond[=leadingzeroes]}
+                                nanosecond number (0 to 999999999)
     ${time:unix}                seconds since Jan 1, 1970 (Unix timestamp)
     ${time:meridiem}            AM or PM (right now according to locale...)
     ${time:offset}              amount of nanoseconds since logger started
