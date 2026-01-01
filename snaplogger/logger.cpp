@@ -759,7 +759,10 @@ void logger::swap_early_messages(message::list_t & save)
 
 void logger::add_early_messages(message::list_t & messages)
 {
-    f_early_messages.insert(f_early_messages.end(), messages.begin(), messages.end());
+    if(f_early_messages.size() + messages.size() < 100)
+    {
+        f_early_messages.insert(f_early_messages.end(), messages.begin(), messages.end());
+    }
 }
 
 
@@ -781,8 +784,19 @@ void logger::log_message(message const & msg)
             //
             if(!f_ready)
             {
-                message::pointer_t m(std::make_shared<message>(static_cast<std::basic_stringstream<char> const &>(msg), msg));
-                f_early_messages.push_back(m);
+                // the ready() function should be called way before you get
+                // 100 log messages; actually, it should be just 2 for the
+                // banner and maybe a few more from the logger plugins, which
+                // at time of writing is 2.
+                //
+                // TODO: look into whether we could have that limit set using a command
+                //       line option?
+                //
+                if(f_early_messages.size() < 100)
+                {
+                    message::pointer_t m(std::make_shared<message>(static_cast<std::basic_stringstream<char> const &>(msg), msg));
+                    f_early_messages.push_back(m);
+                }
                 return;
             }
 
