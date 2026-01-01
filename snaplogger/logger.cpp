@@ -63,10 +63,26 @@ struct auto_delete_logger
 {
     ~auto_delete_logger()
     {
+        // TODO: determine whether the shutdown() could be called before
+        //       we do the std::swap(); if so, then ready() could be
+        //       called from the shutdown() function instead; at the moment,
+        //       though, it throws an exception since the ready() function
+        //       may try to re-create the snaplogger anew
+        //
         logger::pointer_t * ptr(nullptr);
         {
             guard g;
-            swap(ptr, g_instance);
+            ptr = g_instance;
+        }
+        if(ptr != nullptr)
+        {
+            (*ptr)->ready();
+        }
+
+        ptr = nullptr;
+        {
+            guard g;
+            std::swap(ptr, g_instance);
         }
         if(ptr != nullptr)
         {

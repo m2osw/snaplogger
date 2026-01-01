@@ -487,6 +487,7 @@ private_logger::~private_logger()
 void private_logger::shutdown()
 {
     delete_thread();
+    logger::shutdown();
 }
 
 
