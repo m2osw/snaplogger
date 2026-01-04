@@ -461,22 +461,46 @@ override of another section of the same name which already has a filename.
 
     filename=database
 
-The filename must can be a full path with an extension:
+The filename can be a full path with an extension:
 
     filename=/var/log/my-app/strange-errors.txt
 
-If no slashes are found, then the `path` parameter is prepended, so the
-following has the same effect:
+If no slashes are found in filename, then the `path` parameter is prepended,
+so the following has the same effect:
 
     filename=strange-errors.txt
     path=/var/log/my-app
 
-Similarly, if `filename` does not include an extension, the default ".log"
-is appended. In the following case, the file wil be in the same location,
-but it will use the ".log" extension:
+Similarly, if `filename` does not include an extension, the default `.log`
+is appended. In the following case, the file is in the same location,
+but it will use the `.log` extension:
 
     filename=strange-errors
     path=/var/log/my-app
+
+Note that the filename and path can make use of environment variables.
+For example, if you want to save the logs in a user directory, you could
+use:
+
+    path=$HOME/.local/share/$APPNAME
+
+The parser understands variable names written between curly braces too
+which is useful if followed by characters that would otherwise be viewed
+as being part of the variable name:
+
+    filename=${app_name}log
+
+Finally, if the path is `~` or starts with `~/` then the `~` is replaced
+by the content of the `$HOME` variable. So the following are the same:
+
+    path=~/.local/share/$APPNAME
+    path=$HOME/.local/share/$APPNAME
+
+Often, when using a path involving the $HOME directory of a user, the
+folder was not created at installation time. To allow the automatic
+creation of that path, you want to also set the following:
+
+    create_path=true
 
 When using files for the output, the files can grow very quickly if the
 process derails (i.e. there is an issue and it tries again and again

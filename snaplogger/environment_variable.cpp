@@ -60,7 +60,7 @@ DEFINE_LOGGER_VARIABLE(env)
     std::string const env_name(params[0]->get_value());
     if(env_name.empty())
     {
-        throw invalid_variable("the ${env:name=...} variable first parameter cannot be empty.");
+        throw invalid_variable("the ${env:name=...} variable parameter cannot be empty.");
     }
     char const * env(getenv(env_name.c_str()));
     if(env != nullptr)

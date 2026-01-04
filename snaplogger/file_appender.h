@@ -65,6 +65,7 @@ private:
     std::string         f_on_overflow = std::string();
     severity_t          f_severity_considered_an_error = severity_t::SEVERITY_WARNING;
     bool                f_initialized = false;
+    bool                f_create_path = false;
     bool                f_lock = true;
     bool                f_flush = true;
     bool                f_secure = false;

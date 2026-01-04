@@ -17,9 +17,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /** \file
- * \brief Appenders are used to append data to somewhere.
+ * \brief This implements the file appender.
  *
- * This file declares the base appender class.
+ * The file appender is used to save logs to files.
  */
 
 // self
@@ -40,6 +40,8 @@
 // snapdev
 //
 #include    <snapdev/lockfile.h>
+#include    <snapdev/mkdir_p.h>
+#include    <snapdev/string_replace_variables.h>
 
 
 // C++
@@ -105,6 +107,18 @@ void file_appender::set_config(advgetopt::getopt const & opts)
     else if(opts.is_defined("path"))
     {
         f_path = opts.get_string("path");
+    }
+
+    // CREATE PATH
+    //
+    std::string const create_path_field(get_name() + "::create_path");
+    if(opts.is_defined(create_path_field))
+    {
+        f_create_path = advgetopt::is_true(opts.get_string(create_path_field));
+    }
+    else if(opts.is_defined("create_path"))
+    {
+        f_create_path = advgetopt::is_true(opts.get_string("create_path"));
     }
 
     // FILENAME
@@ -175,12 +189,18 @@ void file_appender::set_config(advgetopt::getopt const & opts)
     {
         f_fallback_to_console = advgetopt::is_true(opts.get_string(fallback_to_console_field));
     }
+
+    // SEVERITY CONSIDERED AN ERROR
+    //
     std::string const severity_considered_an_error_field(get_name() + "::severity_considered_an_error");
     if(opts.is_defined(severity_considered_an_error_field))
     {
         severity::pointer_t sev(snaplogger::get_severity(opts.get_string(severity_considered_an_error_field)));
         if(sev != nullptr)
         {
+            // if a message has that severity or higher, use stderr when
+            // falling back to the console; otherwise use stdout
+            //
             f_severity_considered_an_error = sev->get_severity();
         }
     }
@@ -221,7 +241,7 @@ bool file_appender::process_message(message const & msg, std::string const & for
     guard g;
 
     // verify whether the output file is too large, if so rename it .log.1
-    // and create a new file; the process will delete an existing .log.1 if
+    // and create a new file; the process deletes an existing .log.1 if
     // present; as a result we make sure that files never grow over a
     // user specified maximum; by default this feature uses a maximum size
     // of 10Mb
@@ -342,6 +362,18 @@ bool file_appender::process_message(message const & msg, std::string const & for
         if(f_filename.find('.', pos + 1) == std::string::npos)
         {
             f_filename += ".log";
+        }
+        f_filename = advgetopt::handle_user_directory(f_filename);
+        f_filename = snapdev::string_replace_variables(f_filename);
+
+        if(f_create_path)
+        {
+            // the main idea for this one is to have an end user get logs
+            // in a place such as ~/.local/share/<app>/logs/... so we do
+            // not force the mode, owner, and group because that would
+            // anyway be for the current user eyes only to start with
+            //
+            snapdev::mkdir_p(f_filename, true);
         }
 
         if(access(f_filename.c_str(), R_OK | W_OK) != 0
