@@ -240,6 +240,39 @@ bool file_appender::process_message(message const & msg, std::string const & for
 {
     guard g;
 
+    for(;;)
+    {
+        switch(check_auto_rotate())
+        {
+        case auto_rotate_t::AUTO_ROTATE_SUCCESS:
+            break;
+
+        case auto_rotate_t::AUTO_ROTATE_DONE:
+            return true;
+
+        case auto_rotate_t::AUTO_ROTATE_ERROR:
+            return false;
+
+        }
+
+        if(f_initialized)
+        {
+            break;
+        }
+        f_initialized = true;
+
+        if(!open())
+        {
+            return false;
+        }
+    }
+
+    return output_message(msg, formatted_message, true);
+}
+
+
+file_appender::auto_rotate_t file_appender::check_auto_rotate()
+{
     // verify whether the output file is too large, if so rename it .log.1
     // and create a new file; the process deletes an existing .log.1 if
     // present; as a result we make sure that files never grow over a
@@ -263,12 +296,16 @@ bool file_appender::process_message(message const & msg, std::string const & for
                 //
                 // TODO: look at properly formatting this message (missing date/time, pid, file:line, etc.)
                 //
+                // TODO: if we reopen a file over and over again then this message gets re-added which I think
+                //       could be avoided by reading the last line and see whether that's said message already
+                //
+                message const msg;
                 snapdev::NOT_USED(output_message(msg, "-- file size limit reached, this will be the last message --", false));
             }
 
             if(f_on_overflow == "skip")
             {
-                return true;
+                return auto_rotate_t::AUTO_ROTATE_DONE;
             }
 
             if(f_on_overflow == "fatal")
@@ -286,7 +323,20 @@ bool file_appender::process_message(message const & msg, std::string const & for
                 snapdev::NOT_USED(unlink(one.c_str()));
                 if(rename(f_filename.c_str(), one.c_str()) != 0)
                 {
-                    snapdev::NOT_USED(unlink(f_filename.c_str()));
+                    if(unlink(f_filename.c_str()) != 0)
+                    {
+                        // unlink may fail because the directory
+                        // does not allow us to delete the file,
+                        // but we may still be able to reset the
+                        // size back to zero
+                        //
+                        if(truncate(f_filename.c_str(), 0) != 0)
+                        {
+                            // assume our rotation failed
+                            //
+                            return auto_rotate_t::AUTO_ROTATE_ERROR;
+                        }
+                    }
                 }
             }
             else if(f_on_overflow == "logrotate")
@@ -302,17 +352,17 @@ bool file_appender::process_message(message const & msg, std::string const & for
                 {
                     // assume our rotation failed
                     //
-                    return false;
+                    return auto_rotate_t::AUTO_ROTATE_ERROR;
                 }
             }
             else
             {
                 // act like "failed" to let fallback take over
                 //
-                return false;
+                return auto_rotate_t::AUTO_ROTATE_ERROR;
             }
 
-            // force a reopen as when we do a logrotate with an event
+            // force a reopen as well when a logrotate happens
             // (we would not yet have received the event here)
             //
             reopen();
@@ -323,90 +373,83 @@ bool file_appender::process_message(message const & msg, std::string const & for
         }
     }
 
-    if(!f_initialized)
+    return auto_rotate_t::AUTO_ROTATE_SUCCESS;
+}
+
+
+bool file_appender::open()
+{
+    // TODO: the following changes f_filename which is the user defined
+    //       filename; so it should not do that; instead we should have
+    //       two variables, a system generated filename and the user
+    //       f_filename original; that way we're sure not to mess up
+    //       the original
+
+    if(f_filename.empty())
     {
-        f_initialized = true;
-
-        if(f_filename.empty())
+        // try to generate a filename
+        //
+        map_diagnostics_t map(get_map_diagnostics());
+        auto const it(map.find("progname"));
+        if(it == map.end())
         {
-            // try to generate a filename
-            //
-            map_diagnostics_t map(get_map_diagnostics());
-            auto const it(map.find("progname"));
-            if(it == map.end())
-            {
-                return false;
-            }
-            if(it->second.empty())
-            {
-                return false;
-            }
-
-            f_filename = f_path + '/';
-            if(f_secure)
-            {
-                f_filename += "secure/";
-            }
-            f_filename += it->second;
-            f_filename += ".log";
+            return false;
         }
-        else if(f_filename.find('/') == std::string::npos)
-        {
-            f_filename = f_path + '/' + f_filename;
-        }
-        std::string::size_type pos(f_filename.rfind('/'));
-        if(pos == std::string::npos)
-        {
-            pos = 0;
-        }
-        if(f_filename.find('.', pos + 1) == std::string::npos)
-        {
-            f_filename += ".log";
-        }
-        f_filename = advgetopt::handle_user_directory(f_filename);
-        f_filename = snapdev::string_replace_variables(f_filename);
-
-        if(f_create_path)
-        {
-            // the main idea for this one is to have an end user get logs
-            // in a place such as ~/.local/share/<app>/logs/... so we do
-            // not force the mode, owner, and group because that would
-            // anyway be for the current user eyes only to start with
-            //
-            snapdev::mkdir_p(f_filename, true);
-        }
-
-        if(access(f_filename.c_str(), R_OK | W_OK) != 0
-        && errno != ENOENT)
+        if(it->second.empty())
         {
             return false;
         }
 
-        int flags(O_CREAT | O_WRONLY | O_APPEND | O_CLOEXEC | O_LARGEFILE | O_NOCTTY);
-        int mode(S_IRUSR | S_IWUSR);
-        if(!f_secure)
+        f_filename = f_path + '/';
+        if(f_secure)
         {
-            mode |= S_IRGRP;
+            f_filename += "secure/";
         }
+        f_filename += it->second;
+        f_filename += ".log";
+    }
+    else if(f_filename.find('/') == std::string::npos)
+    {
+        f_filename = f_path + '/' + f_filename;
+    }
+    std::string::size_type pos(f_filename.rfind('/'));
+    if(pos == std::string::npos)
+    {
+        pos = 0;
+    }
+    if(f_filename.find('.', pos + 1) == std::string::npos)
+    {
+        f_filename += ".log";
+    }
+    f_filename = advgetopt::handle_user_directory(f_filename);
+    f_filename = snapdev::string_replace_variables(f_filename);
 
-        f_fd.reset(open(f_filename.c_str(), flags, mode));
-
-        // verify that the file isn't already too big
+    if(f_create_path)
+    {
+        // the main idea for this one is to have an end user get logs
+        // in a place such as ~/.local/share/<app>/logs/... so we do
+        // not force the mode, owner, and group because that would
+        // anyway be for the current user eyes only to start with
         //
-        // TODO: we may want to look at making the code above that verifies
-        //       the size and allow rotation to run here too if the file
-        //       is already too large?
-        //
-        struct stat s = {};
-        int const r(fstat(f_fd.get(), &s));
-        if(r != 0
-        || s.st_size >= f_maximum_size)
-        {
-            return false;
-        }
+        snapdev::mkdir_p(f_filename, true);
     }
 
-    return output_message(msg, formatted_message, true);
+    if(access(f_filename.c_str(), R_OK | W_OK) != 0
+    && errno != ENOENT)
+    {
+        return false;
+    }
+
+    int flags(O_CREAT | O_WRONLY | O_APPEND | O_CLOEXEC | O_LARGEFILE | O_NOCTTY);
+    int mode(S_IRUSR | S_IWUSR);
+    if(!f_secure)
+    {
+        mode |= S_IRGRP;
+    }
+
+    f_fd.reset(::open(f_filename.c_str(), flags, mode));
+
+    return !!f_fd;
 }
 
 

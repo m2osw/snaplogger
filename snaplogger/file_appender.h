@@ -56,7 +56,16 @@ protected:
     virtual bool        process_message(message const & msg, std::string const & formatted_message) override;
 
 private:
+    enum class auto_rotate_t
+    {
+        AUTO_ROTATE_SUCCESS,        // continue processing
+        AUTO_ROTATE_DONE,           // stop processing successfully
+        AUTO_ROTATE_ERROR,          // stop processing with an error
+    };
+
     bool                output_message(message const & msg, std::string const & formatted_message, bool allow_fallback);
+    auto_rotate_t       check_auto_rotate();
+    bool                open();
 
     std::string         f_path = std::string("/var/log/snaplogger");
     std::string         f_filename = std::string();
