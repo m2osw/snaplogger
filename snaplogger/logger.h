@@ -138,6 +138,7 @@ private:
 
 
 
+void                mark_ready();
 bool                is_configured();
 bool                has_appender(std::string const & type);
 void                reopen();

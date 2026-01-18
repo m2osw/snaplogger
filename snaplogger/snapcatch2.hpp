@@ -57,7 +57,7 @@
     { \
         if(SNAP_CATCH2_NAMESPACE::g_progress()) \
         { \
-            std::cout << "SECTION: " << name << std::endl; \
+            std::cout << "\x1B[1mSECTION: " << name << "\x1B[22m" << std::endl; \
         } \
         ::snaplogger::nested_diagnostic section_diagnostic(name, true);
 

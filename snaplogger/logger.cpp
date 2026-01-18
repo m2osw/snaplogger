@@ -1085,6 +1085,30 @@ bool configure_config(std::string const & config_filename)
 }
 
 
+void mark_ready()
+{
+    logger::pointer_t p;
+
+    // use a test to prevent us from re-allocating the logger if the
+    // function is called after it was deleted
+    {
+        guard g;
+
+        if(g_instance == nullptr
+        && !g_first_instance)
+        {
+            return;
+        }
+        p = logger::get_instance();
+    }
+
+    if(p != nullptr)
+    {
+        p->ready();
+    }
+}
+
+
 
 } // snaplogger namespace
 // vim: ts=4 sw=4 et
