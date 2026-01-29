@@ -24,7 +24,7 @@
  *
  * \code
  *     {
- *         guard        g;
+ *         guard        lock;
  *
  *         ...do multi-thread safe work...
  *     }

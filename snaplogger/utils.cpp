@@ -159,13 +159,10 @@ bool is_rotational(struct stat & s)
     }
 
     {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
         device_type_t const type = {
             .f_type = false,
             .f_errno = ENODATA,
         };
-#pragma GCC diagnostic pop
         g_device_type_cache[s.st_dev] = type;
     }
 
