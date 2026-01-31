@@ -173,6 +173,26 @@ CATCH_TEST_CASE("console_appender", "[appender]")
     {
         snaplogger::set_diagnostic(snaplogger::DIAG_KEY_PROGNAME, "user-console");
 
+        // by default, output is sent to stderr; replace that file
+        // with a pipe so we can capture anything that goes there
+        //
+        // Note: unfortunately, it has to be done early on because the
+        //       fd is read at the time the console appender gets initialized
+        //       the first time and our pipe needs to be ready by then
+        //       this means we may capture other error messages in our
+        //       `pc` thread runner
+        //
+        int fifo[2]; // 0 -- read, 1 -- write
+        int const r(pipe(fifo));
+        CATCH_REQUIRE(r == 0);
+
+        FILE * fout(fdopen(fifo[1], "w"));
+        std::swap(*fout, *stderr);
+
+        pipe_reader::pointer_t pc(std::make_shared<pipe_reader>(fifo[0]));
+        cppthread::thread t("pipe-reader", pc.get());
+        CATCH_REQUIRE(t.start());
+
         snaplogger::logger::pointer_t l(snaplogger::logger::get_instance());
         snaplogger::appender::vector_t appenders(l->get_appenders());
         CATCH_REQUIRE(appenders.size() == 0);
@@ -210,35 +230,20 @@ CATCH_TEST_CASE("console_appender", "[appender]")
         CATCH_REQUIRE(appenders[0] == console); // original, "second_console" was ignored
         CATCH_REQUIRE(console->get_name() == "user-console"); // except that the name was updated
 
-        {
-            // by default, output is sent to stderr
-            //
-            int fifo[2]; // 0 -- read, 1 -- write
-            int const r(pipe(fifo));
-            CATCH_REQUIRE(r == 0);
+        SNAP_LOG_ERROR << "Test the console." << SNAP_LOG_SEND;
 
-            FILE * fout(fdopen(fifo[1], "w"));
-            std::swap(*fout, *stderr);
+        std::swap(*fout, *stderr);
+        fclose(fout);
+        close(fifo[0]); // only close fifo[0], fifo[1] was managed by FILE* in fout
+        t.stop();
 
-            pipe_reader::pointer_t pc(std::make_shared<pipe_reader>(fifo[0]));
-            cppthread::thread t("pipe-reader", pc.get());
-            CATCH_REQUIRE(t.start());
-
-            SNAP_LOG_ERROR << "Test the console." << SNAP_LOG_SEND;
-
-            std::swap(*fout, *stderr);
-            fclose(fout);
-            close(fifo[0]); // only close fifo[0], fifo[1] was managed by FILE* in fout
-            t.stop();
-
-            // we expect the default format to include the name of the
-            // appender and the message above and the severity
-            //
-            std::string const & received(pc->get_received());
-            CATCH_REQUIRE(received.find("Test the console.") != std::string::npos);
-            CATCH_REQUIRE(received.find(console->get_name()) != std::string::npos);
-            CATCH_REQUIRE(received.find("error") != std::string::npos);
-        }
+        // we expect the default format to include the name of the
+        // appender and the message above and the severity
+        //
+        std::string const & received(pc->get_received());
+        CATCH_REQUIRE(received.find("Test the console.") != std::string::npos);
+        CATCH_REQUIRE(received.find(console->get_name()) != std::string::npos);
+        CATCH_REQUIRE(received.find("error") != std::string::npos);
 
         l->reset();
     }
