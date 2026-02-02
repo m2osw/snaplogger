@@ -252,7 +252,7 @@ void variable::process_value(message const & msg, std::string & value) const
         // something somewhat common and here it just means the functions
         // won't be applied, not that this specific log fails 100%
         //
-        value += " {WARNING: your value has invalid UTF-8 characters; do you use an std::int8_t or std::uint8_t variable as a parameter to the log message? Those are often inserted as characters instead of numbers; exception message: \"";
+        value += " {WARNING: your value has invalid UTF-8 characters; do you use an std::int8_t or std::uint8_t variable without a static_cast<int>() as a parameter of the log message? Those are often inserted as characters instead of numbers; exception message: \"";
         value += e.what();
         value += "\"} ";
         return;
