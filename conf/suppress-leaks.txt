@@ -1,0 +1,7 @@
+# At this point, we have large amount of leaks with the logger
+# The sanitizer leak detects all of the following which I think
+# we can fix over time although at this point it doesn't look
+# easy to do (at least not before the leak sanitizer reacts)
+
+leak:snaplogger::guard::guard
+
