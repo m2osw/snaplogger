@@ -4,4 +4,6 @@
 # easy to do (at least not before the leak sanitizer reacts)
 
 leak:snaplogger::guard::guard
+leak:snaplogger::logger
+leak:snaplogger::private_logger
 
