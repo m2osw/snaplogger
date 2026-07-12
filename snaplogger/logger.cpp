@@ -49,6 +49,11 @@ namespace snaplogger
 {
 
 
+// defined in guard.cpp but private
+//
+extern void delete_guard();
+
+
 namespace
 {
 
@@ -59,6 +64,12 @@ logger::pointer_t *         g_instance = nullptr;
 std::string                 g_default_plugin_paths = std::string("/usr/local/lib/snaplogger/plugins:/usr/lib/snaplogger/plugins");
 
 
+// This is correct C++ but it's not compatible with the memory sanitizer
+// which sees those allocations because the fini functions do not get
+// called until after the sanitizer prints the memory leaks; instead we
+// need to use a static function marked as a destructor which the
+// sanitizer makes sure to call before printing its report
+//
 struct auto_delete_logger
 {
     ~auto_delete_logger()
@@ -69,6 +80,7 @@ struct auto_delete_logger
         //       though, it throws an exception since the ready() function
         //       may try to re-create the snaplogger anew
         //
+//std::cerr << "--- auto deleting snaplogger now...\n";
         logger::pointer_t * ptr(nullptr);
         {
             guard g;
@@ -94,6 +106,41 @@ struct auto_delete_logger
 
 auto_delete_logger          g_logger_deleter = auto_delete_logger();
 
+
+//void __attribute__((destructor)) delete_logger()
+//{
+//    // TODO: determine whether the shutdown() could be called before
+//    //       we do the std::swap(); if so, then ready() could be
+//    //       called from the shutdown() function instead; at the moment,
+//    //       though, it throws an exception since the ready() function
+//    //       may try to re-create the snaplogger anew
+//    //
+//std::cerr << "--- auto deleting snaplogger now...\n";
+//    logger::pointer_t * ptr(nullptr);
+//    {
+//        guard g;
+//        ptr = g_instance;
+//    }
+//    if(ptr != nullptr)
+//    {
+//        (*ptr)->ready();
+//    }
+//
+//    ptr = nullptr;
+//    {
+//        guard g;
+//        std::swap(ptr, g_instance);
+//    }
+//    if(ptr != nullptr)
+//    {
+//        (*ptr)->shutdown();
+//        delete ptr;
+//    }
+//
+//    // after the logger shutdown we should never reuse the guard
+//    //
+//    delete_guard();
+//}
 
 
 }
@@ -134,9 +181,11 @@ logger::pointer_t logger::get_instance()
 
         // note that we create a `private_logger` object
         //
-        g_instance = new logger::pointer_t();
-        g_instance->reset(new private_logger());
-        (*g_instance)->complete_plugin_initialization();
+        logger::pointer_t * instance = new logger::pointer_t();
+        instance->reset(new private_logger());
+        (*instance)->complete_plugin_initialization();
+
+        g_instance = instance;
     }
 
     return *g_instance;

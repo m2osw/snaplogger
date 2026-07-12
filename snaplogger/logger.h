@@ -18,9 +18,16 @@
 #pragma once
 
 /** \file
- * \brief Appenders are used to append data to somewhere.
+ * \brief The logger is the primary object allowing you to log messages.
  *
- * This file declares the base appender class.
+ * This file declares the logger class.
+ *
+ * It manages the appenders and current severity level.
+ *
+ * It is where most global values are defined.
+ *
+ * And it is the hub where all the log messages go to end up in a file,
+ * in your console, over the network, etc.
  */
 
 // self

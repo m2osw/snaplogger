@@ -636,13 +636,13 @@ std::size_t appender::get_bitrate_dropped_messages() const
  */
 bool appender::send_message(message const & msg)
 {
-    guard g;
-
     if(!is_enabled()
     || msg.get_severity() < f_severity)
     {
         return true;
     }
+
+    guard g;
 
     component::set_t const & components(msg.get_components());
     if(components.empty())

@@ -40,6 +40,7 @@ include_directories(
 
 add_subdirectory(snaplogger)
 add_subdirectory(tests     )
+add_subdirectory(conf      )
 add_subdirectory(doc       )
 add_subdirectory(cmake     )
 add_subdirectory(scripts   )

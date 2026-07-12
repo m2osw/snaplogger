@@ -40,6 +40,12 @@
 //
 #include    <cppthread/guard.h>
 #include    <cppthread/mutex.h>
+#include    <cppthread/thread.h>
+
+
+// C++
+//
+#include    <iostream>
 
 
 // last include
@@ -58,7 +64,8 @@ namespace
 
 
 
-cppthread::mutex *      g_mutex = nullptr;
+cppthread::mutex *      g_mutex = new cppthread::mutex;
+bool                    g_mutex_done = false;
 
 
 
@@ -77,19 +84,57 @@ guard::guard()
         //
         cppthread::guard lock(*cppthread::g_system_mutex);
 
+        if(g_mutex_done)
+        {
+            std::cerr << "fatal error: guard used after mutex marked done.\n";
+            std::terminate();
+        }
+//{
+//std::string m("--- system mutex lock obtained by ");
+//m += std::to_string(cppthread::gettid());
+//m += "\n";
+//std::cerr <<  m;
+//}
+
         if(g_mutex == nullptr)
         {
             g_mutex = new cppthread::mutex;
         }
+//{
+//std::string m("--- system mutex lock released by ");
+//m += std::to_string(cppthread::gettid());
+//m += "\n";
+//std::cerr <<  m;
+//}
     }
 
     g_mutex->lock();
+//{
+//std::string m("--- snaplogger lock obtained by ");
+//m += std::to_string(cppthread::gettid());
+//m += "\n";
+//std::cerr <<  m;
+//}
 }
 
 
 guard::~guard()
 {
+//{
+//std::string m("--- snaplogger lock released by ");
+//m += std::to_string(cppthread::gettid());
+//m += "\n";
+//std::cerr <<  m;
+//}
     g_mutex->unlock();
+}
+
+
+void delete_guard()
+{
+    g_mutex_done = true;
+    delete g_mutex;
+    g_mutex = nullptr;
 }
 
 

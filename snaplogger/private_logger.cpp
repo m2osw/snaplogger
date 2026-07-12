@@ -125,12 +125,12 @@ void cppthread_logs(cppthread::log_level_t l, std::string const & m)
     msg << m;
 
     // this call cannot create a loop, if the creation of the logger
-    // generates an cppthread log, then the second call will generate
+    // generates a cppthread log, then the second call generates
     // an exception (see get_instance() in snaplogger/logger.cpp)
     //
-    logger::pointer_t lg(logger::get_instance());
+    //logger::pointer_t lg(logger::get_instance()); -- this uses a guard which is not necessary
 
-    lg->log_message(msg);
+    msg.get_logger()->log_message(msg);
 }
 
 

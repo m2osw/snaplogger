@@ -21,14 +21,13 @@
 project(snaplogger_conf)
 
 
-# Installed by debian/* files to standard /etc/snaplogger
-#install(
-#    FILES 
-#        severity.conf
-#
-#    DESTINATION
-#        share/snaplogger/etc
-#)
+install(
+    FILES
+        suppress-leaks.txt
+
+    DESTINATION
+        share/snaplogger
+)
 
 
 # vim: ts=4 sw=4 et
