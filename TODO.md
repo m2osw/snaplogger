@@ -1,4 +1,12 @@
 
+* The snaplogger and cppthread logger seem to have a deadlock issue
+
+* The snaplogger leaks as per the sanitizer
+  - the deletion does happen, but now we have a serverplugin factory which
+    does not get deleted properly
+  - the serverplugin also does not dlclose() plugins it loaded
+  - the guard should probably be using a static variable for the mutex (TBD)
+
 * Parameter, not format. Look into whether there would be a way to
   detect that a string within a message is a parameter that may include
   "${" which will not represent a snaplogger format and maybe support
