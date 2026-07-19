@@ -45,7 +45,9 @@
 
 // C++
 //
+#include    <iomanip>
 #include    <iostream>
+#include    <mutex>
 
 
 // last include
@@ -64,6 +66,7 @@ namespace
 
 
 
+std::once_flag          g_init_once = std::once_flag();
 cppthread::mutex *      g_mutex = new cppthread::mutex;
 bool                    g_mutex_done = false;
 
@@ -78,54 +81,16 @@ bool                    g_mutex_done = false;
 
 guard::guard()
 {
-    {
-        // we know for sure that g_system_mutex was already initialized
-        // so we can use it here
-        //
-        cppthread::guard lock(*cppthread::g_system_mutex);
-
-        if(g_mutex_done)
-        {
-            std::cerr << "fatal error: guard used after mutex marked done.\n";
-            std::terminate();
-        }
-//{
-//std::string m("--- system mutex lock obtained by ");
-//m += std::to_string(cppthread::gettid());
-//m += "\n";
-//std::cerr <<  m;
-//}
-
-        if(g_mutex == nullptr)
-        {
-            g_mutex = new cppthread::mutex;
-        }
-//{
-//std::string m("--- system mutex lock released by ");
-//m += std::to_string(cppthread::gettid());
-//m += "\n";
-//std::cerr <<  m;
-//}
-    }
+    std::call_once(g_init_once, []{
+        g_mutex = new cppthread::mutex;
+    });
 
     g_mutex->lock();
-//{
-//std::string m("--- snaplogger lock obtained by ");
-//m += std::to_string(cppthread::gettid());
-//m += "\n";
-//std::cerr <<  m;
-//}
 }
 
 
 guard::~guard()
 {
-//{
-//std::string m("--- snaplogger lock released by ");
-//m += std::to_string(cppthread::gettid());
-//m += "\n";
-//std::cerr <<  m;
-//}
     g_mutex->unlock();
 }
 
