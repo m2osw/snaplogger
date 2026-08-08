@@ -80,6 +80,7 @@ namespace
  * * console
  * * logger-show-banner
  * * logger-hide-banner
+ * * logger-hide-if-banner-only
  * * log-config-path
  * * debug
  * * trace
@@ -212,6 +213,13 @@ advgetopt::option const g_options[] =
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS
                     , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("do not show the banner (--logger-show-banner has priority if specified).")
+    ),
+    advgetopt::define_option(
+          advgetopt::Name("logger-hide-if-banner-only")
+        , advgetopt::Flags(advgetopt::standalone_command_flags<
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
+        , advgetopt::Help("do not show the banner if that ends up being the only logs.")
     ),
     advgetopt::define_option(
           advgetopt::Name("log-environment")
@@ -399,7 +407,8 @@ bool process_logger_options(advgetopt::getopt & opts
     {
         plugin_paths = opts.get_string("logger-plugin-paths");
     }
-    logger::get_instance()->load_plugins(plugin_paths);
+    logger::pointer_t l(logger::get_instance());
+    l->load_plugins(plugin_paths);
 
     // COMMANDS
     //
@@ -480,13 +489,20 @@ bool process_logger_options(advgetopt::getopt & opts
     {
         log_config |= OPTION_CONSOLE;
     }
+
     if(opts.is_defined("logger-show-banner"))
     {
         show_banner = true;
+        l->set_hide_if_banner_only(false);
     }
     else if(opts.is_defined("logger-hide-banner"))
     {
         show_banner = false;
+        l->set_hide_if_banner_only(false);
+    }
+    else if(opts.is_defined("logger-hide-if-banner-only"))
+    {
+        l->set_hide_if_banner_only(true);
     }
 
     bool auto_console(true);
@@ -547,7 +563,7 @@ bool process_logger_options(advgetopt::getopt & opts
                 //
                 system_opts.parse_environment_variable();
             }
-            logger::get_instance()->set_config(system_opts);
+            l->set_config(system_opts);
 
             if(!opts.get_program_fullname().empty())
             {
@@ -572,7 +588,7 @@ bool process_logger_options(advgetopt::getopt & opts
 
                 config_opts.parse_configuration_files();
                 config_opts.parse_environment_variable();
-                logger::get_instance()->set_config(config_opts);
+                l->set_config(config_opts);
             }
         }
         break;
@@ -659,7 +675,7 @@ bool process_logger_options(advgetopt::getopt & opts
         {
             configure_console(true);
         }
-        logger::get_instance()->reduce_severity(severity_t::SEVERITY_TRACE);
+        l->reduce_severity(severity_t::SEVERITY_TRACE);
         break;
 
     case OPTION_DEBUG_SEVERITY:
@@ -667,7 +683,7 @@ bool process_logger_options(advgetopt::getopt & opts
         {
             configure_console(true);
         }
-        logger::get_instance()->reduce_severity(severity_t::SEVERITY_DEBUG);
+        l->reduce_severity(severity_t::SEVERITY_DEBUG);
         break;
 
     case OPTION_LOG_SEVERITY:
@@ -685,7 +701,7 @@ bool process_logger_options(advgetopt::getopt & opts
             }
             else
             {
-                logger::get_instance()->reduce_severity(sev->get_severity());
+                l->reduce_severity(sev->get_severity());
             }
         }
         break;
@@ -705,7 +721,7 @@ bool process_logger_options(advgetopt::getopt & opts
             }
             else
             {
-                logger::get_instance()->set_severity(sev->get_severity());
+                l->set_severity(sev->get_severity());
             }
         }
         break;
@@ -734,13 +750,13 @@ bool process_logger_options(advgetopt::getopt & opts
                     if(!log_component.empty())
                     {
                         component::pointer_t comp(get_component(log_component));
-                        logger::get_instance()->add_component_to_ignore(comp);
+                        l->add_component_to_ignore(comp);
                     }
                 }
                 else
                 {
                     component::pointer_t comp(get_component(log_component));
-                    logger::get_instance()->add_component_to_include(comp);
+                    l->add_component_to_include(comp);
                 }
             }
         }
@@ -787,7 +803,7 @@ bool process_logger_options(advgetopt::getopt & opts
         // try to place the banner first by swapping the logs
         //
         message::list_t save;
-        logger::get_instance()->swap_early_messages(save);
+        l->swap_early_messages(save);
 
         SNAP_LOG_INFO
                 << section(g_normal_component)
@@ -805,7 +821,7 @@ bool process_logger_options(advgetopt::getopt & opts
                 << " started."
                 << SNAP_LOG_SEND;
 
-        logger::get_instance()->add_early_messages(save);
+        l->add_early_messages(save);
     }
 
     if(opts.is_defined("log-environment"))
@@ -828,7 +844,7 @@ bool process_logger_options(advgetopt::getopt & opts
         }
     }
 
-    logger::get_instance()->ready();
+    l->ready();
 
     return result;
 }

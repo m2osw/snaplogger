@@ -59,6 +59,7 @@ namespace
 
 
 
+constexpr std::size_t const g_maximum_early_messages = 100;
 bool                        g_first_instance = true;
 logger::pointer_t *         g_instance = nullptr;
 std::string                 g_default_plugin_paths = std::string("/usr/local/lib/snaplogger/plugins:/usr/lib/snaplogger/plugins");
@@ -215,11 +216,31 @@ void logger::ready()
 {
     f_ready = true;
 
-    while(!f_early_messages.empty())
+    if(f_hide_if_banner_only)
     {
-        log_message(*f_early_messages.front());
-        f_early_messages.pop_front();
+        bool output(false);
+        for(auto m : f_early_messages)
+        {
+            if(!m->get_components().contains(g_banner_component))
+            {
+                output = true;
+                break;
+            }
+        }
+        if(!output)
+        {
+            return;
+        }
     }
+
+    if(f_early_messages.empty())
+    {
+        return;
+    }
+
+    message::pointer_t last_message(f_early_messages.back());
+    f_early_messages.pop_back();
+    log_message(*last_message);
 }
 
 
@@ -806,11 +827,24 @@ void logger::swap_early_messages(message::list_t & save)
 }
 
 
+void logger::add_early_message(message const & msg)
+{
+    if(f_early_messages.size() < g_maximum_early_messages)
+    {
+        message::pointer_t m(std::make_shared<message>(static_cast<std::basic_stringstream<char> const &>(msg), msg));
+        f_early_messages.push_back(m);
+    }
+}
+
+
 void logger::add_early_messages(message::list_t & messages)
 {
-    if(f_early_messages.size() + messages.size() < 100)
+    if(f_early_messages.size() < g_maximum_early_messages)
     {
-        f_early_messages.insert(f_early_messages.end(), messages.begin(), messages.end());
+        std::copy_n(
+              messages.begin()
+            , g_maximum_early_messages - f_early_messages.size()
+            , std::back_inserter(f_early_messages));
     }
 }
 
@@ -841,11 +875,7 @@ void logger::log_message(message const & msg)
                 // TODO: look into whether we could have that limit set using a command
                 //       line option?
                 //
-                if(f_early_messages.size() < 100)
-                {
-                    message::pointer_t m(std::make_shared<message>(static_cast<std::basic_stringstream<char> const &>(msg), msg));
-                    f_early_messages.push_back(m);
-                }
+                add_early_message(msg);
                 return;
             }
 
@@ -874,6 +904,26 @@ void logger::log_message(message const & msg)
 
 
 void logger::process_message(message const & msg)
+{
+    if(!f_early_messages.empty())
+    {
+        if(msg.get_components().contains(g_banner_component))
+        {
+            add_early_message(msg);
+            return;
+        }
+        while(!f_early_messages.empty())
+        {
+            append_message(*f_early_messages.front());
+            f_early_messages.pop_front();
+        }
+    }
+
+    append_message(msg);
+}
+
+
+void logger::append_message(message const & msg)
 {
     appender::vector_t appenders;
 
@@ -1044,6 +1094,12 @@ severity_stats_t logger::get_severity_stats() const
     guard g;
 
     return f_severity_stats;
+}
+
+
+void logger::set_hide_if_banner_only(bool hide)
+{
+    f_hide_if_banner_only = hide;
 }
 
 

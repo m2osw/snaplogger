@@ -108,6 +108,7 @@ public:
     bool                        is_asynchronous() const;
     void                        set_asynchronous(bool status);
     void                        swap_early_messages(message::list_t & save);
+    void                        add_early_message(message const & msg);
     void                        add_early_messages(message::list_t & messages);
     void                        log_message(message const & msg);
     void                        process_message(message const & msg);
@@ -115,6 +116,7 @@ public:
     void                        set_fatal_error_callback(std::function<void(void)> & f);
     void                        call_fatal_error_callback();
     severity_stats_t            get_severity_stats() const;
+    void                        set_hide_if_banner_only(bool hide);
 
 protected:
                                 logger();
@@ -126,6 +128,8 @@ private:
 
     logger &                    operator = (logger const & rhs) = delete;
 
+    void                        append_message(message const & msg);
+
     appender::vector_t          f_appenders = appender::vector_t();
     component::set_t            f_components_to_include = component::set_t();
     component::set_t            f_components_to_ignore = component::set_t();
@@ -136,6 +140,7 @@ private:
     std::function<void(void)>   f_fatal_error_callback = nullptr;
     message::list_t             f_early_messages = message::list_t();
     bool                        f_ready = false;
+    bool                        f_hide_if_banner_only = true;
     bool                        f_asynchronous = false;
     severity_stats_t            f_severity_stats = severity_stats_t(static_cast<std::size_t>(severity_t::SEVERITY_MAX) - static_cast<std::size_t>(severity_t::SEVERITY_MIN) + 1);
     serverplugins::collection::pointer_t
