@@ -1,8 +1,28 @@
 snaplogger (1.0.60.0~noble) noble; urgency=high
 
+  * Made the message class final, we really do not want a derived version.
   * Capture logs from the as2js environment.
   * Capture logs from the std::clog stream.
   * Implement the --log option of the snaploggerchecker.
+  * Added "_column" as a system field.
+  * Made the "id" field unsigned.
+  * Automated the stack trace from exception to logs if available.
+  * Fixed the doxy file and various documentation entries.
+  * Enhanced the default fallback creation mechanism.
+  * Fixed command line options.
+  * Made the plugins logger specific plugins within the logger.
+  * Fixed to make early logs work properly:
+    - the early logs get cached in memory
+    - initialization finishes
+    - if only banner logs happened, do not output yet
+    - if something other than a banner log goes through, output everything
+  * Changed the default timestamp to use nanoseconds.
+  * Fixed the leading zeroes in time values with decimal digits.
+  * Allow for file rotation within snaplogger.
+  * Added support for fallback appenders (user defined instead of internal).
+  * Added more tests.
+  * Update license to GPL3.
+  * Fixed the as2js dependency, we need libas2js-dev instead.
   * Various clean ups.
 
  -- Alexis Wilke <alexis@m2osw.com>  Sat, 09 Aug 2025 18:36:20 -0700
