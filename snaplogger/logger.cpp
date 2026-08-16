@@ -839,12 +839,9 @@ void logger::add_early_message(message const & msg)
 
 void logger::add_early_messages(message::list_t & messages)
 {
-    if(f_early_messages.size() < g_maximum_early_messages)
+    for(auto const & msg : messages)
     {
-        std::copy_n(
-              messages.begin()
-            , g_maximum_early_messages - f_early_messages.size()
-            , std::back_inserter(f_early_messages));
+        add_early_message(*msg);
     }
 }
 
