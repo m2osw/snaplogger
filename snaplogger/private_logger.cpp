@@ -641,7 +641,7 @@ format::pointer_t private_logger::get_default_format()
 
 environment::pointer_t private_logger::create_environment()
 {
-    pid_t const tid(cppthread::gettid());
+    pid_t const tid(gettid());
 
     guard g;
 

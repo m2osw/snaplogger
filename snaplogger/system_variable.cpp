@@ -172,7 +172,7 @@ DEFINE_LOGGER_VARIABLE(tid)
     if(params.size() > 0
     && params[0]->get_name() == "running")
     {
-        value += std::to_string(cppthread::gettid());
+        value += std::to_string(gettid());
     }
     else
     {
@@ -194,7 +194,7 @@ DEFINE_LOGGER_VARIABLE(threadname)
         // implementation, any others would have to be done manually
         //
         map_diagnostics_t diag(get_map_diagnostics());
-        std::string const tid(std::to_string(cppthread::gettid()));
+        std::string const tid(std::to_string(gettid()));
         auto it(diag.find("threadname#" + tid));
         if(it != diag.end())
         {
