@@ -488,7 +488,6 @@ int tool::verify()
 int main(int argc, char * argv[])
 {
     libexcept::verify_inherited_files();
-    libexcept::set_collect_stack(libexcept::collect_stack_t::COLLECT_STACK_YES);
 
     try
     {
