@@ -254,6 +254,9 @@ void send_stack_trace(std::exception const & e);
 
 std::uint32_t get_last_message_id();
 
+void set_message_clock_type(clockid_t clk_id = CLOCK_REALTIME);
+clockid_t get_message_clock_type();
+
 
 #define SNAP_LOG_FATAL                  ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_FATAL))
 #define SNAP_LOG_EMERG                  ::snaplogger::send_message(((*::snaplogger::create_message(::snaplogger::severity_t::SEVERITY_EMERGENCY))

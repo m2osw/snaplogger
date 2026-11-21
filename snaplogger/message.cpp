@@ -73,7 +73,14 @@ constexpr char const * const g_system_field_names[] =
 #pragma GCC diagnostic pop
 
 
-std::uint32_t         g_message_id = 0U;
+#ifdef _DEBUG
+clockid_t               g_message_clock_type = CLOCK_REALTIME;
+#else
+clockid_t               g_message_clock_type = CLOCK_REALTIME_COARSE;
+#endif
+
+
+std::uint32_t           g_message_id = 0U;
 
 
 std::uint32_t get_next_id()
@@ -119,7 +126,7 @@ message::message(
     , f_environment(create_environment())
     , f_fields(f_logger->get_default_fields())
 {
-    clock_gettime(CLOCK_REALTIME_COARSE, &f_timestamp);
+    clock_gettime(g_message_clock_type, &f_timestamp);
 
     add_field("id", std::to_string(get_next_id()));
 
@@ -568,6 +575,18 @@ void send_stack_trace(std::exception const & e)
 std::uint32_t get_last_message_id()
 {
     return g_message_id;
+}
+
+
+void set_message_clock_type(clockid_t clk_id)
+{
+    g_message_clock_type = clk_id;
+}
+
+
+clockid_t get_message_clock_type()
+{
+    return g_message_clock_type;
 }
 
 

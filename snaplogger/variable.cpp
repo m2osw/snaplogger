@@ -246,7 +246,7 @@ void variable::process_value(message const & msg, std::string & value) const
     {
         d.set_value(value);
     }
-    catch(libutf8::libutf8_exception_decoding const & e)
+    catch(libutf8::decoding const & e)
     {
         // ignore this exception because an invalid byte in a message is
         // something somewhat common and here it just means the functions

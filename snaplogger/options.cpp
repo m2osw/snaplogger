@@ -38,6 +38,7 @@
 // snapdev
 //
 #include    <snapdev/string_replace_many.h>
+#include    <snapdev/compare_switch_string.h>
 
 
 // advgetopt
@@ -73,24 +74,28 @@ namespace
  *
  * The options are:
  *
- * * no-log
- * * log-file
- * * log-config
- * * syslog
- * * console
- * * logger-show-banner
- * * logger-hide-banner
- * * logger-hide-if-banner-only
- * * log-config-path
- * * debug
- * * trace
- * * list-severities
- * * log-severity
- * * force-severity
- * * log-component
- * * logger-version
- * * logger-configuration-filenames
- * * logger-plugin-paths
+ * * console -- send logs to the console
+ * * debug -- display messages from severity debug level
+ * * except-stack-collect -- whether to log collected stack on exceptions
+ * * force-severity -- force a specific severity level
+ * * list-appenders -- show a list of available appenders
+ * * list-severities -- show the available severity levels
+ * * log-component -- only log the specified component(s)
+ * * log-config -- point to a file with log configuration information
+ * * log-config-path -- point to a folder with log configuration files
+ * * log-environment -- log the "environ[]" variables just after the banner
+ * * log-file -- specify a file where to save the logs
+ * * log-severity -- specify a severity level; ignored if higher than existing log
+ * * logger-clock-type -- select the type of clock used to timestamp log messages
+ * * logger-configuration-filenames -- lists all the files that will be loaded
+ * * logger-hide-banner -- never show the banner
+ * * logger-hide-if-banner-only -- hide the banner unless other logs are output
+ * * logger-plugin-paths -- folder where plugins are defined
+ * * logger-show-banner -- always show the banner
+ * * logger-version -- show the version of the logger project
+ * * no-log -- turn off logging (bump severity to OFF)
+ * * syslog -- send logs to syslog
+ * * trace -- display messages from severity trace level (nearly everything)
  */
 advgetopt::option const g_options[] =
 {
@@ -108,6 +113,13 @@ advgetopt::option const g_options[] =
     // OUTPUT SELECTION
     //
     advgetopt::define_option(
+          advgetopt::Name("logger-clock-type")
+        , advgetopt::Flags(advgetopt::all_flags<
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS
+                    , advgetopt::GETOPT_FLAG_REQUIRED>())
+        , advgetopt::Help("select the type of clock to stamp messages: 'coarse' (very fast, 1ms precision; default in production code) or 'realtime' (default in debug code).")
+    ),
+    advgetopt::define_option(
           advgetopt::Name("no-log")
         , advgetopt::Flags(advgetopt::standalone_command_flags<
                       advgetopt::GETOPT_FLAG_GROUP_OPTIONS>())
@@ -120,14 +132,6 @@ advgetopt::option const g_options[] =
                     , advgetopt::GETOPT_FLAG_REQUIRED
                     , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
         , advgetopt::Help("log messages to this specific log file (use ./name.log to avoid the default path).")
-    ),
-    advgetopt::define_option(
-          advgetopt::Name("log-config")
-        , advgetopt::Flags(advgetopt::command_flags<
-                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS
-                    , advgetopt::GETOPT_FLAG_REQUIRED
-                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
-        , advgetopt::Help("only load this specific configuration file.")
     ),
     advgetopt::define_option(
           advgetopt::Name("syslog")
@@ -145,6 +149,14 @@ advgetopt::option const g_options[] =
 
     // ALTERNATIVE CONFIG FILES
     //
+    advgetopt::define_option(
+          advgetopt::Name("log-config")
+        , advgetopt::Flags(advgetopt::command_flags<
+                      advgetopt::GETOPT_FLAG_GROUP_OPTIONS
+                    , advgetopt::GETOPT_FLAG_REQUIRED
+                    , advgetopt::GETOPT_FLAG_SHOW_SYSTEM>())
+        , advgetopt::Help("only load this specific configuration file.")
+    ),
     advgetopt::define_option(
           advgetopt::Name("log-config-path")
         , advgetopt::Flags(advgetopt::all_flags<
@@ -297,10 +309,10 @@ advgetopt::option const g_options[] =
  * On top of the command line option additions, the function automatically
  * adds up to four new diagnostics:
  *
- * * DIAG_KEY_VERSION -- the version of the tool
- * * DIAG_KEY_BUILD_DATE -- the build date of the tool
- * * DIAG_KEY_BUILD_TIME -- the build time of the tool
- * * DIAG_KEY_PROJECT_NAME -- the name of the project
+ * * `DIAG_KEY_VERSION` -- the version of the tool
+ * * `DIAG_KEY_BUILD_DATE` -- the build date of the tool
+ * * `DIAG_KEY_BUILD_TIME` -- the build time of the tool
+ * * `DIAG_KEY_PROJECT_NAME` -- the name of the project
  *
  * The project name is always added. The other parameters are added only
  * if found in the \p opts environment variables.
@@ -355,6 +367,12 @@ void add_logger_options(advgetopt::getopt & opts)
  *         ...
  *     }
  * \endcode
+ *
+ * On top of the command line option processing, the function automatically
+ * adds the following diagnostic parameter:
+ *
+ * * `DIAG_KEY_PROGNAME` -- the name of the program as it was started
+ *                          (basename of `argv[0]`).
  *
  * \exception advgetopt::getopt_exit
  * Some commands emit this exception which means that the process is done.
@@ -464,6 +482,25 @@ bool process_logger_options(advgetopt::getopt & opts
         }
         out << std::endl;
         throw advgetopt::getopt_exit("--list-severities command processed.", 0);
+    }
+
+    // GENERAL CONFIGURATION
+    //
+    if(opts.is_defined("logger-clock-type"))
+    {
+        std::string const clock_type(opts.get_string("logger-clock-type"));
+        if(snapdev::compare_upper_exact_string<"REALTIME">(clock_type))
+        {
+            set_message_clock_type(CLOCK_REALTIME);
+        }
+        else if(snapdev::compare_upper_exact_string<"COARSE">(clock_type))
+        {
+            set_message_clock_type(CLOCK_REALTIME_COARSE);
+        }
+        else
+        {
+            throw advgetopt::getopt_exit("--logger-clock-type expected \"realtime\" or \"coarse\".", 0);
+        }
     }
 
     // LOG CONFIG
