@@ -44,7 +44,7 @@
 /** \brief Start a new section with name saved in logger.
  *
  * This macro is an override of the CATCH_START_SECTION() macro defined
- * in snapcatch2.hpp. It is used so we can print include the name of the
+ * in snapcatch2.hpp. It is used so we can include the name of the
  * section in the logger nested diagnostics.
  *
  * \param[in] name  The name of the section.
@@ -55,10 +55,9 @@
 #define CATCH_START_SECTION(name) \
     CATCH_SECTION(name) \
     { \
-        if(SNAP_CATCH2_NAMESPACE::g_progress()) \
-        { \
-            std::cout << "\x1B[1mSECTION: " << name << "\x1B[22m" << std::endl; \
-        } \
+        char const * const catch_section_name(#name); \
+        timespec catch_section_started_on{}; \
+        SNAP_CATCH2_NAMESPACE::show_start_section_progress(catch_section_name, catch_section_started_on); \
         ::snaplogger::nested_diagnostic section_diagnostic(name, true);
 
 
